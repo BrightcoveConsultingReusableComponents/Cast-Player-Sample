@@ -281,34 +281,40 @@ sampleplayer.CastPlayer = function(element) {
    * The array of time divisions
    * @private
    */
-  this.timeArray_ = [];
+  this.timeArray_ = {};
 
    /*
    * The array of time divisions
    * @private
    */
-  this.secondsSeen_ = [];
+  this.secondsSeen_ = {};
 
    /*
    * The array of time divisions
    * @private
    */
-  this.secondsPaused_ = [];
+  this.secondsPaused_ = {};
 
   /*
    * The array of time divisions
    * @private
    */
-  this.secondsRestart_ = [];
+  this.secondsRestart_ = {};
 
   /*
    * The array of time divisions
    * @private
    */
-  this.videoStatsData_ = {"secondsSeen": [], "secondsPaused": [], "secondsRestart": []};
+  this.listOfVideosWatched_ = [];
 
-  //DEBUG LOG
-  console.log(this.videoStatsData_);
+  /*
+   * The array of time divisions
+   * @private
+   */
+  
+  this.videoStatsData_ = {};
+
+
 
   /*
    * ^^^^^^  EDIT
@@ -1376,6 +1382,7 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
+  console.log(this.videoStatsData_);
   this.log_('onSenderDisconnected');
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
@@ -1428,10 +1435,27 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
+  //Check if this video was watched. If it was, add a view. If not, add a data array for it.
+  var media = this.mediaManager_.getMediaInformation();
+  
+  if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
+    this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "Views": 1};
+    this.timeArray_[media.contentId] = [];
+    this.secondsSeen_[media.contentId] = [];
+    this.secondsPaused_[media.contentId] = [];
+    this.secondsRestart_[media.contentId] = [];
+    this.listOfVideosWatched_.push(media.contentId);
+  } 
+  
+
+  
   this.log_('onPlaying');
   var restartSecondInt = parseInt(this.mediaElement_.currentTime);
-  this.addSecond(this.secondsRestart_, restartSecondInt)
-  this.videoStatsData_["secondsRestart"] = this.secondsRestart_;
+  this.addSecond(this.secondsRestart_[media.contentId], restartSecondInt)
+  this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
+  
+  
+
   this.cancelDeferredPlay_('media is already playing');
   var isAudio = this.type_ == sampleplayer.Type.AUDIO;
   var isLoading = this.state_ == sampleplayer.State.LOADING;
@@ -1449,10 +1473,16 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.log_('onPause');
+  //Pause information from the user
+  var media = this.mediaManager_.getMediaInformation();
   var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
-  this.addSecond(this.secondsPaused_, pauseSecondInt);
-  this.videoStatsData_["secondsPaused"] = this.secondsPaused_;
+  this.addSecond(this.secondsPaused_[media.contentId], pauseSecondInt);
+  this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
+
+
   this.cancelDeferredPlay_('media is paused');
+
+
   var isIdle = this.state_ === sampleplayer.State.IDLE;
   var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
   var isUnderflow = this.player_ && this.player_.getState()['underflow'];
@@ -1565,33 +1595,34 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       this.totalTimeElement_.innerText = sampleplayer.formatDuration_(totalTime);
       this.progressBarInnerElement_.style.width = pct + '%';
       this.progressBarThumbElement_.style.left = pct + '%';
-<<<<<<< HEAD
+
       var pctInt = parseInt(pct);
       var curTimeInt = parseInt(curTime);
 
-  //Store information about user behavior
-      this.timeArray_ = this.getArrayOfIntervals_(this.timeInterval_, this.mediaElement_.duration);
+      //Store information about user behavior
+      var media = this.mediaManager_.getMediaInformation();
+      this.timeArray_[media.contentId] = this.getArrayOfIntervals_(this.timeInterval_, this.mediaElement_.duration);
       //Division by time of the video watched    
-        if(this.timeArray_.indexOf(curTimeInt)>-1){
-            var index = this.timeArray_.indexOf(curTimeInt);
-            this.lastSecond_ = this.timeArray_[index];
-            this.addSecond(this.secondsSeen_, this.lastSecond_);
-            this.videoStatsData_["secondsSeen"] = this.secondsSeen_;
-            this.timeArray_.splice(index, 1);
+        if(this.timeArray_[media.contentId].indexOf(curTimeInt)>-1){
+            var index = this.timeArray_[media.contentId].indexOf(curTimeInt);
+            this.lastSecond_ = this.timeArray_[media.contentId][index];
+            this.addSecond(this.secondsSeen_[media.contentId], this.lastSecond_);
+            this.videoStatsData_[media.contentId]["secondsSeen"] = this.secondsSeen_[media.contentId];
+            this.timeArray_[media.contentId].splice(index, 1);
         }
-        
-        var media = this.mediaManager_.getMediaInformation();
-        console.log(media);
-        console.log(media.contentId);
-
-      
-      
       
       //Change the title with the percentage watched
       var titleElement = this.element_.querySelector('.media-title');
       var percentage = String(' (' + pctInt + '%)');
       var title = this.title_ + percentage;
       sampleplayer.setInnerText_(titleElement, title);
+
+      /*
+        var media = this.mediaManager_.getMediaInformation();
+        if(media.contentId == this.last)
+        console.log(media);
+        console.log(media.contentId);
+      */
       
 
       // Handle preview mode
