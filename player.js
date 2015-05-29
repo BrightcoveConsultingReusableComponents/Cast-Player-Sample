@@ -1,4 +1,4 @@
-/**
+/** 
  * Copyright 2014 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,6 +55,7 @@ var sampleplayer = sampleplayer || {};
 
 
 /**
+
  * <p>
  * Cast player constructor - This does the following:
  * </p>
@@ -74,7 +75,7 @@ var sampleplayer = sampleplayer || {};
  * @export
  */
 sampleplayer.CastPlayer = function(element) {
-
+   
   /**
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
@@ -84,6 +85,7 @@ sampleplayer.CastPlayer = function(element) {
     cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
     cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
   }
+
 
   /**
    * The DOM element the player is attached.
@@ -104,6 +106,8 @@ sampleplayer.CastPlayer = function(element) {
    * @private {sampleplayer.State}
    */
   this.state_;
+  
+ 
 
   /**
    * Timestamp when state transition happened last time.
@@ -217,7 +221,67 @@ sampleplayer.CastPlayer = function(element) {
       false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
       false);
+  
 
+  /**
+   *   TODO - EDIT New Variables: 
+   */
+
+   /*timeMilestone
+   * The last second watched
+   * @private
+   */
+  this.lastSecond_ = 0;
+
+  /*
+   * The title
+   * @private
+   */
+  this.title_ = "";
+
+
+  /*
+   * The array of time divisions
+   * @private
+   */
+  this.timeInterval_ =  1;
+
+  /*
+   * The array of time divisions
+   * @private
+   */
+  this.timeArray_ = [];
+
+   /*
+   * The array of time divisions
+   * @private
+   */
+  this.secondsSeen_ = [];
+
+   /*
+   * The array of time divisions
+   * @private
+   */
+  this.secondsPaused_ = [];
+
+  /*
+   * The array of time divisions
+   * @private
+   */
+  this.secondsRestart_ = [];
+
+  /*
+   * The array of time divisions
+   * @private
+   */
+  this.videoStatsData_ = {"secondsSeen": [], "secondsPaused": [], "secondsRestart": []};
+
+  //DEBUG LOG
+  console.log(this.videoStatsData_);
+
+  /*
+   * ^^^^^^  EDIT
+   */
 
   /**
    * The cast receiver manager.
@@ -406,6 +470,32 @@ sampleplayer.ENABLE_DEBUG_ = true;
  */
 sampleplayer.DISABLE_DEBUG_ = false;
 
+/**
+ * TODO - EDIT
+ */
+sampleplayer.CastPlayer.prototype.getArrayOfIntervals_ = function userData(interval, totaltime) {
+      
+      totaltime = parseInt(totaltime);
+      if(interval<totaltime && interval>0){
+        var intervalArray = [0];
+
+          var i = interval;
+        while(i<totaltime){
+          intervalArray.push(i);
+          i = i + interval
+        }
+        return intervalArray;
+        } else {
+          return null;
+        }  
+}
+
+sampleplayer.CastPlayer.prototype.addSecond = function(array, second) {
+  if(array.indexOf(second) == -1){
+    array.push(second);
+  }
+}
+
 
 /**
  * Returns the element with the given class name
@@ -566,7 +656,8 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
   if (!sampleplayer.isCastForAudioDevice_()) {
     var metadata = media.metadata || {};
     var titleElement = this.element_.querySelector('.media-title');
-    sampleplayer.setInnerText_(titleElement, metadata.title);
+    this.title_ = metadata.title;
+    sampleplayer.setInnerText_(titleElement, this.title_);
 
     var subtitleElement = this.element_.querySelector('.media-subtitle');
     sampleplayer.setInnerText_(subtitleElement, metadata.subtitle);
@@ -1154,6 +1245,9 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   this.log_('onPlaying');
+  var restartSecondInt = parseInt(this.mediaElement_.currentTime);
+  this.addSecond(this.secondsRestart_, restartSecondInt)
+  this.videoStatsData_["secondsRestart"] = this.secondsRestart_;
   this.cancelDeferredPlay_('media is already playing');
   var isAudio = this.type_ == sampleplayer.Type.AUDIO;
   var isLoading = this.state_ == sampleplayer.State.LOADING;
@@ -1171,6 +1265,9 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.log_('onPause');
+  var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
+  this.addSecond(this.secondsPaused_, pauseSecondInt);
+  this.videoStatsData_["secondsPaused"] = this.secondsPaused_;
   this.cancelDeferredPlay_('media is paused');
   var isIdle = this.state_ === sampleplayer.State.IDLE;
   var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
@@ -1271,6 +1368,33 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       this.totalTimeElement_.innerText = sampleplayer.formatDuration_(totalTime);
       this.progressBarInnerElement_.style.width = pct + '%';
       this.progressBarThumbElement_.style.left = pct + '%';
+      var pctInt = parseInt(pct);
+      var curTimeInt = parseInt(curTime);
+
+  //Store information about user behavior
+      this.timeArray_ = this.getArrayOfIntervals_(this.timeInterval_, this.mediaElement_.duration);
+      //Division by time of the video watched    
+        if(this.timeArray_.indexOf(curTimeInt)>-1){
+            var index = this.timeArray_.indexOf(curTimeInt);
+            this.lastSecond_ = this.timeArray_[index];
+            this.addSecond(this.secondsSeen_, this.lastSecond_);
+            this.videoStatsData_["secondsSeen"] = this.secondsSeen_;
+            this.timeArray_.splice(index, 1);
+        }
+        
+        var media = this.mediaManager_.getMediaInformation();
+        console.log(media);
+        console.log(media.contentId);
+
+      
+      
+      
+      //Change the title with the percentage watched
+      var titleElement = this.element_.querySelector('.media-title');
+      var percentage = String(' (' + pctInt + '%)');
+      var title = this.title_ + percentage;
+      sampleplayer.setInnerText_(titleElement, title);
+      
     }
   }
 };

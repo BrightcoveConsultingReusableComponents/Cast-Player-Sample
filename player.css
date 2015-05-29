@@ -54,6 +54,22 @@ body {
   bottom: 0;
 }
 
+.player #logs {
+  display: none;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  position: absolute;
+  bottom: 30%;
+  left: 40%;
+  background-image: url("assets/logo.png");
+  margin-bottom: -96px;
+  margin-left: -96px;
+  width: 192px;
+  height: 192px;
+  font-size: 24;
+}
+
 .player .logo {
   display: none;
   background-size: contain;
@@ -190,7 +206,7 @@ body {
 }
 
 .player .progressBar {
-  background-color: rgb(250, 178, 49);
+  background-color: rgb(255, 0, 91);
 }
 
 .player .controls-progress {
