@@ -1593,12 +1593,11 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       var title = this.title_ + percentage;
       sampleplayer.setInnerText_(titleElement, title);
       
-=======
+
       // Handle preview mode
       if (this.displayPreviewMode_) {
         this.previewModeTimerElement_.innerText = "" + Math.round(totalTime-curTime);
       }
->>>>>>> parent of 5608681... Revert 01a461d..ebfe3f4
     }
   }
 };
