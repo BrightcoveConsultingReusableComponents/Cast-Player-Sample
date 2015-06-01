@@ -14,35 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * @fileoverview Receiver / Player sample
- * <p>
- * This sample demonstrates how to build your own Receiver for use with Google
- * Cast. One of the goals of this sample is to be fully UX compliant.
- * </p>
- * <p>
- * A receiver is typically an HTML5 application with a html, css, and JavaScript
- * components. It demonstrates the following Cast Receiver API's:
- * </p>
- * <ul>
- * <li>CastReceiverManager</li>
- * <li>MediaManager</li>
- * <li>Media Player Library</li>
- * </ul>
- * <p>
- * It also demonstrates the following player functions:
- * </p>
- * <ul>
- * <li>Branding Screen</li>
- * <li>Playback Complete image</li>
- * <li>Limited Animation</li>
- * <li>Buffering Indicator</li>
- * <li>Seeking</li>
- * <li>Pause indicator</li>
- * <li>Loading Indicator</li>
- * </ul>
- *
- */
+
 
 'use strict';
 
@@ -76,6 +48,75 @@ var sampleplayer = sampleplayer || {};
  */
 sampleplayer.CastPlayer = function(element) {
    
+   /**
+   *   Added Variables to the Google Cast Sample **************
+  ***********************************************************************
+  ***********************************************************************
+       
+   */
+
+   /*
+   * The last second watched
+   * @private
+   */
+  this.lastSecond_ = 0;
+
+  /*
+   * The title of the video
+   * @private
+   */
+  this.title_ = "";
+
+
+  /*
+   * The interval set for time divisions
+   * @private
+   */
+  this.timeInterval_ =  1;
+
+  /*
+   * The dictionary of arrays of time divisions for each video
+   * @private
+   */
+
+  this.timeArray_ = {};
+
+   /*
+   * All the timestamps (seconds) watched for each video
+   * @private
+   */
+  this.secondsSeen_ = {};
+
+   /*
+   * All the timestamps (seconds) when the video was paused 
+   * @private
+   */
+  this.secondsPaused_ = {};
+
+  /*
+   * All the timestamps (seconds) when the video was started/restarted
+   * @private
+   */
+  this.secondsRestart_ = {};
+
+  /*
+   * List of videos watched for each Cast Session
+   * @private
+   */
+  this.listOfVideosWatched_ = [];
+
+  /*
+   * The dictionary with the data capture from each video
+   * @private
+   */
+  
+  this.videoStatsData_ = {};
+
+  /*
+  /*  Google Sample variables *******************************************
+  ***********************************************************************
+  ***********************************************************************
+
   /**
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
@@ -253,72 +294,6 @@ sampleplayer.CastPlayer = function(element) {
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
       false);
   
-
-  /**
-   *   TODO - EDIT New Variables: 
-   */
-
-   /*timeMilestone
-   * The last second watched
-   * @private
-   */
-  this.lastSecond_ = 0;
-
-  /*
-   * The title
-   * @private
-   */
-  this.title_ = "";
-
-
-  /*
-   * The array of time divisions
-   * @private
-   */
-  this.timeInterval_ =  1;
-
-  /*
-   * The array of time divisions
-   * @private
-   */
-  this.timeArray_ = {};
-
-   /*
-   * The array of time divisions
-   * @private
-   */
-  this.secondsSeen_ = {};
-
-   /*
-   * The array of time divisions
-   * @private
-   */
-  this.secondsPaused_ = {};
-
-  /*
-   * The array of time divisions
-   * @private
-   */
-  this.secondsRestart_ = {};
-
-  /*
-   * The array of time divisions
-   * @private
-   */
-  this.listOfVideosWatched_ = [];
-
-  /*
-   * The array of time divisions
-   * @private
-   */
-  
-  this.videoStatsData_ = {};
-
-
-
-  /*
-   * ^^^^^^  EDIT
-   */
 
   /**
    * The cast receiver manager.
@@ -510,9 +485,25 @@ sampleplayer.ENABLE_DEBUG_ = true;
  */
 sampleplayer.DISABLE_DEBUG_ = false;
 
+/*
+*  All the prototyped functions of the project*************
+***********************************************************************
+***********************************************************************
+*/
+
 /**
- * TODO - EDIT
+ * Functions added to the sample project
+ ***********************************************************************
  */
+
+ /**
+ * Returns the array of int intervals for a determined video
+ *
+ * @param duration and the interval set
+ * @return Array of Ints
+ * @private
+ */
+
 sampleplayer.CastPlayer.prototype.getArrayOfIntervals_ = function userData(interval, totaltime) {
       
       totaltime = parseInt(totaltime);
@@ -530,11 +521,23 @@ sampleplayer.CastPlayer.prototype.getArrayOfIntervals_ = function userData(inter
         }  
 }
 
+/**
+ * Add a second (seen, paused, restarted) to a determined array related to an event
+ *
+ * @param array and the Int related
+ * @return Void
+ * @private
+ */
 sampleplayer.CastPlayer.prototype.addSecond = function(array, second) {
   if(array.indexOf(second) == -1){
     array.push(second);
   }
 }
+
+/**
+ * Sample functions (modified to extract data)
+ ***********************************************************************
+ */
 
 
 /**
@@ -1382,8 +1385,12 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
+  //Data Track
+  //When disconnected, sends the data to the respective recipients
   console.log(this.videoStatsData_);
   this.log_('onSenderDisconnected');
+
+
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
   if (this.receiverManager_.getSenders().length === 0 &&
@@ -1435,7 +1442,9 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
-  //Check if this video was watched. If it was, add a view. If not, add a data array for it.
+  //Data Track
+  /*Check if this video was watched. If not, create an element on the associative
+   array that carries its data*/
   var media = this.mediaManager_.getMediaInformation();
   
   if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
@@ -1448,14 +1457,14 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   } 
   
 
-  
+  //Adds a restart event timestamp for the current video
   this.log_('onPlaying');
   var restartSecondInt = parseInt(this.mediaElement_.currentTime);
   this.addSecond(this.secondsRestart_[media.contentId], restartSecondInt)
   this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
   
   
-
+  //Finally call the playing state functions
   this.cancelDeferredPlay_('media is already playing');
   var isAudio = this.type_ == sampleplayer.Type.AUDIO;
   var isLoading = this.state_ == sampleplayer.State.LOADING;
@@ -1473,16 +1482,16 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.log_('onPause');
-  //Pause information from the user
+  //Data Track
+  //Adds a restart event timestamp for the current video
   var media = this.mediaManager_.getMediaInformation();
   var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
   this.addSecond(this.secondsPaused_[media.contentId], pauseSecondInt);
   this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
-
+  
+  console.log(this.videoStatsData_);
 
   this.cancelDeferredPlay_('media is paused');
-
-
   var isIdle = this.state_ === sampleplayer.State.IDLE;
   var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
   var isUnderflow = this.player_ && this.player_.getState()['underflow'];
@@ -1595,11 +1604,12 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       this.totalTimeElement_.innerText = sampleplayer.formatDuration_(totalTime);
       this.progressBarInnerElement_.style.width = pct + '%';
       this.progressBarThumbElement_.style.left = pct + '%';
-
+      
+      //Data Track
       var pctInt = parseInt(pct);
       var curTimeInt = parseInt(curTime);
-
-      //Store information about user behavior
+      
+      //Adds a "seen" event timestamp for the current video
       var media = this.mediaManager_.getMediaInformation();
       this.timeArray_[media.contentId] = this.getArrayOfIntervals_(this.timeInterval_, this.mediaElement_.duration);
       //Division by time of the video watched    
@@ -1616,13 +1626,6 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       var percentage = String(' (' + pctInt + '%)');
       var title = this.title_ + percentage;
       sampleplayer.setInnerText_(titleElement, title);
-
-      /*
-        var media = this.mediaManager_.getMediaInformation();
-        if(media.contentId == this.last)
-        console.log(media);
-        console.log(media.contentId);
-      */
       
 
       // Handle preview mode
