@@ -1387,7 +1387,21 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //Data Track
   //When disconnected, sends the data to the respective recipients
-  console.log(this.videoStatsData_);
+  console.log("Ajax Call - Cast Session is over.");
+  var submit = $.ajax({
+        url: 'http://10.1.48.197:9999/', 
+          type: 'POST', 
+          contentType: 'application/json', 
+          data: JSON.stringify(this.videoStatsData_),
+        error: function(error) {
+          console.log("Error");
+        }
+      });
+
+      submit.success(function (data) {
+          console.log("Success");
+      });
+  //console.log the disconnect message
   this.log_('onSenderDisconnected');
 
 
