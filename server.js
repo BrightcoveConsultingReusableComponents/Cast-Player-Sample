@@ -5,20 +5,12 @@ var express = require("express"),
     bs = require( "body-parser"),
     stringify = require("json-stringify-pretty-compact");
 
-//CORS middleware
+//CORS middleware - Allow-Origin
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*'); // NOT SAFE FOR PRODUCTION
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
-            /*
-            fs.appendFile("logs/log.json", jsonStringArray, function(err) {
-                if(err) {
-                console.log(err);
-                } else {
-                console.log("The file was saved!");
-                }
-            });
-            */   
+  
     next();
 }
 
@@ -80,7 +72,7 @@ var allowCrossDomain = function(req, res, next) {
                 currentData[newDataKeys[c]]["Views"] += 1;
             }
         }
-        console.log("keep7");
+        console.log("oki");
         var spacedLog = stringify(currentData);
         var minLog = JSON.stringify(currentData);
 
@@ -107,13 +99,6 @@ var allowCrossDomain = function(req, res, next) {
             }
             return binary;
         }
-        
-       
-        
-        /*****ASYNC
-        var fileName = 'logs/log.json';
-        var file = require(fileName);
-        */
         
 
     });
