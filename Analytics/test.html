@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+    svg{
+      width: 100%;
+      border: 1px solid black; 
+    }
+
+    path {
+        stroke: steelblue;
+        stroke-width: 1;
+        fill: none;
+    }
+
+    .jumbotron { 
+      height: 200px;
+    }
+
+    .axis {
+        shape-rendering: crispEdges;
+        font: 10px sans-serif;
+      }
+
+      .x.axis line {
+        stroke: lightgrey;
+      }
+
+      .x.axis .minor {
+        stroke-opacity: .5;
+      }
+
+      .x.axis path {
+        display: none;
+      }
+
+      .y.axis line{
+        display: none;
+        fill: none;
+        stroke: #000;
+      } 
+
+      .y.axis path {
+        fill: none;
+        stroke: #000;
+      }
+
+      .bar {
+      fill: steelblue;
+      }
+
+     .bar:hover {
+     fill: blue;
+     }
+
+    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Chromecast Sessions Statistics Template</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <!-- D3 -->
+    <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="text-center">Chromecast Statistics</h1>
+        <p class="text-center"> Data acquired from each cast session started by a user for each related video.
+      </div>
+    </div>
+    <div class="container">
+    <h4><mark>Name:</mark> For The Bigger Run  <mark>Views:</mark> 1000  <mark>Duration:</mark> 15 min</h4>
+    </div>
+
+    <div class="container">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab1" id="tab1" data-toggle="tab">Views Statistics</a></li>
+          <li><a href="#tab2" id="tab2" data-toggle="tab">Graph of Parts Watched</a></li>
+          <li><a href="#tab3" id="tab3" data-toggle="tab">Last Milestone Achieved</a></li>
+          <li><a href="#tab4" id="tab4" data-toggle="tab">Pause/Restart/Volume Statistics</a></li>
+        </ul>
+
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab1"></div>
+          <div class="tab-pane" id="tab2"></div>
+          <div class="tab-pane" id="tab3"></div>
+          <div class="tab-pane" id="tab4"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <select class="form-control">
+            <option>Select a video</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+    </div>
+    <div class="container" id="graphs">
+    </div>
+    <h1>&nbsp;</h1>
+  <script>
+  d3.select("#graphs").append("svg:svg")
+          .attr("id", "svgGraph")
+          .attr("height", 400);
+
+  $("#tab1").on("click", function(){ 
+    viewStatistics("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", 2012);
+  });
+  $("#tab2").on("click", function(){
+    partsWatched("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"); 
+  });
+  $("#tab3").on("click", function(){
+    lastMilestoneAchieved("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+  });
+  $("#tab4").on("click", function(){
+    otherEvents("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"); 
+  });
+  
+
+
+
+  </script>
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
