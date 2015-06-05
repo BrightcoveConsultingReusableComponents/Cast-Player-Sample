@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+  
+  svg{
+    width: 100%;
+    border: 1px solid black; 
+  }
+
+  path {
+    stroke: steelblue;
+    stroke-width: 1;
+    fill: none;
+  }
+
+  .jumbotron { 
+    height: 200px;
+  }
+
+  .axis {
+    shape-rendering: crispEdges;
+    font: 10px sans-serif;
+  }
+
+  .x.axis line {
+    stroke: lightgrey;
+  }
+
+  .x.axis .minor {
+    stroke-opacity: .5;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+
+  .y.axis line{
+    display: none;
+    fill: none;
+    stroke: #000;
+  } 
+
+  .y.axis path {
+    fill: none;
+    stroke: #000;
+  }
+
+  .bar {
+    fill: steelblue;
+  }
+
+  .bar:hover {
+    fill: blue;
+  }
+  </style>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- TITLE-->
+  <title>Chromecast Sessions Statistics Template</title>
+
+  <!-- REFERENCE LINKS-->
+  <!-- Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Extra CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- D3 -->
+  <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
+  <!-- JQuery -->
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <!-- JS plotting functions -->
+  <script src="js/functions.js"></script>
+  <script src="js/plot.js"></script>
+  <!-- END OF REFERENCE LINKS-->
+</head>
+<body>
+  <!-- Title in Jumbotron -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="text-center">Chromecast Statistics</h1>
+      <p class="text-center"> Data acquired from each cast session started by a user for each related video.
+      </div>
+    </div>
+    <!-- Video Basic Information -->
+    <div class="container">
+      <h4><mark>Name:</mark> For The Bigger Run  <mark>Views:</mark> 1000  <mark>Duration:</mark> 15 min</h4>
+    </div>
+    <!-- Selection Tabs -->
+    <div class="container">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab1" id="tab1" data-toggle="tab">Views Statistics</a></li>
+        <li><a href="#tab2" id="tab2" data-toggle="tab">Graph of Parts Watched</a></li>
+        <li><a href="#tab3" id="tab3" data-toggle="tab">Last Milestone Achieved</a></li>
+        <li><a href="#tab4" id="tab4" data-toggle="tab">Pause/Restart/Volume Statistics</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active"></div>
+        <div class="tab-pane" ></div>
+        <div class="tab-pane" ></div>
+        <div class="tab-pane" ></div>
+      </div>
+    </div>
+    <!-- Video selection/search -->
+    <div class="container">
+      <input type="text" class="form-control" id="searchbox" />
+      <select class="form-control" id="selectOpt">
+        <option value="0">Select a video</option>
+      </select>
+      <input type="button" class="myInput" id="searchButton" value="Search" />
+    </div>
+    <!-- Division for the plots -->
+    <div class="container" id="graphs">
+    </div>
+    <!-- End space -->
+    <h1>&nbsp;</h1>
+
+
+    <!-- jQuery (bootstrap) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- JS (bootstrap) -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+  </html>

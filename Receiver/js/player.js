@@ -1389,12 +1389,12 @@ sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //When disconnected, sends the data to the respective recipients
   console.log("Ajax Call - Cast Session is over.");
   var submit = $.ajax({
-        url: '', 
+        url: 'http://10.1.48.248:9999/', 
           type: 'POST', 
           contentType: 'application/json', 
           data: JSON.stringify(this.videoStatsData_),
         error: function(error) {
-          console.log("Error");
+          console.log("E");
         }
       });
 
@@ -1462,7 +1462,7 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   var media = this.mediaManager_.getMediaInformation();
   
   if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
-    this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "Views": 1};
+    this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "Views": 0};
     this.timeArray_[media.contentId] = [];
     this.secondsSeen_[media.contentId] = [];
     this.secondsPaused_[media.contentId] = [];
@@ -1503,6 +1503,7 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.addSecond(this.secondsPaused_[media.contentId], pauseSecondInt);
   this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
   
+  console.log(media);
   console.log(this.videoStatsData_);
 
   this.cancelDeferredPlay_('media is paused');
