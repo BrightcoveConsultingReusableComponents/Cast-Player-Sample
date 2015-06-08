@@ -16,17 +16,35 @@ $(document).ready(function(){
      viewStatistics(contentId, year);
    }
  } 
- 
- //changes the contentId for the selected video one
- $( "#selectOpt" ).change(function(){
-  contentId = ($(this).find(":selected").val());
-  triggerPlot(contentId);
-});
 
  //append empty svg element
  d3.select("#graphs").append("svg:svg")
  .attr("id", "svgGraph")
  .attr("height", 400);
+
+ //gets the keys from json and make them values for the select video tab
+ d3.json("../logs/minlog.json", function(data) { 
+   var objects = data;
+   var keys = Object.keys(objects);
+   var selectValues = {};
+   for(var i=0; i<keys.length; i++){
+     selectValues[keys[i]] = objects[keys[i]]["title"];
+   }
+   
+   $.each(selectValues, function(key, value) {   
+     $('#selectOpt')
+     .append($('<option>', { value : key })
+      .text(value)); 
+   });
+ });
+ 
+ //changes the contentId for the selected video and triggers the plot function 
+ $( "#selectOpt" ).change(function(){
+  contentId = ($(this).find(":selected").val());
+  triggerPlot(contentId);
+});
+
+ 
 
  //implements a search tool that selects the video searched (if exists) and triggers the plot function
  $('#searchButton').on("click", function() {
@@ -61,23 +79,6 @@ $(document).ready(function(){
                 }
               }
             });
-
- //gets the keys from json and make them values for the select video tab
- d3.json("../logs/minlog.json", function(data) { 
-   var objects = data;
-   var keys = Object.keys(objects);
-   var selectValues = {};
-   for(var i=0; i<keys.length; i++){
-     selectValues[keys[i]] = objects[keys[i]]["title"];
-   }
-   
-
-   $.each(selectValues, function(key, value) {   
-     $('#selectOpt')
-     .append($('<option>', { value : key })
-      .text(value)); 
-   });
- });
 
  //Tab events to trigger different plots
  $("#tab1").on("click", function(){ 

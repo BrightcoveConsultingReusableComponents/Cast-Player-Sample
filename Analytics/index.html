@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <style>
-  
+  /* Directly loaded css properties*/
   svg{
     width: 100%;
     border: 1px solid black; 
@@ -53,6 +53,7 @@
   .bar:hover {
     fill: blue;
   }
+  
   </style>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -105,10 +106,10 @@
     <!-- Video selection/search -->
     <div class="container">
       <input type="text" class="form-control" id="searchbox" />
+      <input type="button" class="myInput" id="searchButton" value="Search" />
       <select class="form-control" id="selectOpt">
         <option value="0">Select a video</option>
       </select>
-      <input type="button" class="myInput" id="searchButton" value="Search" />
     </div>
     <!-- Division for the plots -->
     <div class="container" id="graphs">

@@ -24,7 +24,10 @@
  */
 var sampleplayer = sampleplayer || {};
 
-
+/*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
+  FinalDataServer is the server the will get the final analytics status after the cast session is over */
+var constantUpdateServer = '';
+var finalDataServer = 'http://10.1.48.225:9999/';
 
 /**
 
@@ -48,7 +51,7 @@ var sampleplayer = sampleplayer || {};
  */
 sampleplayer.CastPlayer = function(element) {
    
-   /**
+   /** Data Track **
    *   Added Variables to the Google Cast Sample **************
   ***********************************************************************
   ***********************************************************************
@@ -106,11 +109,20 @@ sampleplayer.CastPlayer = function(element) {
   this.listOfVideosWatched_ = [];
 
   /*
+   * The last milestone achieved by a video
+   * @private
+   */
+  
+  this.lastMilestone_ = {};
+
+  /*
    * The dictionary with the data capture from each video
    * @private
    */
   
   this.videoStatsData_ = {};
+
+
 
   /*
   /*  Google Sample variables *******************************************
@@ -307,6 +319,8 @@ sampleplayer.CastPlayer = function(element) {
       this.onVisibilityChanged_.bind(this);
   this.receiverManager_.setApplicationState(
       sampleplayer.getApplicationState_());
+
+
 
 
   /**
@@ -531,6 +545,46 @@ sampleplayer.CastPlayer.prototype.getArrayOfIntervals_ = function userData(inter
 sampleplayer.CastPlayer.prototype.addSecond = function(array, second) {
   if(array.indexOf(second) == -1){
     array.push(second);
+  }
+}
+
+sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString) {
+  var submit = $.ajax({
+          url: urlString, 
+          type: 'POST', 
+          contentType: 'application/json', 
+          data: JSON.stringify(dataContent),
+        error: function(error) {
+          console.log("Error.");
+        }
+      });
+        submit.success(function (data) {
+          console.log("Success");
+      });
+}
+
+sampleplayer.CastPlayer.prototype.checkMilestone = function(array, duration, oldMilestone){
+  var watched = array.length;
+  var total = parseInt(duration);
+  var percentage = watched/total;
+  var milestone = 0;
+
+  if(percentage>0.9){
+    var milestone = 0.9;
+  } else if(percentage>0.75){
+    var milestone = 0.75;
+  } else if(percentage>0.5) {
+    var milestone = 0.5;
+  } else if(percentage>0.25){
+    var milestone = 0.25;
+  } else {
+    var milestone = 0;
+  }
+
+  if(oldMilestone != milestone){
+    return milestone;
+  } else{
+    return oldMilestone;
   }
 }
 
@@ -1387,20 +1441,8 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //Data Track
   //When disconnected, sends the data to the respective recipients
-  console.log("Ajax Call - Cast Session is over.");
-  var submit = $.ajax({
-        url: 'http://10.1.48.248:9999/', 
-          type: 'POST', 
-          contentType: 'application/json', 
-          data: JSON.stringify(this.videoStatsData_),
-        error: function(error) {
-          console.log("E");
-        }
-      });
-
-      submit.success(function (data) {
-          console.log("Success");
-      });
+  console.log("Calling Video Stats via AJAX - Cast Session is over.");
+  this.sendAjaxData(this.videoStatsData_, finalDataServer);
   //console.log the disconnect message
   this.log_('onSenderDisconnected');
 
@@ -1457,6 +1499,7 @@ sampleplayer.CastPlayer.prototype.onBuffering_ = function() {
  */
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   //Data Track
+
   /*Check if this video was watched. If not, create an element on the associative
    array that carries its data*/
   var media = this.mediaManager_.getMediaInformation();
@@ -1467,6 +1510,7 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
     this.secondsSeen_[media.contentId] = [];
     this.secondsPaused_[media.contentId] = [];
     this.secondsRestart_[media.contentId] = [];
+    this.lastMilestone_[media.contentId] = 0;
     this.listOfVideosWatched_.push(media.contentId);
   } 
   
@@ -1476,6 +1520,13 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   var restartSecondInt = parseInt(this.mediaElement_.currentTime);
   this.addSecond(this.secondsRestart_[media.contentId], restartSecondInt)
   this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
+  
+  //Sending restart/start event to external server to generate analytics data
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage["Start/Restart"] = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  console.log(sendingUpdateMessage);
+  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  
   
   
   //Finally call the playing state functions
@@ -1503,8 +1554,12 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.addSecond(this.secondsPaused_[media.contentId], pauseSecondInt);
   this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
   
-  console.log(media);
-  console.log(this.videoStatsData_);
+  //Sending paused event to external server to generate analytics data
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage["Paused"] = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  console.log(sendingUpdateMessage);
+  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  
 
   this.cancelDeferredPlay_('media is paused');
   var isIdle = this.state_ === sampleplayer.State.IDLE;
@@ -1635,6 +1690,17 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
             this.videoStatsData_[media.contentId]["secondsSeen"] = this.secondsSeen_[media.contentId];
             this.timeArray_[media.contentId].splice(index, 1);
         }
+      
+      //Sending milestone to external server to generate analytics data
+      var check = this.checkMilestone(this.secondsSeen_[media.contentId], this.mediaElement_.duration, this.lastMilestone_[media.contentId]);
+      if(this.lastMilestone_[media.contentId] != check){
+        this.lastMilestone_[media.contentId] = check;
+        var sendingUpdateMessage = {};
+        sendingUpdateMessage["Milestone"] = [media.contentId, this.title_, this.lastMilestone_[media.contentId]];
+        console.log(sendingUpdateMessage);
+        this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+      }
+      
       
       //Change the title with the percentage watched
       var titleElement = this.element_.querySelector('.media-title');

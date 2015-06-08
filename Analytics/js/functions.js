@@ -240,7 +240,6 @@ function lastMilestoneAchieved(contentId){
     for(var i=0; i<info.length; i++){
       var frequency = info[i]/getSum(info);
       data[i] = {"letter": String(i+1) + "0% Milestone", "frequency": frequency};
-      console.log(frequency);
     }
     data[8] =  {"letter": "+90% Milestone", "frequency": info[8]/getSum(info)};
     
@@ -365,7 +364,7 @@ function otherEvents(contentId){
     
      //Makes the lines
     graph.append("svg:path").attr("d", linePause(dataPause)).style("stroke", "red");
-    graph.append("svg:path").attr("d", linePause(dataRestart)).style("stroke", "darkgreen");
+    graph.append("svg:path").attr("d", lineRestart(dataRestart)).style("stroke", "darkgreen");
     //VOLUME graph.append("svg:path").attr("d", linePause(dataVolumeChanges)).style("stroke", "orange");
   });
 }
