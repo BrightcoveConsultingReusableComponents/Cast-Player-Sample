@@ -8,7 +8,8 @@ allows the full edition of the code regarding Chromecast API to properly load th
 # Server - Setup
 First of all, it's necessary to set the server to start running the project, based on another googlecast project: custom-receiver. <br>
 It is a simple node.js server. It has implemented a simple CORS application that allows the information to be sent Cross-Domain. <br>
-It has also a POST request definition, used for saving data used by the Analytics part. Therefore, it's necessary to also install some modules other than just express. If the Analytics/log is not needed, the part of the code that requires than and the POST request definition method can be deleted and there won't be no need for the last installations.
+Extra part -> Analytics and log: The server also has a POST request definition, used for saving data used by the Analytics part. Therefore, it's necessary to also install some modules other than just express. It was constructed to simulate a possible use for the information sent by the Cast Player after a session.<br>
+If the Analytics/log is not needed, the part of the code that requires that and the POST request definition method can be deleted and there won't be no need for the last installations below (body-parser, querystring and json-stringify-pretty-compact.
 
 - Install Node.js (https://nodejs.org/)
 - Clone this project with github
@@ -20,6 +21,8 @@ It has also a POST request definition, used for saving data used by the Analytic
 - $node server.js
 
 # Server - POST requests
+
+This simulates the use of the information sent by ajax for a server. For simplicity and to exemplify the general idea, this is all implemented in one unique server. When the server receives a POST request, it handles the acquired data and saves it in a JSON file like this:
 
 ```json
 {
@@ -37,6 +40,7 @@ It has also a POST request definition, used for saving data used by the Analytic
   }
 }
 ```
+It is structured as a "dictionary" or an associative array in Javascript language. Each primary key is the unique contentId of each video. The value of each of these keys is another associative array object that contains all the current data for a lot of different attributes of the video. It is written in a way to easily get the data afterwards and to save space. The full explanation of each one of the attributes is explained here: 
 
 # Upgrades and possible problems
 
