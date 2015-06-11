@@ -22,9 +22,20 @@ It has also a POST request definition, used for saving data used by the Analytic
 # Server - POST requests
 
 ```json
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
+{
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4": {
+    "title": "For Bigger Escape",
+    "duration": 15.046531,
+    "secondsSeen": "1/1/1/1/1/1/1/1/1/1/1/1/1/1/1/0",
+    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1",
+    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 1,
+    "AvgPercentageWatched": 0.9375,
+    "MilestonePercentagePerSession": [0, 0, 0, 0, 1],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+  }
+}
 ```
 
 # Upgrades and possible problems
