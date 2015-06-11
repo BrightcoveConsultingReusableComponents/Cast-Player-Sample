@@ -5,8 +5,11 @@ This cast player was built upon the sample version of the Custom Receiver Sample
 provides the opportunity to modify some CSS: the background image, the color of the progress bar and the logo. The custom receiver
 allows the full edition of the code regarding Chromecast API to properly load the .js, .css and .html file for the chromecast device.
 
-# Server and Setup
-First of all, it's necessary to set the server to start running the project, based on another googlecast project: custom-receiver. It is a simple node.js server. It is also implemented a simple CORS application that allows the information to be sent Cross-Domain.
+# Server - Setup
+First of all, it's necessary to set the server to start running the project, based on another googlecast project: custom-receiver. <br>
+It is a simple node.js server. It has implemented a simple CORS application that allows the information to be sent Cross-Domain. <br>
+It has also a POST request definition, used for saving data used by the Analytics part. Therefore, it's necessary to also install some modules other than just express. If the Analytics/log is not needed, the part of the code that requires than and the POST request definition method can be deleted and there won't be no need for the last installations.
+
 - Install Node.js (https://nodejs.org/)
 - Clone this project with github
 - Go to the cloned folder with the command line
@@ -15,6 +18,10 @@ First of all, it's necessary to set the server to start running the project, bas
 - $npm install body-parser
 - $npm install json-stringify-pretty-compact
 - $node server.js
+
+# Server - POST requests
+
+# Upgrades and possible problems
 
 # General Structure Explanation
 <b>The New Custom Receiver: </b> <br>
