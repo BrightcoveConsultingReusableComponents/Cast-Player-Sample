@@ -22,5 +22,29 @@
     "AvgPercentageWatched": 0.5333333333333333,
     "MilestonePercentagePerSession": [2, 0, 0, 2, 0],
     "viewsYear": {"2015": [0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4": {
+    "title": "Elephant Dream",
+    "duration": 653.804263,
+    "secondsSeen": "3b/21/4/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/7",
+    "secondsPaused": "0/0/1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 2,
+    "AvgPercentageWatched": 0.08728813559322032,
+    "MilestonePercentagePerSession": [2, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4": {
+    "title": "For Bigger Blazes",
+    "duration": 15.023311,
+    "secondsSeen": "1/1/1/1/1/1/1/1/1/1/1/1/1/1/1",
+    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 1,
+    "AvgPercentageWatched": 1,
+    "MilestonePercentagePerSession": [0, 0, 0, 0, 1],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
   }
 }

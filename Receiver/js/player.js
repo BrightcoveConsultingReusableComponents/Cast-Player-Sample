@@ -134,6 +134,13 @@ sampleplayer.CastPlayer = function(element) {
   
   this.videoStatsData_ = {};
 
+  /*
+   * The licenseUrl if needed
+   * @private
+   */
+  
+  this.licenseUrl_ = '';
+
 
 
   /*
@@ -1013,6 +1020,10 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         'url': url,
         'mediaElement': this.mediaElement_
       });
+      if(this.licenseUrl_ != ''){
+        host.licenseUrl = this.licenseUrl_ ;
+        console.log('License URL was set');
+      }
       host.onError = loadErrorCallback;
       this.player_ = new cast.player.api.Player(host);
       this.player_.load(protocolFunc(host));
