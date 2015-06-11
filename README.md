@@ -21,7 +21,7 @@ It has also a POST request definition, used for saving data used by the Analytic
 
 # Server - POST requests
 
-```ruby
+```json
 require 'redcarpet'
 markdown = Redcarpet.new("Hello World!")
 puts markdown.to_html
