@@ -59,7 +59,7 @@ var allowCrossDomain = function(req, res, next) {
                     currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
                 //***Seconds Arrays****
                 //Divide into intervals of 5% of the video
-                    if(duration>=20){
+                    if(duration>20){
                         for(var n=0; n<newDataKeys.length; n++){
                             var copy = newData[newDataKeys[n]];
                             newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, 20);
@@ -209,7 +209,7 @@ var allowCrossDomain = function(req, res, next) {
 
         function transformToBinaryArray(array, duration){
             var binary = [];
-            for(var k = 0; k<(duration + 1); k++){
+            for(var k = 0; k<(duration); k++){
                 if(array.indexOf(k) > -1){
                     binary.push(1);
                 }else {

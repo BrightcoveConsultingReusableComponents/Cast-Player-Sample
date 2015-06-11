@@ -1,14 +1,26 @@
 {
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4": {
-    "title": "For Bigger Escape",
-    "duration": 15.046531,
-    "secondsSeen": "1/1/1/1/1/1/1/1/1/1/1/1/1/1/1/0",
-    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1",
-    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4": {
+    "title": "Big Buck Bunny",
+    "duration": 596.474195,
+    "secondsSeen": "7/0/0/0/0/0/0/0/0/0/0/6/1e/a/0/0/0/2/1e/1e",
+    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/1/0/0/0/0/0/1/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
     "Views": 1,
-    "AvgPercentageWatched": 0.9375,
-    "MilestonePercentagePerSession": [0, 0, 0, 0, 1],
+    "AvgPercentageWatched": 0.18959731543624161,
+    "MilestonePercentagePerSession": [1, 0, 0, 0, 0],
     "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4": {
+    "title": "For Bigger Fun",
+    "duration": 60.070023,
+    "secondsSeen": "c/c/c/c/c/6/6/6/6/6/6/6/6/6/6/6/2/0/0/0",
+    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "4/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 4,
+    "AvgPercentageWatched": 0.5333333333333333,
+    "MilestonePercentagePerSession": [2, 0, 0, 2, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0]}
   }
 }

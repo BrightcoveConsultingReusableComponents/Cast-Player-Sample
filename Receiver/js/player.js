@@ -30,7 +30,6 @@ var constantUpdateServer = '';
 var finalDataServer = 'http://10.1.48.225:9999/';
 
 /**
-
  * <p>
  * Cast player constructor - This does the following:
  * </p>
@@ -141,7 +140,6 @@ sampleplayer.CastPlayer = function(element) {
   /*  Google Sample variables *******************************************
   ***********************************************************************
   ***********************************************************************
-
   /**
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
@@ -1672,6 +1670,7 @@ sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
  */
 sampleplayer.CastPlayer.prototype.onEnded_ = function() {
   this.log_('onEnded');
+  this.constantUpdate_("Ended");
   this.setState_(sampleplayer.State.IDLE, true);
   this.hidePreviewMode_();
 };
