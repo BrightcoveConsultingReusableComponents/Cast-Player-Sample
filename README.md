@@ -5,6 +5,9 @@ This cast player was built upon the sample version of the Custom Receiver Sample
 provides the opportunity to modify some CSS: the background image, the color of the progress bar and the logo. The custom receiver
 allows the full edition of the code regarding Chromecast API to properly load the .js, .css and .html file for the chromecast device.
 
+# Chromecast - Setup
+i
+
 # Server - Setup
 First of all, it's necessary to set the server to start running the project, based on another googlecast project: custom-receiver. <br>
 It is a simple node.js server. It has implemented a simple CORS application that allows the information to be sent Cross-Domain. <br>
@@ -40,7 +43,9 @@ This simulates the use of the information sent by ajax for a server. For simplic
   }
 }
 ```
-It is structured as a "dictionary" or an associative array in Javascript language. Each primary key is the unique contentId of each video. The value of each of these keys is another associative array object that contains all the current data for a lot of different attributes of the video. It is written in a way to easily get the data afterwards and to save space. The full explanation of each one of the attributes is explained here: 
+It is structured as a "dictionary" or an associative array in Javascript language. Each primary key is the unique contentId of each video. The value of each of these keys is another associative array object that contains all the current data for a lot of different attributes of the video. It is written in a way to easily get the data afterwards and to save space. The full explanation of each one of the attributes is explained here: https://github.com/BrightcoveConsultingReusableComponents/Cast-Player-Sample/blob/BCO-js/log/README.md
+
+The structure of the POST
 
 # Upgrades and possible problems
 
