@@ -13,6 +13,7 @@ First of all, it's necessary to set the server to start running the project, bas
 - $npm install express.js
 - $npm install express.js
 - $npm install express.js
+
 # General Structure Explanation
 <b>The New Custom Receiver: </b> <br>
 <i>CSS/HTML</i>: The new version has a similar User Interface in the html/css part (some differences on the play/pause bar)  
