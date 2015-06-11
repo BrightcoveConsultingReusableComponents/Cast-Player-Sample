@@ -10,9 +10,10 @@ First of all, it's necessary to set the server to start running the project, bas
 - Install Node.js (https://nodejs.org/)
 - Clone this project with github
 - Go to the cloned folder with the command line
-- $npm install express.js
-- $npm install express.js
-- $npm install express.js
+- $npm install express
+- $npm install querystring
+- $npm install body-parser
+- $npm install json-stringify-pretty-compact
 
 # General Structure Explanation
 <b>The New Custom Receiver: </b> <br>
