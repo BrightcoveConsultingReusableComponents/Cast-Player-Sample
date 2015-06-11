@@ -2,7 +2,7 @@
 
 This cast player was built upon the sample version of the Custom Receiver Sample Player by Google. The vesions provided by Google are 
 "Default", "Styled Media Receiver" and the "Custom Receiver". The first one is a simple default version as said, the second one
-provides the opportunity to modify some .css: the background image, the color of the progress bar and the logo. The custom receiver
+provides the opportunity to modify some CSS: the background image, the color of the progress bar and the logo. The custom receiver
 allows the full edition of the code regarding Chromecast API to properly load the .js, .css and .html file for the chromecast device.
 
 # General Explanation
