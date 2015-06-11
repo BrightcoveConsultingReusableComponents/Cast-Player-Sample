@@ -54,21 +54,6 @@ body {
   bottom: 0;
 }
 
-.player #logs {
-  display: none;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: bottom;
-  position: absolute;
-  bottom: 30%;
-  left: 40%;
-  background-image: url("assets/chromecast-logo.png");
-  margin-bottom: -96px;
-  margin-left: -96px;
-  width: 192px;
-  height: 192px;
-  font-size: 24;
-}
 
 .player .logo {
   display: none;
@@ -177,7 +162,7 @@ body {
   float: left;
   height: 30px;
   margin-left: 6px;
-  margin-top: 5px;
+  margin-top: 7px;
   width: 30px;
 }
 
@@ -450,7 +435,7 @@ body {
 }
 
 .player[type="video"][state="paused"] .controls-play-pause {
-  background-image: url("assets/paused.png");
+  background-image: url("assets/playnow.png");
 }
 
 .player[type="video"][state="paused"] .controls,

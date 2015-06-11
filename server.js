@@ -23,7 +23,7 @@ var allowCrossDomain = function(req, res, next) {
         var newData = req.body;
         var newDataKeys = Object.keys(newData);
 
-        var file_content = fs.readFileSync('logs/minlog.json');
+        var file_content = fs.readFileSync('log/log.json');
 
         try {
             var currentData = JSON.parse(file_content);
@@ -40,7 +40,9 @@ var allowCrossDomain = function(req, res, next) {
             newData[newDataKeys[n]].secondsSeen = transformToBinaryArray(copy.secondsSeen, duration);
             newData[newDataKeys[n]].secondsPaused = transformToBinaryArray(copy.secondsPaused, duration);
             newData[newDataKeys[n]].secondsRestart = transformToBinaryArray(copy.secondsRestart, duration);
+            newData[newDataKeys[n]].secondsVolumeChanged = transformToBinaryArray(copy.secondsVolumeChanged, duration);
         }
+       
 
         
         for(var c = 0; c<newDataKeys.length; c++){
@@ -50,27 +52,52 @@ var allowCrossDomain = function(req, res, next) {
                     var oldInfo = currentData[newDataKeys[c]];
                     var newInfo = newData[newDataKeys[c]];
                     var views = oldInfo["Views"];
-                //TO-DO TEST - Update MilestonePercentagePerSession
+                    var duration = oldInfo["duration"];
+                //Update MilestonePercentagePerSession
                     var newInfoAvgWatched = getAverageWatched(newInfo.secondsSeen);
                     var check = checkMilestone(newInfoAvgWatched);
-                    var oldMilestoneValue = currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check];
-                    var newMilestoneValue= ((oldMilestoneValue*views) + 1)/(views+1);
-                    currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] = newMilestoneValue;
-                    
+                    currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
+                //***Seconds Arrays****
+                //Divide into intervals of 5% of the video
+                    if(duration>=20){
+                        for(var n=0; n<newDataKeys.length; n++){
+                            var copy = newData[newDataKeys[n]];
+                            newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, 20);
+                            newData[newDataKeys[n]].secondsPaused = getSumArray(copy.secondsPaused, 20);
+                            newData[newDataKeys[n]].secondsRestart = getSumArray(copy.secondsRestart, 20);
+                            newData[newDataKeys[n]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
+                        }  
+                    } else{
+                        for(var n=0; n<newDataKeys.length; n++){
+                            var copy = newData[newDataKeys[n]];
+                            newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, Math.floor(duration));
+                            newData[newDataKeys[n]].secondsPaused = getSumArray(copy.secondsPaused, Math.floor(duration));
+                            newData[newDataKeys[n]].secondsRestart = getSumArray(copy.secondsRestart, Math.floor(duration));
+                            newData[newDataKeys[n]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, Math.floor(duration));
+                        }       
+                    }
                 //Seconds seen Update
-                    var updatedSecondsS = updatedArrayOfSeconds(oldInfo.secondsSeen, newInfo.secondsSeen, parseInt(views));
+                    console.log(decompressToDecArray(oldInfo.secondsSeen));
+                    console.log(newInfo.secondsSeen);
+                    var updatedSecondsS = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsSeen), newInfo.secondsSeen);
                     currentData[newDataKeys[c]].secondsSeen = updatedSecondsS; 
                 //Seconds Paused Update
-                    var updatedSecondsP = updatedArrayOfSeconds(oldInfo.secondsPaused, newInfo.secondsPaused, parseInt(views));
+                    var updatedSecondsP = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsPaused), newInfo.secondsPaused);
                     currentData[newDataKeys[c]].secondsPaused = updatedSecondsP;   
                 //Seconds Restarted Update
-                    var updatedSecondsR = updatedArrayOfSeconds(oldInfo.secondsRestart, newInfo.secondsRestart, parseInt(views));
-                    currentData[newDataKeys[c]].secondsRestart = updatedSecondsR; 
+                    var updatedSecondsR = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsRestart), newInfo.secondsRestart);
+                    currentData[newDataKeys[c]].secondsRestart = updatedSecondsR;
+                //Seconds Restarted Update
+                    var updatedSecondsV = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsVolumeChanged), newInfo.secondsVolumeChanged);
+                    currentData[newDataKeys[c]].secondsVolumeChanged = updatedSecondsV; 
                 //Add a view
                     currentData[newDataKeys[c]]["Views"] += 1;
-                //TO-DO test - Add/update avg percentage watched  
-                    currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(updatedSecondsS);
-                //TO-DO test - Add Date Values
+                //Add/update avg percentage watched 
+                    var normalSecondsS =  normalizeArray(updatedSecondsS, (duration/updatedSecondsS.length));
+                    normalSecondsS =  normalizeArray(normalSecondsS, (views+1));
+                    normalSecondsS =  normalizeArray(normalSecondsS, Math.max.apply(null, normalSecondsS));
+                    currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(normalSecondsS);
+                //Add Date Values
                     var today = new Date();
                     var month = today.getMonth();
                     var year = today.getFullYear();
@@ -82,23 +109,29 @@ var allowCrossDomain = function(req, res, next) {
                         currentData[newDataKeys[c]]["viewsYear"][year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                         currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
                     }
+                    
+                    //Compress
+                    currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
+                    currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
+                    currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
+                    currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
             
                 } else{
-                     //Update
+                    //Update ***Seconds Arrays****
                      currentData[newDataKeys[c]] = newData[newDataKeys[c]];
                      //Add a view
                      currentData[newDataKeys[c]]["Views"] += 1;
 
-                    //TO-DO test - Add/update avg percentage watched  
+                    //TO-DO - CHANGE - - - Add/update avg percentage watched  
                     currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
 
-                    //TO-DO TEST - Update MilestonePercentagePerSession
+                    //TO-DO - CHANGE - - - Update MilestonePercentagePerSession
                     var newInfoAvgWatched = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
                     var check = checkMilestone(newInfoAvgWatched);
-                    currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0];
                     currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
 
-                    //TO-DO TEST - Update Date data
+                    //Update Date data
                     var today = new Date();
                     var month = today.getMonth();
                     var year = today.getFullYear();
@@ -106,23 +139,38 @@ var allowCrossDomain = function(req, res, next) {
                     currentData[newDataKeys[c]]["viewsYear"] = {};
                     currentData[newDataKeys[c]]["viewsYear"][year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                     currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
+
+                    //Divide into intervals of 5% of the video
+                    for(var n=0; n<newDataKeys.length; n++){
+                        var copy = currentData[newDataKeys[c]];
+                        currentData[newDataKeys[c]].secondsSeen = getSumArray(copy.secondsSeen, 20);
+                        currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
+                        currentData[newDataKeys[c]].secondsPaused = getSumArray(copy.secondsPaused, 20);
+                        currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
+                        currentData[newDataKeys[c]].secondsRestart = getSumArray(copy.secondsRestart, 20);
+                        currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
+                        currentData[newDataKeys[c]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
+                        currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
+                    } 
+
+
                 }
             } else{
-                //Update
-                currentData[newDataKeys[c]] = newData[newDataKeys[c]];
-                //Add a view
-                currentData[newDataKeys[c]]["Views"] += 1;
+                //Update ***Seconds Arrays****
+                 currentData[newDataKeys[c]] = newData[newDataKeys[c]];
+                 //Add a view
+                 currentData[newDataKeys[c]]["Views"] += 1;
 
-                //TO-DO test - Add/update avg percentage watched  
+                //Add/update avg percentage watched  
                 currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
 
-                //TO-DO TEST - Update MilestonePercentagePerSession
+                //Update MilestonePercentagePerSession
                 var newInfoAvgWatched = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
                 var check = checkMilestone(newInfoAvgWatched);
-                currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0];
                 currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
-                
-                //TO-DO Update Date data
+
+                //Update Date data
                 var today = new Date();
                 var month = today.getMonth();
                 var year = today.getFullYear();
@@ -131,20 +179,30 @@ var allowCrossDomain = function(req, res, next) {
                 currentData[newDataKeys[c]]["viewsYear"][year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
 
+                //Divide into intervals of 5% of the video
+                for(var n=0; n<newDataKeys.length; n++){
+                    var copy = currentData[newDataKeys[c]];
+                    currentData[newDataKeys[c]].secondsSeen = getSumArray(copy.secondsSeen, 20);
+                    currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
+                    currentData[newDataKeys[c]].secondsPaused = getSumArray(copy.secondsPaused, 20);
+                    currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
+                    currentData[newDataKeys[c]].secondsRestart = getSumArray(copy.secondsRestart, 20);
+                    currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
+                    currentData[newDataKeys[c]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
+                    currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
+                }
+
             }
         }
         console.log("Done.");
         var spacedLog = stringify(currentData);
-        var minLog = JSON.stringify(currentData);
-
-        fs.writeFileSync("logs/spacedlog.json", spacedLog);
-        fs.writeFileSync("logs/minlog.json", minLog);
+        fs.writeFileSync("log/log.json", spacedLog);
         
-        function updatedArrayOfSeconds(oldArray, newArray, views) {
+        function updatedArrayOfSeconds(oldArray, newArray) {
             var updated = [];
             for(var i = 0; i<oldArray.length; i++){
-                var update = ((oldArray[i]*views) + newArray[i])/(views + 1);
-                updated.push(Number(update.toFixed(2)));
+                var update = oldArray[i] + newArray[i];
+                updated.push(Number(update));
             }
             return updated;
         }
@@ -170,16 +228,162 @@ var allowCrossDomain = function(req, res, next) {
             return average;
         }
 
-        function checkMilestone(value) {
-            var value = value * 10;
-            var milestone = 0
-            for(var v = 0; v<10; v++){
-                if(value>=v){
-                    milestone = v;
-                }
+        function normalizeArray(array, n){
+            var normal = [];
+            for(var c = 0; c<array.length; c++){
+                normal.push(array[c]/n);
             }
-            return milestone;
+            return normal;
         }
+
+        function getAverageUpdated(array){
+            var count = 0;
+            for(var c = 0; c<array.length; c++){
+                count = count + array[c];
+            }
+            var average = count/array.length;
+            return average;
+        }
+
+        function checkMilestone(value){
+            if(value>0.9){
+            var milestone = 4;
+          } else if(value>0.75){
+            var milestone = 3;
+          } else if(value>0.5) {
+            var milestone = 2;
+          } else if(value>0.25){
+            var milestone = 1;
+          } else {
+            var milestone = 0;
+          }
+          return milestone;
+        }
+
+        
+
+        function getSumArray(array, n){
+            var split = split(array, n);
+            var avg = averageLengthModifier(split);
+            var sum = sumInternalArray(split);
+            var mult = multiplyArray(sum, avg);
+            return mult;
+
+            function split(array, n) {
+                var len = array.length,
+                out = [], 
+                i = 0;
+                while (i < len) {
+                    var size = Math.ceil((len - i) / n--);
+                    out.push(array.slice(i, i + size));
+                    i += size;
+                }
+                return out;
+            }
+
+            function mode(arr) {
+                var numMapping = {};
+                var greatestFreq = 0;
+                var mode;
+                arr.forEach(function findMode(number) {
+                    numMapping[number] = (numMapping[number] || 0) + 1;
+
+                    if (greatestFreq < numMapping[number]) {
+                        greatestFreq = numMapping[number];
+                        mode = number;
+                    }
+                });
+                return +mode;
+            }
+
+            function averageLengthModifier(array){
+                var avg = [];
+                var length = [];
+                for(var i=0; i<array.length; i++){
+                    length.push(array[i].length);
+                }
+                var moda = mode(length);
+                for(var i=0; i<array.length; i++){
+                    if(array[i].length != moda){
+                        avg.push(moda/array[i].length);
+                    } else{
+                        avg.push(1);
+                    }
+                }
+                return avg;
+            }
+
+            function sumInternalArray(array){
+                var sum = [];
+                for(var i=0; i<array.length; i++){
+                    var count = 0;
+                    for(var j=0; j<array[i].length; j++){
+                        count += array[i][j];
+                    }
+                    sum.push(count);
+                }
+                return sum;
+            }
+
+            function multiplyArray(array, array2){
+                var mult = [];
+                for(var i=0; i<array.length; i++){
+                    mult.push(parseInt(array[i]*array2[i]));
+                }
+                return mult;
+            }
+
+        }
+
+        function compressToHexString(array){
+            var hex = '';
+            for(var i=0; i<array.length; i++){
+                hex += String(dec2hex(array[i])) + '/';
+            }
+            hex = hex.substring(0, hex.length - 1)
+            return hex;
+
+            function dec2hex(num){
+                var ConvertBase = function (num) {
+                return {
+                    from : function (baseFrom) {
+                        return {
+                            to : function (baseTo) {
+                                return parseInt(num, baseFrom).toString(baseTo);
+                                }
+                            };
+                        }
+                    };
+                };
+            return ConvertBase(num).from(10).to(16);
+            }
+        }
+
+        function decompressToDecArray(hexString){
+             var hex = hexString.split("/");
+             var dec = [];
+             for(var i=0; i<hex.length; i++){
+                dec.push(parseInt(hex2dec(hex[i])));
+             }
+             return dec;
+
+             function hex2dec(num){
+                var ConvertBase = function (num) {
+                return {
+                    from : function (baseFrom) {
+                        return {
+                            to : function (baseTo) {
+                                return parseInt(num, baseFrom).toString(baseTo);
+                                }
+                            };
+                        }
+                    };
+                };
+             return ConvertBase(num).from(16).to(10);
+
+            }
+        }
+
     });
 
     console.log('Request received');

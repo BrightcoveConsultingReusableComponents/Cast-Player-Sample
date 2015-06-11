@@ -103,6 +103,12 @@ sampleplayer.CastPlayer = function(element) {
   this.secondsRestart_ = {};
 
   /*
+   * All the timestamps (seconds) when the video volume changed
+   * @private
+   */
+  this.secondsVolumeChanged_ = {};
+
+  /*
    * List of videos watched for each Cast Session
    * @private
    */
@@ -114,6 +120,13 @@ sampleplayer.CastPlayer = function(element) {
    */
   
   this.lastMilestone_ = {};
+
+   /*
+   * The current percentage watched for this video
+   * @private
+   */
+  
+  this.PctWatched_ = {};
 
   /*
    * The dictionary with the data capture from each video
@@ -133,6 +146,7 @@ sampleplayer.CastPlayer = function(element) {
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
    */
+
   this.debug_ = sampleplayer.DISABLE_DEBUG_;
   if (this.debug_) {
     cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
@@ -313,12 +327,15 @@ sampleplayer.CastPlayer = function(element) {
    */
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onReady = this.onReady_.bind(this);
+  this.receiverManager_.onSystemVolumeChanged = this.onSystemVolumeChanged_.bind(this);
+  this.receiverManager_.onSenderConnected = this.onSenderConnected_.bind(this);
   this.receiverManager_.onSenderDisconnected =
       this.onSenderDisconnected_.bind(this);
   this.receiverManager_.onVisibilityChanged =
       this.onVisibilityChanged_.bind(this);
   this.receiverManager_.setApplicationState(
       sampleplayer.getApplicationState_());
+
 
 
 
@@ -519,7 +536,7 @@ sampleplayer.DISABLE_DEBUG_ = false;
  */
 
 sampleplayer.CastPlayer.prototype.getArrayOfIntervals_ = function userData(interval, totaltime) {
-      
+
       totaltime = parseInt(totaltime);
       if(interval<totaltime && interval>0){
         var intervalArray = [0];
@@ -536,7 +553,7 @@ sampleplayer.CastPlayer.prototype.getArrayOfIntervals_ = function userData(inter
 }
 
 /**
- * Add a second (seen, paused, restarted) to a determined array related to an event
+ * Add a second (seen, paused, restarted, volume) to a determined array related to an event
  *
  * @param array and the Int related
  * @return Void
@@ -587,6 +604,17 @@ sampleplayer.CastPlayer.prototype.checkMilestone = function(array, duration, old
     return oldMilestone;
   }
 }
+
+sampleplayer.CastPlayer.prototype.constantUpdate_ = function(EventString){
+  //Sending paused event to external server to generate analytics data
+  var media = this.mediaManager_.getMediaInformation();
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage[EventString] = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  console.log(sendingUpdateMessage);
+  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+}
+
+
 
 /**
  * Sample functions (modified to extract data)
@@ -1431,6 +1459,14 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
   this.setState_(sampleplayer.State.IDLE, false);
 };
 
+sampleplayer.CastPlayer.prototype.onSenderConnected_ = function(event) {
+  //Sending 'connected' event to external server to generate analytics data
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage["Connected"] = ["Cast Session started"];
+  console.log(sendingUpdateMessage);
+  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+};
+
 
 /**
  * Called when a sender disconnects from the app.
@@ -1441,11 +1477,16 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //Data Track
   //When disconnected, sends the data to the respective recipients
-  console.log("Calling Video Stats via AJAX - Cast Session is over.");
+
+  //Sending 'connected' event to external server to generate analytics data
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage["Disconnected"] = ["Cast Session ended"];
+  console.log(sendingUpdateMessage);
+  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  //Send all the data via ajax to final destination/processing server
   this.sendAjaxData(this.videoStatsData_, finalDataServer);
   //console.log the disconnect message
   this.log_('onSenderDisconnected');
-
 
   // When the last or only sender is connected to a receiver,
   // tapping Disconnect stops the app running on the receiver.
@@ -1505,11 +1546,12 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   var media = this.mediaManager_.getMediaInformation();
   
   if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
-    this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "Views": 0};
+    this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
     this.timeArray_[media.contentId] = [];
     this.secondsSeen_[media.contentId] = [];
     this.secondsPaused_[media.contentId] = [];
     this.secondsRestart_[media.contentId] = [];
+    this.secondsVolumeChanged_[media.contentId] = [];
     this.lastMilestone_[media.contentId] = 0;
     this.listOfVideosWatched_.push(media.contentId);
   } 
@@ -1522,10 +1564,7 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
   
   //Sending restart/start event to external server to generate analytics data
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage["Start/Restart"] = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  console.log(sendingUpdateMessage);
-  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  this.constantUpdate_("Start/Restart");
   
   
   
@@ -1555,10 +1594,7 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
   
   //Sending paused event to external server to generate analytics data
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage["Paused"] = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  console.log(sendingUpdateMessage);
-  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  this.constantUpdate_("Paused");
   
 
   this.cancelDeferredPlay_('media is paused');
@@ -1575,6 +1611,17 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.updateProgress_();
 };
 
+
+sampleplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
+  //Sending 'volume' event to external server to generate analytics data
+  this.constantUpdate_("VolumeChanged");
+
+  //Adds a 'volume' event timestamp for the current video
+  var media = this.mediaManager_.getMediaInformation();
+  var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
+  this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
+  this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
+};
 
 /**
  * Changes player state reported to sender, if necessary.

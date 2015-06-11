@@ -2,18 +2,18 @@ $(document).ready(function(){
   //Global variables
   var contentId = "";
   var year = 2015;
-
+  var file = "../log/log.json";
   //function to trigger a svg plot
   function triggerPlot(contentId){
     tab = String($( ".active a" ).attr('id')); 
     if(tab == "tab4"){
-      otherEvents(contentId); 
+      otherEvents(file, contentId); 
     } else if(tab == "tab3"){
-      lastMilestoneAchieved(contentId);
+      lastMilestoneAchieved(file, contentId);
     } else if(tab == "tab2"){
-      partsWatched(contentId); 
+      partsWatched(file, contentId); 
     }else {
-     viewStatistics(contentId, year);
+     viewStatistics(file, contentId, year);
    }
  } 
 
@@ -23,7 +23,7 @@ $(document).ready(function(){
  .attr("height", 400);
 
  //gets the keys from json and make them values for the select video tab
- d3.json("../logs/minlog.json", function(data) { 
+ d3.json(file, function(data) { 
    var objects = data;
    var keys = Object.keys(objects);
    var selectValues = {};
@@ -82,16 +82,16 @@ $(document).ready(function(){
 
  //Tab events to trigger different plots
  $("#tab1").on("click", function(){ 
-  viewStatistics(contentId, year);
+  viewStatistics(file, contentId, year);
 });
  $("#tab2").on("click", function(){
-  partsWatched(contentId); 
+  partsWatched(file, contentId); 
 });
  $("#tab3").on("click", function(){
-  lastMilestoneAchieved(contentId);
+  lastMilestoneAchieved(file, contentId);
 });
  $("#tab4").on("click", function(){
-  otherEvents(contentId); 
+  otherEvents(file, contentId); 
 });
 
 

@@ -1,4 +1,38 @@
-function partsWatched(contentId){
+function normalizeArray(array){
+  var normal = [];
+  var max = Math.max.apply(null, array);
+  for(var c = 0; c<array.length; c++){
+      normal.push(array[c]/max);
+  }
+  return normal;
+}
+
+function decompressToDecArray(hexString){
+   var hex = hexString.split("/");
+   var dec = [];
+   for(var i=0; i<hex.length; i++){
+      dec.push(parseInt(hex2dec(hex[i])));
+   }
+   return dec;
+
+   function hex2dec(num){
+      var ConvertBase = function (num) {
+      return {
+          from : function (baseFrom) {
+              return {
+                  to : function (baseTo) {
+                      return parseInt(num, baseFrom).toString(baseTo);
+                      }
+                  };
+              }
+          };
+      };
+   return ConvertBase(num).from(16).to(10);
+
+   }
+}
+
+function partsWatched(file, contentId){
   // Desired dimensions and margin.
   var m = [80, 90, 80, 90]; // margins
   var w = 1000 - m[1] - m[3]; // width
@@ -15,7 +49,7 @@ function partsWatched(contentId){
   .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
   //gets data from JSON
-  d3.json("../logs/minlog.json", function(data) {
+  d3.json(file, function(data) {
     //Change the title string
     var name = data[contentId].title;
     var views = data[contentId].Views;
@@ -23,7 +57,8 @@ function partsWatched(contentId){
     $(".container h4").html('<mark>Name:</mark> '+name+' <mark>Views:</mark> '+views+' <mark>Duration:</mark> '+parseInt(duration))+'sec';
 
     //get the relevant information
-    var data = data[contentId].secondsSeen;
+    var data = decompressToDecArray(data[contentId].secondsSeen);
+    data = normalizeArray(data);
     
     for(var i=0; i<data.length; i++){
       data[i] *= 100;
@@ -86,7 +121,7 @@ function partsWatched(contentId){
     });
 }
 
-function viewStatistics(contentId, year) {
+function viewStatistics(file, contentId, year) {
 
   // Desired dimensions and margin.
   var m = [80, 90, 80, 90]; // margins
@@ -104,7 +139,7 @@ function viewStatistics(contentId, year) {
   .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
   //gets data from JSON
-  d3.json("../logs/minlog.json", function(data){
+  d3.json(file, function(data){
     //Change the title string
     var name = data[contentId].title;
     var views = data[contentId].Views;
@@ -182,7 +217,7 @@ function viewStatistics(contentId, year) {
   });
 }
 
-function lastMilestoneAchieved(contentId){
+function lastMilestoneAchieved(file, contentId){
   //remove previous SVG element
   d3.select("#svgGraph").remove();
   var margin = {top: 20, right: 20, bottom: 30, left: 40};
@@ -218,7 +253,7 @@ function lastMilestoneAchieved(contentId){
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   //gets data from JSON file
-  d3.json("../logs/minlog.json", function(milestone){
+  d3.json(file, function(milestone){
     //Change the title string
     var name = milestone[contentId].title;
     var views = milestone[contentId].Views;
@@ -239,9 +274,9 @@ function lastMilestoneAchieved(contentId){
 
     for(var i=0; i<info.length; i++){
       var frequency = info[i]/getSum(info);
-      data[i] = {"letter": String(i+1) + "0% Milestone", "frequency": frequency};
+      data[i] = {"letter": String(25*(i)) + "% Milestone", "frequency": frequency};
     }
-    data[8] =  {"letter": "+90% Milestone", "frequency": info[8]/getSum(info)};
+    data[4] =  {"letter": "+90% Milestone", "frequency": info[4]/getSum(info)};
     
     //mapping x,y with the data values
     x.domain(data.map(function(d) { return d.letter; }));
@@ -276,7 +311,7 @@ function lastMilestoneAchieved(contentId){
   });
 }
 
-function otherEvents(contentId){
+function otherEvents(file, contentId){
 // Desired dimensions and margin.
   var m = [80, 80, 80, 80]; // margins
   var w = 1000 - m[1] - m[3]; // width
@@ -293,7 +328,7 @@ function otherEvents(contentId){
   .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
   //gets data from JSON
-  d3.json("../logs/minlog.json", function(data) {
+  d3.json(file, function(data) {
   //Change the title string
   var name = data[contentId].title;
   var views = data[contentId].Views;
@@ -301,18 +336,18 @@ function otherEvents(contentId){
   $(".container h4").html('<mark>Name:</mark> '+name+' <mark>Views:</mark> '+views+' <mark>Duration:</mark> '+parseInt(duration))+'sec';
 
   //Gets the relevant information
-  var dataPause = data[contentId].secondsPaused;
-  var dataRestart = data[contentId].secondsRestart;
-
+  var dataPause = decompressToDecArray(data[contentId].secondsPaused);
+  var dataRestart = decompressToDecArray(data[contentId].secondsRestart);
+  var dataVolumeChanges = decompressToDecArray(data[contentId].secondsVolumeChanged);
   
 
   for(var i=0; i<dataPause.length; i++){
     dataPause[i] *= 100;
     dataRestart[i] *= 100;
-    //VOLUME dataVolumeChanges[i] *= 100;
+    dataVolumeChanges[i] *= 100;
   }
 
-  var maxArray = [Math.max.apply(null, dataPause), Math.max.apply(null, dataRestart)/*VOLUME, Math.max.apply(null, dataVolumeChanges)*/];
+  var maxArray = [Math.max.apply(null, dataPause), Math.max.apply(null, dataRestart), Math.max.apply(null, dataVolumeChanges)];
   var max = Math.max.apply(null, maxArray);
 
   // x scale
@@ -329,7 +364,7 @@ function otherEvents(contentId){
       return y(dataPause); 
     });
 
-    var lineRestart = d3.svg.line()
+  var lineRestart = d3.svg.line()
     .x(function(dataRestart,i) { 
       return x(i); 
     })
@@ -337,13 +372,13 @@ function otherEvents(contentId){
       return y(dataRestart); 
     });
 
-    /*VOLUME var lineVolume = d3.svg.line()
+  var lineVolume = d3.svg.line()
     .x(function(dataVolumeChanges,i) { 
       return x(i); 
     })
     .y(function(dataVolumeChanges) { 
       return y(dataVolumeChanges); 
-    });*/
+    });
 
     // create xAxis
     var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
@@ -361,10 +396,11 @@ function otherEvents(contentId){
     .attr("class", "y axis")
     .attr("transform", "translate(-25,0)")
     .call(yAxisLeft);
+
     
      //Makes the lines
     graph.append("svg:path").attr("d", linePause(dataPause)).style("stroke", "red");
     graph.append("svg:path").attr("d", lineRestart(dataRestart)).style("stroke", "darkgreen");
-    //VOLUME graph.append("svg:path").attr("d", linePause(dataVolumeChanges)).style("stroke", "orange");
+    graph.append("svg:path").attr("d", lineVolume(dataVolumeChanges)).style("stroke", "orange");
   });
 }
