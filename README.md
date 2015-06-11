@@ -14,6 +14,7 @@ First of all, it's necessary to set the server to start running the project, bas
 - $npm install querystring
 - $npm install body-parser
 - $npm install json-stringify-pretty-compact
+- $node server.js
 
 # General Structure Explanation
 <b>The New Custom Receiver: </b> <br>
