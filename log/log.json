@@ -2,14 +2,14 @@
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4": {
     "title": "Big Buck Bunny",
     "duration": 596.474195,
-    "secondsSeen": "7/0/0/0/0/0/0/0/0/0/0/6/1e/a/0/0/0/2/1e/1e",
-    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/1/0/0/0/0/0/1/0/0",
+    "secondsSeen": "34/0/0/0/0/0/0/0/0/0/0/6/1e/a/0/0/0/2/1e/1e",
+    "secondsPaused": "5/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "7/0/0/0/0/0/0/0/0/0/0/1/0/0/0/0/0/1/0/0",
     "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "Views": 1,
-    "AvgPercentageWatched": 0.18959731543624161,
-    "MilestonePercentagePerSession": [1, 0, 0, 0, 0],
-    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+    "Views": 6,
+    "AvgPercentageWatched": 0.15384615384615383,
+    "MilestonePercentagePerSession": [6, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0]}
   },
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4": {
     "title": "For Bigger Fun",
@@ -26,14 +26,14 @@
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4": {
     "title": "Elephant Dream",
     "duration": 653.804263,
-    "secondsSeen": "3b/21/4/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/7",
-    "secondsPaused": "0/0/1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "secondsRestart": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1",
+    "secondsSeen": "45/21/4/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/7",
+    "secondsPaused": "2/0/1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "4/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1",
     "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "Views": 2,
-    "AvgPercentageWatched": 0.08728813559322032,
-    "MilestonePercentagePerSession": [2, 0, 0, 0, 0],
-    "viewsYear": {"2015": [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]}
+    "Views": 3,
+    "AvgPercentageWatched": 0.0818840579710145,
+    "MilestonePercentagePerSession": [3, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0]}
   },
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4": {
     "title": "For Bigger Blazes",
@@ -45,6 +45,90 @@
     "Views": 1,
     "AvgPercentageWatched": 1,
     "MilestonePercentagePerSession": [0, 0, 0, 0, 1],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/GoogleIO-2014-MakingGoogleCastReadyAppsDiscoverable.mp4": {
+    "title": "Making Cast Ready Apps Discoverable",
+    "duration": 820.128798,
+    "secondsSeen": "e/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 1,
+    "AvgPercentageWatched": 0.01707317073170732,
+    "MilestonePercentagePerSession": [1, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4": {
+    "title": "For Bigger Meltdowns",
+    "duration": 15.046531,
+    "secondsSeen": "1/1/1/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "0/0/1/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 1,
+    "AvgPercentageWatched": 0.2,
+    "MilestonePercentagePerSession": [1, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4": {
+    "title": "Subaru Outback On Street And Dirt",
+    "duration": 594.570159,
+    "secondsSeen": "a/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 2,
+    "AvgPercentageWatched": 0.05,
+    "MilestonePercentagePerSession": [2, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4": {
+    "title": "We Are Going On Bullrun",
+    "duration": 47.461587,
+    "secondsSeen": "4/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 2,
+    "AvgPercentageWatched": 0.05,
+    "MilestonePercentagePerSession": [2, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4": {
+    "title": "Volkswagen GTI Review",
+    "duration": 593.8039,
+    "secondsSeen": "2/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 1,
+    "AvgPercentageWatched": 0.003372681281618887,
+    "MilestonePercentagePerSession": [1, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Google_I_O_2013_Keynote.mp4": {
+    "title": "Google I/O Keynote 2013",
+    "duration": 12332.791293,
+    "secondsSeen": "21/0/0/0/0/6/5/153/269/1ef/6/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "3/0/0/0/0/1/1/0/0/0/1/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "5/0/0/0/0/1/1/1/0/0/1/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 3,
+    "AvgPercentageWatched": 0.12163695299837926,
+    "MilestonePercentagePerSession": [2, 0, 0, 1, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0]}
+  },
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4": {
+    "title": "What care can you get for a grand?",
+    "duration": 567.379592,
+    "secondsSeen": "19/11/0/0/0/b/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsPaused": "0/0/0/0/0/1/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsRestart": "0/0/0/0/0/2/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
+    "Views": 1,
+    "AvgPercentageWatched": 0.09876543209876543,
+    "MilestonePercentagePerSession": [1, 0, 0, 0, 0],
     "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
   }
 }

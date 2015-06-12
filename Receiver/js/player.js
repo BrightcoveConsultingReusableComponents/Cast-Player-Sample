@@ -340,7 +340,13 @@ sampleplayer.CastPlayer = function(element) {
       this.onVisibilityChanged_.bind(this);
   this.receiverManager_.setApplicationState(
       sampleplayer.getApplicationState_());
-
+  
+  //Set and bind messageBus
+  this.messageBus_ = this.receiverManager_.getCastMessageBus(
+      'urn:x-cast:com.google.cast.sample.mediaplayer');
+  this.messageBus_.onMessage = this.onMessage_.bind(this);
+  
+  console.log(this.messageBus_);
 
 
 
@@ -374,6 +380,15 @@ sampleplayer.CastPlayer = function(element) {
   this.onMetadataLoadedOrig_ =
       this.mediaManager_.onMetadataLoaded.bind(this.mediaManager_);
   this.mediaManager_.onMetadataLoaded = this.onMetadataLoaded_.bind(this);
+  
+  /**
+  this.mediaManager_['onPauseOrig'] = this.mediaManager_.onPause;
+  /**
+  * Process pause event
+  * @param {Object} event
+  this.mediaManager_.onPause = function(event) {
+    console.log("aqui estamos")
+  };*/
 
   /**
    * The original stop callback.
@@ -619,6 +634,14 @@ sampleplayer.CastPlayer.prototype.constantUpdate_ = function(EventString){
   this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
 }
 
+sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
+
+  var myEvent = JSON.parse(event['data']);
+    if (myEvent['type'] === 'license') {
+      this.licenseUrl_ = myEvent.value;
+    }
+
+};
 
 
 /**
@@ -1020,6 +1043,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         'url': url,
         'mediaElement': this.mediaElement_
       });
+      console.log(this.licenseUrl_);
       if(this.licenseUrl_ != ''){
         host.licenseUrl = this.licenseUrl_ ;
         console.log('License URL was set');

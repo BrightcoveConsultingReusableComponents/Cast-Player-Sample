@@ -1,6 +1,7 @@
 function normalizeArray(array){
   var normal = [];
   var max = Math.max.apply(null, array);
+  if(max == 0){max = 1};
   for(var c = 0; c<array.length; c++){
       normal.push(array[c]/max);
   }
@@ -64,61 +65,52 @@ function partsWatched(file, contentId){
       data[i] *= 100;
     }
     var max = Math.max.apply(null, data);
+    var multi = 100/data.length;
 
     // X scale will fit all values from data[] within pixels 0-w
-    var x = d3.scale.linear().domain([0, data.length]).range([0, w]);
+    var x = d3.scale.linear().domain([0, (multi*data.length)]).range([0, w]);
     //Y scale will fit values from 0 to 110% within pixels h-0 
     var y = d3.scale.linear().domain([0, 1.1*(max)]).range([h, 0]);
-      
-
-    //create a line function to get x and y values for the plot
-    var line = d3.svg.line()
-      .x(function(d,i) {
-        return x(i); 
-      })
-      .y(function(d) {
-        return y(d); 
-      })
 
 
-      // create xAxis
-      var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
-      //Add to the plot
-      graph.append("svg:g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + h + ")")
-      .call(xAxis);
+    // create xAxis
+    var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickFormat(function(d){return String(d)+'%'}).tickSubdivide(true);
+    //Add to the plot
+    graph.append("svg:g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + h + ")")
+    .call(xAxis);
 
 
-      //create yAxis
-      var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
-      //Add to the plot
-      graph.append("svg:g")
-      .attr("class", "y axis")
-      .attr("transform", "translate(-25,0)")
-      .call(yAxisLeft);
-      
-      //Area surrounding the line
-      var area = d3.svg.area()
-      .interpolate("monotone")
-      .x(function(d, i) { return x(i); })
-      .y0(h)
-      .y1(function(d, i) { return y(data[i]); });
+    //create yAxis
+    var yAxisLeft = d3.svg.axis().scale(y).ticks(4).tickFormat(function(d){return String(d)+'%'}).orient("left");
+    //Add to the plot
+    graph.append("svg:g")
+    .attr("class", "y axis")
+    .attr("transform", "translate(-25,0)")
+    .call(yAxisLeft);
+    
+    //Area surrounding the line
+    var area = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d, i) { return x(multi*i); })
+    .y0(h)
+    .y1(function(d, i) { return y(data[i]); });
 
-      //Clip Path
-      graph.append("clipPath")
-      .attr("id", "clip")
-      .append("rect")
-      .attr("width", w)
-      .attr("height", h);
+    //Clip Path
+    graph.append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", w)
+    .attr("height", h);
 
-      //Makes the line
-      graph.append("path")
-      .attr("class", "area")
-      .attr("clip-path", "url(#clip)")
-      .attr("d", area(data))
-      .style("fill", "lightblue");
-    });
+    //Makes the line
+    graph.append("path")
+    .attr("class", "area")
+    .attr("clip-path", "url(#clip)")
+    .attr("d", area(data))
+    .style("fill", "lightblue");
+  });
 }
 
 function viewStatistics(file, contentId, year) {
@@ -337,8 +329,11 @@ function otherEvents(file, contentId){
 
   //Gets the relevant information
   var dataPause = decompressToDecArray(data[contentId].secondsPaused);
+  dataPause = normalizeArray(dataPause);
   var dataRestart = decompressToDecArray(data[contentId].secondsRestart);
+  dataRestart = normalizeArray(dataRestart)
   var dataVolumeChanges = decompressToDecArray(data[contentId].secondsVolumeChanged);
+  dataVolumeChanges = normalizeArray(dataVolumeChanges);
   
 
   for(var i=0; i<dataPause.length; i++){
@@ -349,16 +344,17 @@ function otherEvents(file, contentId){
 
   var maxArray = [Math.max.apply(null, dataPause), Math.max.apply(null, dataRestart), Math.max.apply(null, dataVolumeChanges)];
   var max = Math.max.apply(null, maxArray);
+  var multi = 100/dataPause.length;
 
   // x scale
-  var x = d3.scale.linear().domain([0, dataPause.length]).range([0, w]);
+  var x = d3.scale.linear().domain([0, (multi*dataPause.length)]).range([0, w]);
   // y scale
   var y = d3.scale.linear().domain([0, 1.1*(max)]).range([h, 0]);
 
   // create a line function for each of the concepts
   var linePause = d3.svg.line()
     .x(function(dataPause,i) { 
-      return x(i); 
+      return x(i*multi); 
     })
     .y(function(dataPause) { 
       return y(dataPause); 
@@ -366,7 +362,7 @@ function otherEvents(file, contentId){
 
   var lineRestart = d3.svg.line()
     .x(function(dataRestart,i) { 
-      return x(i); 
+      return x(i*multi); 
     })
     .y(function(dataRestart) { 
       return y(dataRestart); 
@@ -374,14 +370,14 @@ function otherEvents(file, contentId){
 
   var lineVolume = d3.svg.line()
     .x(function(dataVolumeChanges,i) { 
-      return x(i); 
+      return x(i*multi); 
     })
     .y(function(dataVolumeChanges) { 
       return y(dataVolumeChanges); 
     });
 
     // create xAxis
-    var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
+    var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickFormat(function(d){return String(d)+'%'}).tickSubdivide(true);
     // Add to the plot
     graph.append("svg:g")
     .attr("class", "x axis")
@@ -390,7 +386,7 @@ function otherEvents(file, contentId){
 
 
     // create yAxis
-    var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
+    var yAxisLeft = d3.svg.axis().scale(y).ticks(4).tickFormat(function(d){return String(d)+'%'}).orient("left");
     // Add to the plot
     graph.append("svg:g")
     .attr("class", "y axis")
@@ -399,8 +395,8 @@ function otherEvents(file, contentId){
 
     
      //Makes the lines
-    graph.append("svg:path").attr("d", linePause(dataPause)).style("stroke", "red");
     graph.append("svg:path").attr("d", lineRestart(dataRestart)).style("stroke", "darkgreen");
+    graph.append("svg:path").attr("d", linePause(dataPause)).style("stroke", "red");
     graph.append("svg:path").attr("d", lineVolume(dataVolumeChanges)).style("stroke", "orange");
   });
 }
