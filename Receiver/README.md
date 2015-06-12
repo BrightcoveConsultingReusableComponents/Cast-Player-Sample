@@ -52,7 +52,7 @@ This one represents the division of interval (seconds) for the data track implem
   
   this.licenseUrl_ = '';
 ```
-This are <b> important <b> variables. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server.
+This are <b> important </b> variables. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server.
 
 <b>Another fundamental step, setting the media listener events</b>
 ```javascript
