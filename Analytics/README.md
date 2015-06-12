@@ -19,11 +19,11 @@ Bootstrap was used for the basic styling with css/jquery libraries, so it would 
 -----bootstrap.min.css	
 -----styles.css
 -fonts
------glyphicons-halflings-regular.eot	Added Analytics Folder. 
------glyphicons-halflings-regular.svg	Added Analytics Folder. 
------glyphicons-halflings-regular.ttf	Added Analytics Folder. 
------glyphicons-halflings-regular.woff	Added Analytics Folder. 
------glyphicons-halflings-regular.woff2	Added Analytics Folder. 
+-----glyphicons-halflings-regular.eot	
+-----glyphicons-halflings-regular.svg	
+-----glyphicons-halflings-regular.ttf	 
+-----glyphicons-halflings-regular.woff	
+-----glyphicons-halflings-regular.woff2	
 -js
 -----bootstrap.js	
 -----bootstrap.min.js	
