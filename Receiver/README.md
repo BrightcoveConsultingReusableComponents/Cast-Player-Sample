@@ -143,6 +143,7 @@ $('.player .progressBar').css("background-color", progressColor);
 ```
 
 # Player.css
+
 The player.css sample was really well designed and thought, but it was important to make some changes to fit the design structure usually used with Brightcove and to fix some bugs and possible problems. Basically, the parts changed were related to the play/pause, progress bar and logo, making a different template for the player itself.
 
 An example
