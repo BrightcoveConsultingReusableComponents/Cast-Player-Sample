@@ -24,25 +24,31 @@ Let's describe what each of these parts mean.
 ```json
 "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
 ```
+
 ```json
     "title": "For Bigger Escape",
     "duration": 15.046531,
-    ```
-    ```json
+```
+
+```json
     "secondsSeen": "1/1/1/1/1/1/1/1/1/1/1/1/1/1/1/0",
     "secondsPaused": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/1",
     "secondsRestart": "1/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
     "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    ```
-    ```json
+```
+
+```json
     "Views": 1,
-    ```
-    ```json
+```
+
+```json
     "AvgPercentageWatched": 0.9375,
-    ```
-    ```json
+```
+
+```json
     "MilestonePercentagePerSession": [0, 0, 0, 0, 1],
-    ```
-    ```json
+```
+
+```json
     "viewsYear": {"2015": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]}
-    ```
+```
