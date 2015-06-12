@@ -68,9 +68,9 @@ The structure of the POST is set to receive very specific data structure, anythi
 The idea of the whole project is to create the possibility of a full implemented custom receiver that could be easily changed and styled, save data from the user and also to show how this data could be used by the content provider.
 
 The main logic: <br>
-1. Server implements the online website that will provide information for the device. => Exemplifies the online application
-2. Receiver implements the custom receiver, supporting DRM, saving data, all the listened events and easy to change styles. => Exemplifies the full implemented custom app
-3. Server and log implements the data storage. => Exemplifies the way to get and store data from the custom app
+1. Server implements the online website that will provide information for the device. => Exemplifies the online application<br>
+2. Receiver implements the custom receiver, supporting DRM, saving data, all the listened events and easy to change styles. => Exemplifies the full implemented custom app<br>
+3. Server and log implements the data storage. => Exemplifies the way to get and store data from the custom app<br>
 4. Analytics implements the statistical visualization of the data. => Exemplifies the way to use the acquired data to visualize the statistical information.
 
 The main problem with the whole structure is the number 3. The third part is not as applicable as the other ones, the server is very simple and the logic to store data is too risky. There could be POST attacks or corrupted files. Although there is some prevention, the system should change for some other platform such as MONGODB to save JSON more properly. <br>
