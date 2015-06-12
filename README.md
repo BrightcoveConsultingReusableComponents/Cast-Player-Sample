@@ -3,8 +3,23 @@
 This cast player was built upon the sample version of the Custom Receiver Sample Player by Google. The vesions provided by Google are 
 "Default", "Styled Media Receiver" and the "Custom Receiver". The first one is a simple default version as said, the second one
 provides the opportunity to modify some CSS: the background image, the color of the progress bar and the logo. The custom receiver
-allows the full edition of the code regarding Chromecast API to properly load the .js, .css and .html file for the chromecast device.
+allows the full edition of the code regarding Chromecast API to properly load the .js, .css and .html file for the chromecast device.<br>
 
+<h5> Directory Tree </h5>
+```
+-Analytics<br>
+------css<br>
+------fonts<br>
+------js<br>
+------index.html<br>
+-Receiver<br>
+------css<br>
+------js<br>
+------player.html<br>
+-log<br>
+------log.json<br>
+-server.js<br>
+```
 # Chromecast - Setup
 
 - Get the Chromecast device
@@ -32,6 +47,7 @@ If the Analytics/log is not needed, the part of the code that requires that and 
 - $npm install json-stringify-pretty-compact
 - $node server.js
 ```
+<h5>About the server</h5> The server uses the express framework to provide a simple server. It implements Cross-origin resource sharing (CORS), which allows truly open access across domain-boundaries. <br>
 <h5>Debugger</h5>After the server is setup and the application is registered, it's possible to use the chromecast debugger. Using a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try &lt;IP of your Chromecast>:9222 . If it doesn't work, there might be a problem with the sender application (incorrect application ID), the server could not be accessible/online or some similar situation. Try to reboot the server and the chromecast. Changes on the developers console might take around 15 minutes to reload, although it's usually almost simultaneous.<br><br>
 It will display a web page and if you click in the provided link, you will be redirected to the console page. The console page might be blank, so it's necessary to click in the upper-right shield near the link of the page and select "load unsafe scripts" to see the debug messages. Also, it might be necessary to type the command:
 ```
