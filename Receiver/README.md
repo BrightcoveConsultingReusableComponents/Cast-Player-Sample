@@ -14,7 +14,7 @@ Directory Tree
 Player.html is the html loaded. Player.js coordinates the use of the API. Player.css coordinates the styling, and styles.js makes it easy to change the css if necessary without the need to go to the actual player.js code. Assets folder contains the images loaded.
 
 # Player.js
-<h5> WARNING: The code was changed and decreased to fit the space.</h5>
+<h5> WARNING: The parts of the code copied was changed and decreased to fit the spaces properly.</h5>
 <b>First of all, we define the basic properties with Player.js</b>
 ```javascript
 'use strict';
