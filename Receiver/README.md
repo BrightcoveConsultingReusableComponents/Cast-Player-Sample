@@ -14,7 +14,8 @@ Directory Tree
 Player.html is the html loaded. Player.js coordinates the use of the API. Player.css coordinates the styling, and styles.js makes it easy to change the css if necessary without the need to go to the actual player.js code. Assets folder contains the images loaded.
 
 # Player.js
-
+<h5> WARNING: The code was changed and decreased to fit the space.</h5>
+<b>First of all, we define the basic properties with Player.js</b>
 ```javascript
 'use strict';
 var sampleplayer = sampleplayer || {};
@@ -23,21 +24,19 @@ var finalDataServer = 'http://10.1.48.225:9999/';
 sampleplayer.CastPlayer = function(element) {
 ```
 
+The sampleplayer is the javascript object that will be used to call all the functions, variables and orient the API process.<br>
+The constantupdateServer is the server that will have all the events information updated at the same time that they occur<br>
+The finalDataServer (could be the same) is the one that will receive the final information from each Cast Session<br><br>
+
+<b>Then, the basic variables are determined</b>
 ```javascript
-  /*
-   * The title of the video
-   * @private
-   */
-  this.title_ = "";
-
-
   /*
    * The interval set for time divisions
    * @private
    */
   this.timeInterval_ =  1;
 ```
-
+This one represents the division of interval (seconds) for the data track implemented.
 ```javascript
 /*
    * The dictionary with the data capture from each video
@@ -53,7 +52,9 @@ sampleplayer.CastPlayer = function(element) {
   
   this.licenseUrl_ = '';
 ```
+This are <b> important <b> variables. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server.
 
+<b>Another fundamental step, setting the media listener events</b>
 ```javascript
 /**
    * The media element.
@@ -82,8 +83,9 @@ sampleplayer.CastPlayer = function(element) {
   this.receiverManager_ = cast.receiver.CastReceiverManager.getInstance();
   this.receiverManager_.onReady = this.onReady_.bind(this);
   this.receiverManager_.onSystemVolumeChanged = this.onSystemVolumeChanged_.bind(this);
+  ...
 ```
-
+<b>Now, it's time to set the actual binding of events with mediaManager. This is basically what makes all the definitions work and the media actually plays.</b>
 ```javascript
 /**
    * The remote media object.
@@ -99,7 +101,8 @@ sampleplayer.CastPlayer = function(element) {
       this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.mediaManager_.onLoad = this.onLoad_.bind(this);
 ```
-
+<b> The functions that make the last step possible are provided right after. Here some examples of the added functions
+to save data properly</b>
 ```javascript
 sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString) {
   var submit = $.ajax({
@@ -116,14 +119,20 @@ sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString
       });
 }
 ```
+This is the function to make an AJAX call to send data in JSON format.
 ```javascript
 sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
 this.constantUpdate_("Start/Restart");
+....
 ```
+This is the "Playing" event and the function that sends the constant update sending the information that the media started/restarted.
 ```javascript
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
 this.sendAjaxData(this.videoStatsData_, finalDataServer);
+...
 ```
+This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
+
 # Player.css
 kokjbbb
 
