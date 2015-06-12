@@ -6,9 +6,17 @@ provides the opportunity to modify some CSS: the background image, the color of 
 allows the full edition of the code regarding Chromecast API to properly load the .js, .css and .html file for the chromecast device.
 
 # Chromecast - Setup
-i
 
-# Server - Setup
+- Get the Chromecast device
+- Upload the project to a website that can be accessed from Chromecast. When the application is published, it will need to host so that it is accessible using HTTPS.
+- Register the application on the Developers Console (http://cast.google.com/publish). Enter the URL for the player.html or whichever is the name of the html that will be used by the device. 
+- The serial # of the Chromecast device needs to be registered in the developer console as well.
+- 15 minutes after you have updated the developers console, you should reboot your Chromecast, so that it picks up the changes.
+- Enter the App ID of your receiver application into your sender application or one of our sample sender applications, such as DemoCastPlayer.
+- You should now be able to launch your receiver using a sender.
+- Until the app is not published, the system lets you restrict the receiver to devices that you specify and allows you to host on most development servers.
+
+# Server setup and the Chromecast Debugger
 First of all, it's necessary to set the server to start running the project, based on another googlecast project: custom-receiver. <br>
 It is a simple node.js server. It has implemented a simple CORS application that allows the information to be sent Cross-Domain. <br>
 Extra part -> Analytics and log: The server also has a POST request definition, used for saving data used by the Analytics part. Therefore, it's necessary to also install some modules other than just express. It was constructed to simulate a possible use for the information sent by the Cast Player after a session.<br>
@@ -22,6 +30,8 @@ If the Analytics/log is not needed, the part of the code that requires that and 
 - $npm install body-parser
 - $npm install json-stringify-pretty-compact
 - $node server.js
+
+After the server is setup and the application is registered, it's possible to use the chromecast debugger. Using a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try " <IP of your Chromecast>:9222 ". If it doesn't work, there might be a problem with the sender application (incorrect application ID), the server could not be accessible/online or some similar situation. Try to reboot the server and the chromecast. Changes on the developers console might take around 15 minutes to reload, although it's usually almost simultaneous.
 
 # Server - POST requests
 
@@ -45,9 +55,21 @@ This simulates the use of the information sent by ajax for a server. For simplic
 ```
 It is structured as a "dictionary" or an associative array in Javascript language. Each primary key is the unique contentId of each video. The value of each of these keys is another associative array object that contains all the current data for a lot of different attributes of the video. It is written in a way to easily get the data afterwards and to save space. The full explanation of each one of the attributes is explained here: https://github.com/BrightcoveConsultingReusableComponents/Cast-Player-Sample/blob/BCO-js/log/README.md
 
-The structure of the POST
+The structure of the POST is set to receive very specific data structure, anything different from that would be not uploaded in the updated json file created. The POST uses -bodyparser- to get the JSONIFIED string and use it as an object. Then it uses some logical components to add the values to each attribute correctly. In the end, it saves the data on the log folder, using json-stringify-pretty-compact to save in a readable version of json (it could be changed to JSON.stringify to save in a minimal-not-readable json file).
 
 # Upgrades and possible problems
+
+The idea of the whole project is to create the possibility of a full implemented custom receiver that could be easily changed and styled, save data from the user and also to show how this data could be used by the content provider.
+
+The main logic: <br>
+1. Server implements the online website that will provide information for the device. => Exemplifies the online application
+2. Receiver implements the custom receiver, supporting DRM, saving data, all the listened events and easy to change styles. => Exemplifies the full implemented custom app
+3. Server and log implements the data storage. => Exemplifies the way to get and store data from the custom app
+4. Analytics implements the statistical visualization of the data. => Exemplifies the way to use the acquired data to visualize the statistical information.
+
+The main problem with the whole structure is the number 3. The third part is not as applicable as the other ones, the server is very simple and the logic to store data is too risky. There could be POST attacks or corrupted files. Although there is some prevention, the system should change for some other platform such as MONGODB to save JSON more properly. <br>
+
+The first, second and fourth part could be used for production level. Only a few changes on the structure to serve the specific app that it would work with on and some testing patterns to guarantee that it works in different situations must be sufficient. 
 
 # General Structure Explanation
 <b>The New Custom Receiver: </b> <br>
