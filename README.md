@@ -31,7 +31,7 @@ If the Analytics/log is not needed, the part of the code that requires that and 
 - $npm install json-stringify-pretty-compact
 - $node server.js
 
-After the server is setup and the application is registered, it's possible to use the chromecast debugger. Using a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try " <IP of your Chromecast>:9222 ". If it doesn't work, there might be a problem with the sender application (incorrect application ID), the server could not be accessible/online or some similar situation. Try to reboot the server and the chromecast. Changes on the developers console might take around 15 minutes to reload, although it's usually almost simultaneous.
+After the server is setup and the application is registered, it's possible to use the chromecast debugger. Using a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try &lt;IP of your Chromecast>:9222 . If it doesn't work, there might be a problem with the sender application (incorrect application ID), the server could not be accessible/online or some similar situation. Try to reboot the server and the chromecast. Changes on the developers console might take around 15 minutes to reload, although it's usually almost simultaneous.
 
 # Server - POST requests
 
@@ -72,13 +72,15 @@ The main problem with the whole structure is the number 3. The third part is not
 The first, second and fourth part could be used for production level. Only a few changes on the structure to serve the specific app that it would work with on and some testing patterns to guarantee that it works in different situations must be sufficient. 
 
 # General Structure Explanation
-<b>The New Custom Receiver: </b> <br>
+<b>Receiver Folder (The New Custom Receiver): </b> <br>
 <i>CSS/HTML</i>: The new version has a similar User Interface in the html/css part (some differences on the play/pause bar)  
 and is capable of easily change some styling (such as the Styled Media Receiver), just changing some external simple code. 
 
 <i>JAVASCRIPT</i>: The real necessity for the new Custom Receiver is acquiring data from all the different events listened while casting. Therefore, the new version is capable of getting the information from each event and sending it via AJAX call to an external server and then use the data for any particular matter. The events listened: Device Connected/Video Pause/Video Start-Restart/Volume Changed/Seconds Seen/Device Disconnected. The data is divided into Cast Sessions and is particular for each video watched. The data is sent externally via two different ways: <i>Constant Update</i> and <i>Full Data</i>. The constant update is sent to a chosen server every time a different event occur (including milestones for parts of the video watched). The Full Data is also sent to a chosen server in the end of the Cast Session. The chromecast runs a simple html, powered with javascript and css (easy to have the speed decreased), that's why the best way to deal with the data is to sent it externally with an Asynchronous Call (AJAX). 
 
-<b>Server - POST requests: </b> <br>
-<b>Log: </b> <br>
+<b>Server.js</b> <br>
+NODE.js server to implement the application itself and POST requests.
+<b>Log Folder: </b> <br>
+Contains the JSON file with all the information from each video.
 <b>Analytics: </b> <br>
-
+Contains a full web implementation of statistical visualization for the data from each video.
