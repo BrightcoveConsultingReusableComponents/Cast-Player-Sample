@@ -25,15 +25,18 @@ If the Analytics/log is not needed, the part of the code that requires that and 
 - Install Node.js (https://nodejs.org/)
 - Clone this project with github
 - Go to the cloned folder with the command line
+```
 - $npm install express
 - $npm install querystring
 - $npm install body-parser
 - $npm install json-stringify-pretty-compact
 - $node server.js
-
-<h5>Debugger</h5><br>
-After the server is setup and the application is registered, it's possible to use the chromecast debugger. Using a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try &lt;IP of your Chromecast>:9222 . If it doesn't work, there might be a problem with the sender application (incorrect application ID), the server could not be accessible/online or some similar situation. Try to reboot the server and the chromecast. Changes on the developers console might take around 15 minutes to reload, although it's usually almost simultaneous.<br>
-It will display a web page and if you click in the provided link, you will be redirected to the console page. The console page might be blank, so it's necessary to click in the upper-right shield near the link of the page and select "load unsafe scripts" to see the debug messages. Also, it might be necessary to type the command: cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG).
+```
+<h5>Debugger</h5>After the server is setup and the application is registered, it's possible to use the chromecast debugger. Using a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try &lt;IP of your Chromecast>:9222 . If it doesn't work, there might be a problem with the sender application (incorrect application ID), the server could not be accessible/online or some similar situation. Try to reboot the server and the chromecast. Changes on the developers console might take around 15 minutes to reload, although it's usually almost simultaneous.<br><br>
+It will display a web page and if you click in the provided link, you will be redirected to the console page. The console page might be blank, so it's necessary to click in the upper-right shield near the link of the page and select "load unsafe scripts" to see the debug messages. Also, it might be necessary to type the command:
+```
+cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG).
+```
 
 
 # Server - POST requests
