@@ -7,18 +7,18 @@ allows the full edition of the code regarding Chromecast API to properly load th
 
 <h5> Directory Tree </h5>
 ```
--Analytics<br>
-------css<br>
-------fonts<br>
-------js<br>
-------index.html<br>
--Receiver<br>
-------css<br>
-------js<br>
-------player.html<br>
--log<br>
-------log.json<br>
--server.js<br>
+-Analytics
+------css
+------fonts
+------js
+------index.html
+-Receiver
+------css
+------js
+------player.html
+-log
+------log.json
+-server.js
 ```
 # Chromecast - Setup
 
