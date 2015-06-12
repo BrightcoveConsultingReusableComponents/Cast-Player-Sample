@@ -85,9 +85,9 @@ and is capable of easily change some styling (such as the Styled Media Receiver)
 <i>JAVASCRIPT</i><br> The real necessity for the new Custom Receiver is acquiring data from all the different events listened while casting. Therefore, the new version is capable of getting the information from each event and sending it via AJAX call to an external server and then use the data for any particular matter. The events listened: Device Connected/Video Pause/Video Start-Restart/Volume Changed/Seconds Seen/Device Disconnected. The data is divided into Cast Sessions and is particular for each video watched. The data is sent externally via two different ways: <i>Constant Update</i> and <i>Full Data</i>. The constant update is sent to a chosen server every time a different event occur (including milestones for parts of the video watched). The Full Data is also sent to a chosen server in the end of the Cast Session. The chromecast runs a simple html, powered with javascript and css (easy to have the speed decreased), that's why the best way to deal with the data is to sent it externally with an Asynchronous Call (AJAX). 
 
 <b>Server.js</b> <br>
-NODE.js server to implement the application itself and POST requests. Full explanation is given above.<br>
+NODE.js server to implement the application itself and POST requests. Full explanation is given above.<br><br>
 <b>Log Folder: </b> <br>
 Contains the JSON file with all the information from each video. The full structure is explained here: https://github.com/BrightcoveConsultingReusableComponents/Cast-Player-Sample/blob/BCO-js/log/README.md
-<br>
+<br><br>
 <b>Analytics: </b> <br>
 Contains a full web implementation of statistical visualization for the data from each video. The full structure is explained here: https://github.com/BrightcoveConsultingReusableComponents/Cast-Player-Sample/blob/BCO-js/Analytics/README.md
