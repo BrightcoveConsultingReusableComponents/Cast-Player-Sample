@@ -14,7 +14,7 @@ Directory Tree
 Player.html is the html loaded. Player.js coordinates the use of the API. Player.css coordinates the styling, and styles.js makes it easy to change the css if necessary without the need to go to the actual player.js code. Assets folder contains the images loaded.
 
 # Player.js
-<h5> WARNING: The parts of the code copied was changed and decreased to fit the spaces properly.</h5>
+<h5> WARNING: The parts of the code copied were changed and decreased to fit the spaces properly.</h5>
 <b>First of all, we define the basic properties with Player.js</b>
 ```javascript
 'use strict';
@@ -133,6 +133,32 @@ this.sendAjaxData(this.videoStatsData_, finalDataServer);
 ```
 This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
 
+# Styles.js
+It basically uses jQuery to change the css structure of the page. An example to easily change the background color:
+```javascript
+/changes the progress bar color
+var progressColor = "rgb(255, 255, 255)";
+/progress bar color
+$('.player .progressBar').css("background-color", progressColor);
+```
+
 # Player.css
-kokjbbb
+The player.css sample was really well designed and thought, but it was important to make some changes to fit the design structure usually used with Brightcove and to fix some bugs and possible problems. Basically, the parts changed were related to the play/pause, progress bar and logo, making a different template for the player itself.
+
+An example
+```css
+.player .controls-progress {
+  background-color: rgba(255, 255, 255, 0.2);
+  height: 11px;
+  margin-top: 18px;
+  margin-bottom: 9px;
+  width: 80%;
+  margin-left: 10%;
+  overflow: hidden;
+  position: relative;
+}
+```
+
+The controll progress bar css.
+
 
