@@ -6,8 +6,8 @@ The analytics folder was constructed to display an example of how the chromecast
 Bootstrap was used for the basic styling with css/jquery libraries, so it would be responsive and clean. D3.js was the chosen library to implement the graphs, seen that it has a lot of freedom to handle the data and provide some beautiful ways to display axis.
 
 #Structure
-The basic file structure is:
 
+<h5>Directory Tree</h5>
 ```
 -index.html
 -css
