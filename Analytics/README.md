@@ -42,7 +42,7 @@ The basic file structure is:
 
 Simple explanation to exemplify: 
 
-Parts Watched Graph:
+<h3>Parts Watched Graph</h3>
 
 <b>The event is fired in plot.js (could be via a tab, button, search)</b>:
 ```javascript
