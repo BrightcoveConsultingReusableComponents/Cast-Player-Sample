@@ -27,7 +27,7 @@ var sampleplayer = sampleplayer || {};
 /*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
   FinalDataServer is the server the will get the final analytics status after the cast session is over */
 var constantUpdateServer = '';
-var finalDataServer = 'http://10.1.48.204:9999/';
+var finalDataServer = '';
 
 
 /**
