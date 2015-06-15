@@ -27,22 +27,18 @@ var sampleplayer = sampleplayer || {};
 /*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
   FinalDataServer is the server the will get the final analytics status after the cast session is over */
 var constantUpdateServer = '';
-var finalDataServer = 'http://10.1.48.225:9999/';
+var finalDataServer = 'http://10.1.48.204:9999/';
+
 
 /**
- * <p>
+ * 
  * Cast player constructor - This does the following:
- * </p>
- * <ol>
- * <li>Bind a listener to visibilitychange</li>
- * <li>Set the default state</li>
- * <li>Bind event listeners for img & video tags<br />
- *  error, stalled, waiting, playing, pause, ended, timeupdate, seeking, &
- *  seeked</li>
- * <li>Find and remember the various elements</li>
- * <li>Create the MediaManager and bind to onLoad & onStop</li>
- * </ol>
- *
+ * Bind a listener to visibilitychange
+ * Set the default state
+ * Bind event listeners for img & video tags: error, stalled, waiting, playing, pause, ended, timeupdate, seeking, &
+ * seeked and remember the various elements
+ * Create the MediaManager and bind to onLoad & onStop
+ * 
  * @param {!Element} element the element to attach the player
  * @struct
  * @constructor
@@ -51,10 +47,8 @@ var finalDataServer = 'http://10.1.48.225:9999/';
 sampleplayer.CastPlayer = function(element) {
    
    /** Data Track **
-   *   Added Variables to the Google Cast Sample **************
-  ***********************************************************************
-  ***********************************************************************
-       
+   *   Added Variables to collect data from the following events, before they are even declare
+    *****************************************************************************************
    */
 
    /*
@@ -144,8 +138,7 @@ sampleplayer.CastPlayer = function(element) {
 
 
   /*
-  /*  Google Sample variables *******************************************
-  ***********************************************************************
+  /*  All the necesssary listeners and functions to start the player
   ***********************************************************************
   /**
    * The debug setting to control receiver, MPL and player logging.
@@ -324,6 +317,8 @@ sampleplayer.CastPlayer = function(element) {
       false);
   this.mediaElement_.addEventListener('seeked', this.onSeekEnd_.bind(this),
       false);
+  this.mediaElement_.addEventListener('loadeddata', this.onLoadedData_.bind(this),
+      false);
   
 
   /**
@@ -346,7 +341,6 @@ sampleplayer.CastPlayer = function(element) {
       'urn:x-cast:com.google.cast.sample.mediaplayer');
   this.messageBus_.onMessage = this.onMessage_.bind(this);
   
-  console.log(this.messageBus_);
 
 
 
@@ -382,15 +376,6 @@ sampleplayer.CastPlayer = function(element) {
   this.mediaManager_.onMetadataLoaded = this.onMetadataLoaded_.bind(this);
   
   /**
-  this.mediaManager_['onPauseOrig'] = this.mediaManager_.onPause;
-  /**
-  * Process pause event
-  * @param {Object} event
-  this.mediaManager_.onPause = function(event) {
-    console.log("aqui estamos")
-  };*/
-
-  /**
    * The original stop callback.
    * @private {?function(cast.receiver.MediaManager.Event)}
    */
@@ -421,6 +406,7 @@ sampleplayer.CastPlayer = function(element) {
   this.mediaManager_.onCancelPreload = this.onCancelPreload_.bind(this);
 };
 
+/*Constructor Ended. The states and related definitions start. */ 
 
 /**
  * The amount of time in a given state before the player goes idle.
@@ -536,16 +522,15 @@ sampleplayer.ENABLE_DEBUG_ = true;
  */
 sampleplayer.DISABLE_DEBUG_ = false;
 
-/*
-*  All the prototyped functions of the project*************
-***********************************************************************
-***********************************************************************
-*/
 
 /**
- * Functions added to the sample project
+ * All functions for the project
  ***********************************************************************
  */
+
+
+/**
+ * First, the Data Track auxiliar functions*/
 
  /**
  * Returns the array of int intervals for a determined video
@@ -585,6 +570,13 @@ sampleplayer.CastPlayer.prototype.addSecond = function(array, second) {
   }
 }
 
+/**
+ * Send data via ajax to a determined server
+ *
+ * @param content and server url
+ * @return Void
+ * @private
+ */
 sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString) {
   var submit = $.ajax({
           url: urlString, 
@@ -598,7 +590,31 @@ sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString
         submit.success(function (data) {
           console.log("Success");
       });
-}
+};
+
+/**
+ * Uses sendAjaxData to send a sample message for the pattern/normal events
+ *
+ * @param EventString
+ * @return Void
+ * @private
+ */
+sampleplayer.CastPlayer.prototype.constantUpdate_ = function(EventString){
+  //Sending paused event to external server to generate analytics data
+  var media = this.mediaManager_.getMediaInformation();
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage[EventString] = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  console.log(sendingUpdateMessage);
+  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+};
+
+/**
+ * Check if one of the time milestone was achieved
+ *
+ * @param array of seconds, duration of the video, oldMilestone achieved
+ * @return milestone
+ * @private
+ */
 
 sampleplayer.CastPlayer.prototype.checkMilestone = function(array, duration, oldMilestone){
   var watched = array.length;
@@ -625,24 +641,85 @@ sampleplayer.CastPlayer.prototype.checkMilestone = function(array, duration, old
   }
 }
 
-sampleplayer.CastPlayer.prototype.constantUpdate_ = function(EventString){
-  //Sending paused event to external server to generate analytics data
-  var media = this.mediaManager_.getMediaInformation();
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage[EventString] = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  console.log(sendingUpdateMessage);
-  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
-}
+/**
+ * onMessage functions to use custom information sent by the sender App.
+ *
+ * @param the message event
+ * @return void
+ * @private
+ */
 
 sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
-
+  
   var myEvent = JSON.parse(event['data']);
     if (myEvent['type'] === 'license') {
       this.licenseUrl_ = myEvent.value;
-    }
+    } 
 
 };
 
+/**
+ * Change the screen message, when there is an invalid URL license
+ *
+ * @param none
+ * @return void
+ * @private
+ */
+
+sampleplayer.CastPlayer.prototype.setDRMmessage_ = function(){
+  var imgUrl = $('.logo').css('background-image');
+  $('.logo').html('The DRM license is invalid')
+  $('.logo').css('background-image', 'none');
+  setTimeout(function() {
+        $('.logo').html("");
+        $('.logo').css('background-image', imgUrl);
+     }, 6000);
+};
+
+/**
+ * Handler for the loadedData event. Attempt to capture bitrates/video quality for the streaming video
+ *
+ * @param none
+ * @return void
+ * @private
+ */
+
+sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
+  console.log('MEDIA LOADED');
+  var media = this.mediaManager_.getMediaInformation();
+  var url = media.contentId;
+  var protocol = this.player_.getStreamingProtocol();
+  var streamCount = protocol.getStreamCount();
+  var streamInfo;
+  var streamVideoCodecs;
+  var streamAudioCodecs;
+  var captions = {};
+  var streamVideoBitrates;
+  var videoStreamIndex;
+
+  
+  for (var c = 0; c < streamCount; c++) {
+    streamInfo = protocol.getStreamInfo(c);
+    if (streamInfo.mimeType === 'text') {
+      captions[c] = streamInfo.language;
+    } else if (streamInfo.mimeType === 'video/mp4' ||
+        streamInfo.mimeType === 'video/mp2t') {
+      streamVideoCodecs = streamInfo.codecs;
+      streamVideoBitrates = streamInfo.bitrates;
+      var videoLevel = protocol.getQualityLevel(c);
+      videoStreamIndex = c;
+    } 
+    else {
+    }
+  }
+ 
+    var caption_message = {};
+    caption_message['captions'] = captions;
+    var video_bitrates_message = {};
+    video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+  
+
+};
 
 /**
  * Sample functions (modified to extract data)
@@ -924,7 +1001,11 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
   if (!sampleplayer.isCastForAudioDevice_()) {
     var metadata = media.metadata || {};
     var titleElement = this.element_.querySelector('.media-title');
-    this.title_ = metadata.title;
+    if(metadata != undefined){
+      this.title_ = metadata.title;
+    }else{
+      this.title_ = "Untitled"
+    }
     sampleplayer.setInnerText_(titleElement, this.title_);
 
     var subtitleElement = this.element_.querySelector('.media-subtitle');
@@ -1028,6 +1109,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     var loadErrorCallback = function() {
       // unload player and trigger error event on media element
       if (self.player_) {
+        this.setDRMmessage_();
         self.resetMediaElement_();
         self.mediaElement_.dispatchEvent(new Event('error'));
       }
@@ -1043,7 +1125,7 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         'url': url,
         'mediaElement': this.mediaElement_
       });
-      console.log(this.licenseUrl_);
+      //console.log(this.licenseUrl_);
       if(this.licenseUrl_ != ''){
         host.licenseUrl = this.licenseUrl_ ;
         console.log('License URL was set');
@@ -1518,6 +1600,7 @@ sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
   //Send all the data via ajax to final destination/processing server
   this.sendAjaxData(this.videoStatsData_, finalDataServer);
+  console.log(finalDataServer);
   //console.log the disconnect message
   this.log_('onSenderDisconnected');
 
@@ -1577,9 +1660,12 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   /*Check if this video was watched. If not, create an element on the associative
    array that carries its data*/
   var media = this.mediaManager_.getMediaInformation();
-  
   if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
-    this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
+    if(media.metadata != undefined){
+      this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
+    }else{
+      this.videoStatsData_[media.contentId] = {"title": media.contentId, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
+    }
     this.timeArray_[media.contentId] = [];
     this.secondsSeen_[media.contentId] = [];
     this.secondsPaused_[media.contentId] = [];
@@ -1786,7 +1872,11 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       //Change the title with the percentage watched
       var titleElement = this.element_.querySelector('.media-title');
       var percentage = String(' (' + pctInt + '%)');
-      var title = this.title_ + percentage;
+      if(this.title_ != undefined && this.title_ != 'undefined'){
+        var title = this.title_ + percentage;
+      } else{
+        var title = 'Untitled' + percentage;
+      }
       sampleplayer.setInnerText_(titleElement, title);
       
 

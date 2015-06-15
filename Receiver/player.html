@@ -36,22 +36,28 @@ The overlay layer holds:
 <html>
 <head>
   <title>Cast Reference Receiver</title>
+  <!-- Declarations of all the libraries/API/sdk necessary for the project-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/player.css" />
+  <!-- Google Cast -->
   <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
   <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js"></script>
+  <!-- JQuery-->
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <!-- Server files-->
   <script type="text/javascript" src="js/player.js"></script>
   <script src="js/styles.js"></script>
   
 </head>
 
 <body style="margin: 0">
+  <!-- Player itself-->
     <div id="player" class="player">
         <div class="media">
             <video></video>
         </div>
+        <!-- Logo, watermark, overlay, etc definitions-->
         <div class="logo"></div>
         <div class="spinner"></div>
         <div class="watermark"></div>
@@ -64,6 +70,7 @@ The overlay layer holds:
                     <div class="media-subtitle"></div>
                 </div>
             </div>
+            <!-- Preview Window-->
             <div class="preview-mode-info">
                 <div class="preview-mode-artwork"></div>
                 <div class="preview-mode-text">
@@ -76,6 +83,7 @@ The overlay layer holds:
                     <div class="preview-mode-subtitle"></div>
                 </div>
             </div>
+            <!-- Progress Bar-->
             <div class="controls">
                 <span class="controls-play-pause"></span>
                 <span class="controls-cur-time"></span>
@@ -88,6 +96,7 @@ The overlay layer holds:
         </div>
     </div>
     <script>
+      //Starts the player
       var playerDiv = document.getElementById('player');
       new sampleplayer.CastPlayer(playerDiv).start();
     </script>

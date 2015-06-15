@@ -2,14 +2,14 @@
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4": {
     "title": "Big Buck Bunny",
     "duration": 596.474195,
-    "secondsSeen": "34/0/0/0/0/0/0/0/0/0/0/6/1e/a/0/0/0/2/1e/1e",
+    "secondsSeen": "46/0/5/1d/0/0/0/0/0/0/0/6/1e/a/0/0/0/2/1e/1e",
     "secondsPaused": "5/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "secondsRestart": "7/0/0/0/0/0/0/0/0/0/0/1/0/0/0/0/0/1/0/0",
+    "secondsRestart": "8/0/1/0/0/0/0/0/0/0/0/1/0/0/0/0/0/1/0/0",
     "secondsVolumeChanged": "0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0",
-    "Views": 6,
-    "AvgPercentageWatched": 0.15384615384615383,
-    "MilestonePercentagePerSession": [6, 0, 0, 0, 0],
-    "viewsYear": {"2015": [0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0]}
+    "Views": 7,
+    "AvgPercentageWatched": 0.1514285714285714,
+    "MilestonePercentagePerSession": [7, 0, 0, 0, 0],
+    "viewsYear": {"2015": [0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0]}
   },
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4": {
     "title": "For Bigger Fun",
