@@ -135,6 +135,13 @@ sampleplayer.CastPlayer = function(element) {
   
   this.licenseUrl_ = '';
 
+  /*
+   * The current protocol in use for the current host
+   * @private
+   */
+  
+  //this.currentProtocol_;
+
 
 
   /*
@@ -659,24 +666,6 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
 };
 
 /**
- * Change the screen message, when there is an invalid URL license
- *
- * @param none
- * @return void
- * @private
- */
-
-sampleplayer.CastPlayer.prototype.setDRMmessage_ = function(){
-  var imgUrl = $('.logo').css('background-image');
-  $('.logo').html('The DRM license is invalid')
-  $('.logo').css('background-image', 'none');
-  setTimeout(function() {
-        $('.logo').html("");
-        $('.logo').css('background-image', imgUrl);
-     }, 6000);
-};
-
-/**
  * Handler for the loadedData event. Attempt to capture bitrates/video quality for the streaming video
  *
  * @param none
@@ -686,10 +675,10 @@ sampleplayer.CastPlayer.prototype.setDRMmessage_ = function(){
 
 sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
   console.log('MEDIA LOADED');
-  var media = this.mediaManager_.getMediaInformation();
-  var url = media.contentId;
-  var protocol = this.player_.getStreamingProtocol();
+  /*
+  var protocol = this.currentProtocol_;
   var streamCount = protocol.getStreamCount();
+  console.log('change6');
   var streamInfo;
   var streamVideoCodecs;
   var streamAudioCodecs;
@@ -697,7 +686,6 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
   var streamVideoBitrates;
   var videoStreamIndex;
 
-  
   for (var c = 0; c < streamCount; c++) {
     streamInfo = protocol.getStreamInfo(c);
     if (streamInfo.mimeType === 'text') {
@@ -713,10 +701,13 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
     }
   }
  
-    var caption_message = {};
-    caption_message['captions'] = captions;
-    var video_bitrates_message = {};
-    video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+  var caption_message = {};
+  caption_message['captions'] = captions;
+  var video_bitrates_message = {};
+  video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+  
+  console.log(caption_message);
+  console.log(video_bitrates_message);*/
   
 
 };
@@ -886,6 +877,7 @@ sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
   };
   self.preloadPlayer_ = new cast.player.api.Player(host);
   self.preloadPlayer_.preload(protocolFunc(host));
+  //this.currentProtocol_ = protocolFunc(host);
   return true;
 };
 
@@ -1107,9 +1099,21 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     // If we have not preloaded or the content preloaded does not match the
     // content that needs to be loaded, perform a full load
     var loadErrorCallback = function() {
+
+      //Change the screen message, when there is an invalid URL license
+      function setDRMmessage(){
+        var imgUrl = $('.logo').css('background-image');
+        $('.logo').html('This streaming is invalid.')
+        $('.logo').css('background-image', 'none');
+        setTimeout(function() {
+              $('.logo').html("");
+              $('.logo').css('background-image', imgUrl);
+           }, 15000);
+      };
+
       // unload player and trigger error event on media element
       if (self.player_) {
-        this.setDRMmessage_();
+        setDRMmessage();
         self.resetMediaElement_();
         self.mediaElement_.dispatchEvent(new Event('error'));
       }
@@ -1125,14 +1129,16 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         'url': url,
         'mediaElement': this.mediaElement_
       });
-      //console.log(this.licenseUrl_);
+      console.log(this.licenseUrl_);
       if(this.licenseUrl_ != ''){
         host.licenseUrl = this.licenseUrl_ ;
         console.log('License URL was set');
       }
+
       host.onError = loadErrorCallback;
       this.player_ = new cast.player.api.Player(host);
       this.player_.load(protocolFunc(host));
+      //this.currentProtocol_ = protocolFunc(host);
     } else {
       this.log_('Preloaded video load');
       this.player_ = this.preloadPlayer_;
@@ -1590,6 +1596,7 @@ sampleplayer.CastPlayer.prototype.onSenderConnected_ = function(event) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
+  console.log("aqui");
   //Data Track
   //When disconnected, sends the data to the respective recipients
 

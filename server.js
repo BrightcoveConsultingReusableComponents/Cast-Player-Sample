@@ -1,3 +1,4 @@
+//Defining express framework and other libraries variables
 var express = require("express"),
     app     = express(),
     qs = require('querystring'),
@@ -5,7 +6,7 @@ var express = require("express"),
     bs = require( "body-parser"),
     stringify = require("json-stringify-pretty-compact");
 
-//CORS middleware - Allow-Origin
+//CORS middleware - Allow Cross Origin requests
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*'); // NOT SAFE FOR PRODUCTION
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -14,17 +15,20 @@ var allowCrossDomain = function(req, res, next) {
     next();
 }
 
+//use the allowCrossDomain function and bodyparsing
     app.use(allowCrossDomain);
     app.use(express.static(__dirname));
     app.use(bs());
 
+//server POST definitions
     app.post('/', function(req,res){
-
+        //get and parse data
         var newData = req.body;
         var newDataKeys = Object.keys(newData);
 
         var file_content = fs.readFileSync('log/log.json');
-
+        
+        //See if file is empty or not
         try {
             var currentData = JSON.parse(file_content);
             var currentDataKeys = Object.keys(currentData);
@@ -194,10 +198,16 @@ var allowCrossDomain = function(req, res, next) {
 
             }
         }
+        //The parsing is done
         console.log("Done.");
         var spacedLog = stringify(currentData);
         fs.writeFileSync("log/log.json", spacedLog);
         
+        /*
+        ******* AUXILIAR FUNCTIONS
+        */
+
+        //update the array with the new seconds seen
         function updatedArrayOfSeconds(oldArray, newArray) {
             var updated = [];
             for(var i = 0; i<oldArray.length; i++){
@@ -206,7 +216,8 @@ var allowCrossDomain = function(req, res, next) {
             }
             return updated;
         }
-
+         
+        //binarize the array using the indexes given
         function transformToBinaryArray(array, duration){
             var binary = [];
             for(var k = 0; k<(duration); k++){
@@ -218,7 +229,8 @@ var allowCrossDomain = function(req, res, next) {
             }
             return binary;
         }
-
+        
+        // get the average watched from the array
         function getAverageWatched(array){
             var count = 0;
             for(var c = 0; c<array.length; c++){
@@ -227,7 +239,8 @@ var allowCrossDomain = function(req, res, next) {
             var average = count/array.length;
             return average;
         }
-
+        
+        //normalize the array
         function normalizeArray(array, n){
             var normal = [];
             for(var c = 0; c<array.length; c++){
@@ -235,7 +248,8 @@ var allowCrossDomain = function(req, res, next) {
             }
             return normal;
         }
-
+        
+        //update the average watched
         function getAverageUpdated(array){
             var count = 0;
             for(var c = 0; c<array.length; c++){
@@ -244,7 +258,8 @@ var allowCrossDomain = function(req, res, next) {
             var average = count/array.length;
             return average;
         }
-
+        
+        //chech the milestone for determined value
         function checkMilestone(value){
             if(value>0.9){
             var milestone = 4;
@@ -261,7 +276,7 @@ var allowCrossDomain = function(req, res, next) {
         }
 
         
-
+        //turn the array into array of Sum
         function getSumArray(array, n){
             var split = split(array, n);
             var avg = averageLengthModifier(split);
@@ -334,7 +349,8 @@ var allowCrossDomain = function(req, res, next) {
             }
 
         }
-
+         
+        //Compress from deciaml array to hexadecimal string
         function compressToHexString(array){
             var hex = '';
             for(var i=0; i<array.length; i++){
@@ -358,7 +374,7 @@ var allowCrossDomain = function(req, res, next) {
             return ConvertBase(num).from(10).to(16);
             }
         }
-
+        //decompress from hexadecimal string to decimal array
         function decompressToDecArray(hexString){
              var hex = hexString.split("/");
              var dec = [];
