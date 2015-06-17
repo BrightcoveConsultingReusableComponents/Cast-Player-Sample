@@ -606,11 +606,10 @@ sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString
  * @return Void
  * @private
  */
-sampleplayer.CastPlayer.prototype.constantUpdate_ = function(EventString){
+sampleplayer.CastPlayer.prototype.constantUpdate_ = function(EventString, data){
   //Sending paused event to external server to generate analytics data
-  var media = this.mediaManager_.getMediaInformation();
   var sendingUpdateMessage = {};
-  sendingUpdateMessage[EventString] = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  sendingUpdateMessage[EventString] = data;
   console.log(sendingUpdateMessage);
   this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
 };
@@ -675,6 +674,38 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
 
 sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
   console.log('MEDIA LOADED');
+  var protocol = this.player_.getStreamingProtocol();
+  var streamCount = protocol.getStreamCount();
+  var streamInfo;
+  var streamVideoCodecs;
+  var streamAudioCodecs;
+  var captions = {};
+  var streamVideoBitrates;
+  var videoStreamIndex;
+  console.log(streamCount);
+  
+  for (var c = 0; c < streamCount; c++) {
+    streamInfo = protocol.getStreamInfo(c);
+    if (streamInfo.mimeType === 'text') {
+      captions[c] = streamInfo.language;
+    } else if (streamInfo.mimeType === 'video/mp4' ||
+        streamInfo.mimeType === 'video/mp2t') {
+      streamVideoCodecs = streamInfo.codecs;
+      streamVideoBitrates = streamInfo.bitrates;
+      var videoLevel = protocol.getQualityLevel(c);
+      videoStreamIndex = c;
+    } 
+    else {
+    }
+  }
+
+  var caption_message = {};
+  caption_message['captions'] = captions;
+  var video_bitrates_message = {};
+  video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+  this.constantUpdate_("Captions", caption_message);
+  this.constantUpdate_("Bitrates", video_bitrates_message);
+
   /*
   var protocol = this.currentProtocol_;
   var streamCount = protocol.getStreamCount();
@@ -1582,10 +1613,8 @@ sampleplayer.CastPlayer.prototype.onReady_ = function() {
 
 sampleplayer.CastPlayer.prototype.onSenderConnected_ = function(event) {
   //Sending 'connected' event to external server to generate analytics data
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage["Connected"] = ["Cast Session started"];
-  console.log(sendingUpdateMessage);
-  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  var updateData = ["Cast Session started"];
+  this.constantUpdate_("Connected", updateData);
 };
 
 
@@ -1601,10 +1630,8 @@ sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //When disconnected, sends the data to the respective recipients
 
   //Sending 'connected' event to external server to generate analytics data
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage["Disconnected"] = ["Cast Session ended"];
-  console.log(sendingUpdateMessage);
-  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  var updateData = ["Cast Session ended"];
+  this.constantUpdate_("Disconnected", updateData);
   //Send all the data via ajax to final destination/processing server
   this.sendAjaxData(this.videoStatsData_, finalDataServer);
   console.log(finalDataServer);
@@ -1690,7 +1717,8 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
   this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
   
   //Sending restart/start event to external server to generate analytics data
-  this.constantUpdate_("Start/Restart");
+  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  this.constantUpdate_("Start/Restart", updateData);
   
   
   
@@ -1720,7 +1748,8 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
   this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
   
   //Sending paused event to external server to generate analytics data
-  this.constantUpdate_("Paused");
+  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  this.constantUpdate_("Paused", updateData);
   
 
   this.cancelDeferredPlay_('media is paused');
@@ -1740,7 +1769,8 @@ sampleplayer.CastPlayer.prototype.onPause_ = function() {
 
 sampleplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
   //Sending 'volume' event to external server to generate analytics data
-  this.constantUpdate_("VolumeChanged");
+  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  this.constantUpdate_("VolumeChanged", updateData);
 
   //Adds a 'volume' event timestamp for the current video
   var media = this.mediaManager_.getMediaInformation();
@@ -1798,7 +1828,8 @@ sampleplayer.CastPlayer.prototype.onStop_ = function(event) {
  */
 sampleplayer.CastPlayer.prototype.onEnded_ = function() {
   this.log_('onEnded');
-  this.constantUpdate_("Ended");
+  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  this.constantUpdate_("Ended", updateData);
   this.setState_(sampleplayer.State.IDLE, true);
   this.hidePreviewMode_();
 };
@@ -1869,10 +1900,10 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       var check = this.checkMilestone(this.secondsSeen_[media.contentId], this.mediaElement_.duration, this.lastMilestone_[media.contentId]);
       if(this.lastMilestone_[media.contentId] != check){
         this.lastMilestone_[media.contentId] = check;
-        var sendingUpdateMessage = {};
-        sendingUpdateMessage["Milestone"] = [media.contentId, this.title_, this.lastMilestone_[media.contentId]];
-        console.log(sendingUpdateMessage);
-        this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+        //send the message
+        var updateData = [media.contentId, this.title_, this.lastMilestone_[media.contentId]];
+        this.constantUpdate_("Milestone", updateData);
+
       }
       
       
