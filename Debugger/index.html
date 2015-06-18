@@ -1,0 +1,63 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>AJAX TESTS</title> 
+	<link href='http://fonts.googleapis.com/css?family=Lato:300,400' rel='stylesheet' type='text/css'>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
+
+<body>
+
+<div>
+<input type = "button" id = "goblet-submit" value = "ENTER!"  /><br/>
+</div>
+
+<script>
+$(document).ready(function(){
+
+		var lastDataSaved = 0;
+		
+        var source = new EventSource("stream/date");
+		source.addEventListener("date", function(event) {
+          var currentData = event.data;
+          if(currentData != lastDataSaved){
+          	console.log(JSON.parse(currentData));
+          	lastDataSaved = currentData;
+          } 
+        }, false);
+
+        /*$(document).on("click", "#goblet-submit", function() {
+		    
+			//Make the ajax call and process the results
+			submit = $.ajax({
+				method: 'POST', // added,
+				url: "http://10.1.48.204:1337/",
+				data: '{"data": "TEST"}',
+				error: function(error) {
+					console.log(error);
+				}
+			});
+
+			submit.success(function (data) {
+			    var ret = jQuery.parseJSON(data);
+			    console.log(ret.msg);
+			});
+		
+        });*/
+		 
+
+	});
+
+
+
+		
+
+		 
+
+	
+
+</script>
+		
+</body>
+</html>

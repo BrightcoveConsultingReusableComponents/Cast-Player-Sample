@@ -673,7 +673,7 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
  */
 
 sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
-  console.log('MEDIA LOADED');
+  console.log("aqui aqui");
   var protocol = this.player_.getStreamingProtocol();
   var streamCount = protocol.getStreamCount();
   var streamInfo;
@@ -682,7 +682,6 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
   var captions = {};
   var streamVideoBitrates;
   var videoStreamIndex;
-  console.log(streamCount);
   
   for (var c = 0; c < streamCount; c++) {
     streamInfo = protocol.getStreamInfo(c);
@@ -699,48 +698,18 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
     }
   }
 
-  var caption_message = {};
-  caption_message['captions'] = captions;
-  var video_bitrates_message = {};
-  video_bitrates_message['video_bitrates'] = streamVideoBitrates;
-  this.constantUpdate_("Captions", caption_message);
-  this.constantUpdate_("Bitrates", video_bitrates_message);
-
-  /*
-  var protocol = this.currentProtocol_;
-  var streamCount = protocol.getStreamCount();
-  console.log('change6');
-  var streamInfo;
-  var streamVideoCodecs;
-  var streamAudioCodecs;
-  var captions = {};
-  var streamVideoBitrates;
-  var videoStreamIndex;
-
-  for (var c = 0; c < streamCount; c++) {
-    streamInfo = protocol.getStreamInfo(c);
-    if (streamInfo.mimeType === 'text') {
-      captions[c] = streamInfo.language;
-    } else if (streamInfo.mimeType === 'video/mp4' ||
-        streamInfo.mimeType === 'video/mp2t') {
-      streamVideoCodecs = streamInfo.codecs;
-      streamVideoBitrates = streamInfo.bitrates;
-      var videoLevel = protocol.getQualityLevel(c);
-      videoStreamIndex = c;
-    } 
-    else {
-    }
+  if (Object.keys(captions).length > 0) {
+    var caption_message = {};
+    caption_message['captions'] = captions;
   }
- 
-  var caption_message = {};
-  caption_message['captions'] = captions;
-  var video_bitrates_message = {};
-  video_bitrates_message['video_bitrates'] = streamVideoBitrates;
-  
-  console.log(caption_message);
-  console.log(video_bitrates_message);*/
-  
 
+  if (streamVideoBitrates && Object.keys(streamVideoBitrates).length > 0) {
+    var video_bitrates_message = {};
+    video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+    this.constantUpdate_("Captions", caption_message);
+    this.constantUpdate_("Bitrates", video_bitrates_message);
+  }
+  
 };
 
 /**
@@ -1625,7 +1594,6 @@ sampleplayer.CastPlayer.prototype.onSenderConnected_ = function(event) {
  * @private
  */
 sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
-  console.log("aqui");
   //Data Track
   //When disconnected, sends the data to the respective recipients
 
