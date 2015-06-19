@@ -27,7 +27,9 @@ sse.writeSSEHead = function (req, res, cb) {
     return cb(req, res);
 };
 
-var myData = "Session: "
+var lastData = "Session: ";
+var myData = "Session: ";
+
 
 sse.writeSSEData = function (req, res, event, data, cb) {
     var id = (new Date()).toLocaleTimeString();
@@ -48,8 +50,12 @@ app.get('/stream/date', function(req, res) {
       sse.writeSSEData(req, res, event, new Date(), function(req, res) {
 
         intervalx = setInterval(function() {
-          sse.writeSSEData(req, res, event, new Date());
-        }, 1000);
+            if(lastData != myData){
+               sse.writeSSEData(req, res, event, new Date());
+               lastData = myData;
+               console.log(myData);
+            }
+        }, 10);
 
         req.connection.addListener("close", function() {
             clearInterval(intervalx);
@@ -67,8 +73,8 @@ app.get('/stream/date', function(req, res) {
     app.post('/', function(req,res){
         //get and parse data
         var newData = req.body;
-        console.log(newData);
         myData = newData;
+        res.send("ok");
     });
 
     console.log('Request received');

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <!-- Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
   <style>
   /* Directly loaded css properties*/
   svg{
@@ -13,6 +15,8 @@
     stroke-width: 1;
     fill: none;
   }
+
+
   #log{
     display: inline-block;
     width: 40%;
@@ -44,7 +48,7 @@
   }
 
   .badge{
-    font-size: 2px;
+    background-color: #87CEFA;
   }
 
   .axis {
@@ -91,18 +95,11 @@
   <title>Debugger</title>
 
   <!-- REFERENCE LINKS-->
-  <!-- Bootstrap -->
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Extra CSS -->
-  <link rel="stylesheet" href="css/styles.css" />
   <!-- D3 -->
   <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
   <!-- JQuery -->
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-  <!-- JS plotting functions -->
-  <script src="js/functions.js"></script>
-  <script src="js/plot.js"></script>
   <!-- END OF REFERENCE LINKS-->
 </head>
 <body>
@@ -114,22 +111,26 @@
       </div>
     </div>
 
-  <b><h5 id="contentId"> ContentID: https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4</h5></b>
+  <b><h5 id="contentId"> </h5></b>
+
+  <div>
+<input type = "button" id = "goblet-submit" value = "ENTER!" style ="display:none" /><br/>
+</div>
 
   <div class="debugger">
     <ul class="list-group">
       <li class="list-group-item">
-        <span class="badge" id="title">Big Red Buck</span>
+        <span class="badge" id="title"></span>
         <i class="glyphicon glyphicon-text-width"></i>
         Title
       </li>
       <li class="list-group-item">
-        <span class="badge" id="bitrates">14</span>
+        <span class="badge" id="bitrates">0</span>
         <i class="glyphicon glyphicon-transfer"></i>
         Average Bitrates
       </li>
       <li class="list-group-item">
-        <span class="badge" id="duration">14</span>
+        <span class="badge" id="duration">0</span>
         <i class="glyphicon glyphicon-time"></i>
         Duration
       </li>
@@ -138,28 +139,30 @@
         <i class="glyphicon glyphicon-pencil"></i>
         License Set?
       </li>
+    </ul>
+    <ul class="list-group">
       <li class="list-group-item">
         <span class="badge" id="state">IDLE</span>
         <i class="glyphicon glyphicon-flash"></i>
         Current State
       </li>
       <li class="list-group-item">
-        <span class="badge" id="play">0</span>
+        <span class="badge" id="Start">0</span>
         <i class="glyphicon glyphicon-play"></i>
         Play
       </li>
       <li class="list-group-item">
-        <span class="badge" id="pause">0</span>
+        <span class="badge" id="Paused">0</span>
         <i class="glyphicon glyphicon-pause"></i>
         Pause
       </li>
       <li class="list-group-item">
-        <span class="badge" id="volume">0</span>
+        <span class="badge" id="VolumeChanged">0</span>
         <i class="glyphicon glyphicon-volume-down"></i>
         Volume Change
       </li>
       <li class="list-group-item">
-        <span class="badge" id="milestone">14</span>
+        <span class="badge" id="milestone">0</span>
         <i class="glyphicon glyphicon-signal"></i>
         Last Milestone Achieved
       </li>
@@ -168,9 +171,7 @@
   
   <div id="log">
       <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab1" id="tab1" data-toggle="tab">Errors</a></li>
-        <li><a href="#tab2" id="tab2" data-toggle="tab">Logs</a></li>
-        <li><a href="#tab3" id="tab3" data-toggle="tab">Events</a></li>
+        <li class="active"><a href="#tab1" id="tab1" data-toggle="tab">Logs</a></li>
       </ul>
       <div class="tab-content">
         <div class="tab-pane active"></div>
@@ -184,7 +185,182 @@
    
     <!-- End space -->
     <h1>&nbsp;</h1>
+    
+    <script>
+    $(document).ready(function(){
 
+        function getRandomInt() {
+        var min = 1;
+        var max = 12;
+        var mynum = Math.floor(Math.random() * (max - min + 1)) + min;
+        return mynum - 1;
+    }
+        
+        //criar "current state" e "title + duration" + "License"
+    function handleKey(key, info){
+
+      function getAvg(array){
+        var total = 0;
+        for(var c=0; c<array.length; c++){
+          total += array[c];
+        }
+        return total/array.length;
+      }
+      if(key == "Constant"){
+         var newId = info[0];
+         $("#contentId").html(newId);
+         var newTitle = info[1];
+         $("#title").html(newTitle);
+         var duration = info[2];
+         $("#duration").html(duration);
+         $("#VolumeChanged").html(0);
+         $("#Start").html(0);
+         $("#Paused").html(0);
+         $("#milestone").html(0);
+         $("#state").html("LOADING");
+         $('#textlog').val($('#textlog').val() + "Loaded data\n");
+         $('#textlog').val($('#textlog').val() + "ID: "+newId+"\n");
+         $('#textlog').val($('#textlog').val() + "TITLE: "+newTitle+" \n");
+         $('#textlog').val($('#textlog').val() + "DURATION: "+duration+"\n");
+      } else if(key == "License") {
+        var bool = String(info[0]);
+        $("#license").html(bool);
+        $('#textlog').val($('#textlog').val() + "LICENSE ENTERED\n");
+      } else if(key == "Bitrates") {
+        var rates = info["video_bitrates"];
+        var newBits = getAvg(rates);
+        $("#bitrates").html(newBits);
+        $('#textlog').val($('#textlog').val() + "BITRATES ENTERED\n");
+      } else if(key == "State") {
+        var newState = info[0]; 
+        $("#state").html(newState.toUpperCase());
+        $('#textlog').val($('#textlog').val() + "NEW STATE: "+newState+"\n");
+      } else if(key == "VolumeChanged" || key == "Start/Restart" || key == "Paused") {
+        if(key == "Start/Restart"){
+          key = "Start";
+          $("#state").html("PLAYING");
+          var eventHappened = "NEW STATE: Playing";
+        } else if(key == "Paused"){
+          $("#state").html("PAUSED");
+          var eventHappened = "NEW STATE: Paused";
+        }else{
+          var eventHappened = "VOLUME CHANGED"
+        }
+        var newChange = parseInt($("#"+key).html()) + 1;
+        $("#"+key).html(newChange);
+        $('#textlog').val($('#textlog').val() + eventHappened+"\n");
+      } else if(key == "Milestone") {
+        var Milestone = parseInt(100*info[2]);
+        if(Milestone == 90){Milestone = "90+"};  
+        Milestone = String(Milestone) + "%";
+        $("#milestone").html(Milestone);
+        $('#textlog').val($('#textlog').val() + "MILESTONE ACHIEVED "+Milestone+"\n");
+      } else if(key == "Time"){
+        var newTime = info[0];  
+        //$("#state").html(newState);
+      }
+    }
+    
+          var source = new EventSource("stream/date");
+          source.addEventListener("date", function(event) {
+          var currentData = event.data;
+          currentData = JSON.parse(currentData);
+          var key = Object.keys(currentData)[0];
+          var info = currentData[key];
+          console.log(currentData);
+          handleKey(key, info);
+
+        }, false);
+        
+
+        $(document).on("click", "#goblet-submit", function() {
+            
+          var arrayOfEvents = [];
+
+      var caption_message = {};
+      var data = {}
+      var captions = ["ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie"];
+      caption_message['captions'] = captions;
+      data["Captions"] = caption_message;
+      arrayOfEvents.push(data);
+
+      var video_bitrates_message = {};
+      var data = {};
+      var streamVideoBitrates = [0, 2, 4, 6, 3, 0, 2, 4, 6, 3, 0, 2, 4, 6, 3, 0, 2, 4, 6, 3];
+      video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+      data["Bitrates"] = video_bitrates_message;
+      arrayOfEvents.push(data);
+
+      var updateData = ["Cast Session started"];
+      var data = {};
+      data["Connected"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["Cast Session ended"];
+      var data = {};
+      data["Disconnected"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["media.contentId", "this.title_", getRandomInt()];
+      var data = {};
+      data["Start/Restart"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["media.contentId", "this.title_", getRandomInt()];
+      var data = {};
+      data["Paused"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["media.contentId", "this.title_", getRandomInt()];
+      var data = {};
+      data["VolumeChanged"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["media.contentId", "this.title_", getRandomInt()];
+      var data = {};
+      data["Ended"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["media.contentId", "this.title_", "this.lastMilestone_[media.contentId]"];
+      var data = {};
+      data["Milestone"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["media.contentId", "this.title_", "this.duration"];
+      var data = {};
+      data["Constant"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["Yes"];
+      var data = {};
+      data["License"] = updateData;
+      arrayOfEvents.push(data);
+
+      var updateData = ["BUFFERING"];
+      var data = {};
+      data["State"] = updateData;
+      arrayOfEvents.push(data);
+
+      var dataToSend = arrayOfEvents[getRandomInt()];
+        
+      var number = Math.random();
+      submit = $.ajax({
+        method: 'POST', // added,
+        url: "http://10.1.48.204:1337/",
+        data: dataToSend,
+        error: function(error) {
+          console.log(error);
+        }
+      });
+
+      submit.success(function (data) {
+      });
+    
+        });
+     
+
+  });
+    </script>
 
     <!-- jQuery (bootstrap) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>

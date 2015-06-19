@@ -26,7 +26,7 @@ var sampleplayer = sampleplayer || {};
 
 /*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
   FinalDataServer is the server the will get the final analytics status after the cast session is over */
-var constantUpdateServer = '';
+var constantUpdateServer = 'http://10.1.48.204:1337/';
 var finalDataServer = '';
 
 
@@ -660,6 +660,11 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
   var myEvent = JSON.parse(event['data']);
     if (myEvent['type'] === 'license') {
       this.licenseUrl_ = myEvent.value;
+      if(this.licenseUrl_ != ''){
+        this.constantUpdate_("License", ["Yes"]);
+      } else{
+        this.constantUpdate_("License", ["No"]);
+      }
     } 
 
 };
@@ -673,6 +678,23 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
  */
 
 sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
+  //Send constants update
+  var media = this.mediaManager_.getMediaInformation();
+  console.log(media);
+  var tempId = media.contentId;
+  var tempDuration = media.duration;
+  if(media.metadata != undefined){
+    if(media.metadata.title != undefined){
+      var tempTitle = media.metadata.title;
+    } else{
+        var tempTitle = 'Untitled';
+    }
+  }else{
+    var tempTitle = 'Untitled';
+  }
+  var tempConstant = [tempId, tempTitle, tempDuration];
+  this.constantUpdate_("Constant", tempConstant);
+
   console.log("aqui aqui");
   var protocol = this.player_.getStreamingProtocol();
   var streamCount = protocol.getStreamCount();
@@ -701,12 +723,12 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
   if (Object.keys(captions).length > 0) {
     var caption_message = {};
     caption_message['captions'] = captions;
+    this.constantUpdate_("Captions", caption_message);
   }
 
   if (streamVideoBitrates && Object.keys(streamVideoBitrates).length > 0) {
     var video_bitrates_message = {};
     video_bitrates_message['video_bitrates'] = streamVideoBitrates;
-    this.constantUpdate_("Captions", caption_message);
     this.constantUpdate_("Bitrates", video_bitrates_message);
   }
   
@@ -1565,6 +1587,9 @@ sampleplayer.CastPlayer.prototype.updateApplicationState_ = function() {
       this.currentApplicationState_ = applicationState;
       this.receiverManager_.setApplicationState(applicationState);
     }
+    if(this.state_ != 'paused' && this.state_ != 'loading' && this.state_ != 'playing'){
+      this.constantUpdate_("State", [this.state_]);
+    }
   }
 };
 
@@ -1666,7 +1691,7 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
     if(media.metadata != undefined){
       this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
     }else{
-      this.videoStatsData_[media.contentId] = {"title": media.contentId, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
+      this.videoStatsData_[media.contentId] = {"title": "Untitled", "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
     }
     this.timeArray_[media.contentId] = [];
     this.secondsSeen_[media.contentId] = [];
@@ -1675,9 +1700,9 @@ sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
     this.secondsVolumeChanged_[media.contentId] = [];
     this.lastMilestone_[media.contentId] = 0;
     this.listOfVideosWatched_.push(media.contentId);
-  } 
+  }
   
-
+  
   //Adds a restart event timestamp for the current video
   this.log_('onPlaying');
   var restartSecondInt = parseInt(this.mediaElement_.currentTime);
@@ -2060,6 +2085,7 @@ sampleplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
  */
 sampleplayer.CastPlayer.prototype.onLoadMetadataError_ = function(event) {
   this.log_('onLoadMetadataError_');
+  console.log("Error: "+event.data);
   var self = this;
   sampleplayer.transition_(self.element_, sampleplayer.TRANSITION_DURATION_,
       function() {
