@@ -26,7 +26,7 @@ var sampleplayer = sampleplayer || {};
 
 /*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
   FinalDataServer is the server the will get the final analytics status after the cast session is over */
-var constantUpdateServer = 'http://10.1.48.204:1337/';
+var constantUpdateServer = 'http://10.1.48.200:1337/';
 var finalDataServer = '';
 
 
@@ -136,11 +136,11 @@ sampleplayer.CastPlayer = function(element) {
   this.licenseUrl_ = '';
 
   /*
-   * The current protocol in use for the current host
+   * The current max bandwith in use for the current host
    * @private
    */
   
-  //this.currentProtocol_;
+  this.maxBandwith_ = null;
 
 
 
@@ -665,7 +665,45 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
       } else{
         this.constantUpdate_("License", ["No"]);
       }
-    } 
+    } else if (myEvent['type'] === 'color'){
+         var progressColor = myEvent.value;
+         changeColor(progressColor);
+    } else if (myEvent['type'] === 'control'){
+          showControls();
+    } else if(myEvent['type'] === 'bandwith'){
+          this.maxBandwith_ = myEvent.value;
+          console.log(this.maxBandwith_);
+    }
+
+  function changeColor(color) {
+    $('.player .progressBar').css("background-color", color);
+    showControls();
+  }
+
+  function showControls(){
+    if($('.player .overlay').css("visibility") == "hidden"){
+      $('#hide').css("display", "block");
+      $('#hide').css("visibility", "visible");
+      $('#hide .controls-play-pause').css("display", "block");
+      $('#hide .controls-play-pause').css("visibility", "visible");
+      $('#hide .controls-cur-time').css("display", "block");
+      $('#hide .controls-cur-time').css("visibility", "visible");
+      $('#hide .controls-total-time').css("display", "block");
+      $('#hide .controls-total-time').css("visibility", "visible");
+      $('#hide').fadeTo(4000, 0);
+      setTimeout(function() {
+              $('#hide').css("display", "none");
+              $('#hide').css("visibility", "hidden");
+              $('#hide .controls-play-pause').css("display", "none");
+              $('#hide .controls-play-pause').css("visibility", "hidden");
+              $('#hide .controls-cur-time').css("display", "none");
+              $('#hide .controls-cur-time').css("visibility", "hidden");
+              $('#hide .controls-total-time').css("display", "none");
+              $('#hide .controls-total-time').css("visibility", "hidden");
+              $('#hide').fadeTo(100, 1);
+             }, 4000);
+    }
+  }
 
 };
 
@@ -677,7 +715,7 @@ sampleplayer.CastPlayer.prototype.onMessage_ = function(event){
  * @private
  */
 
-sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
+sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){ 
   //Send constants update
   var media = this.mediaManager_.getMediaInformation();
   console.log(media);
@@ -687,15 +725,14 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
     if(media.metadata.title != undefined){
       var tempTitle = media.metadata.title;
     } else{
-        var tempTitle = 'Untitled';
+        var tempTitle = '';
     }
   }else{
-    var tempTitle = 'Untitled';
+    var tempTitle = '';
   }
   var tempConstant = [tempId, tempTitle, tempDuration];
   this.constantUpdate_("Constant", tempConstant);
 
-  console.log("aqui aqui");
   var protocol = this.player_.getStreamingProtocol();
   var streamCount = protocol.getStreamCount();
   var streamInfo;
@@ -713,7 +750,13 @@ sampleplayer.CastPlayer.prototype.onLoadedData_ = function(){
         streamInfo.mimeType === 'video/mp2t') {
       streamVideoCodecs = streamInfo.codecs;
       streamVideoBitrates = streamInfo.bitrates;
-      var videoLevel = protocol.getQualityLevel(c);
+      if (this.maxBandwith_) {
+          var videoLevel = protocol.getQualityLevel(c, this.maxBandwith_);
+          console.log(this.maxBandwith_);
+        }
+      else {
+          var videoLevel = protocol.getQualityLevel(c);
+        }
       videoStreamIndex = c;
     } 
     else {
@@ -1018,7 +1061,7 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
     if(metadata != undefined){
       this.title_ = metadata.title;
     }else{
-      this.title_ = "Untitled"
+      this.title_ = ""
     }
     sampleplayer.setInnerText_(titleElement, this.title_);
 
@@ -1120,16 +1163,22 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
 
     // If we have not preloaded or the content preloaded does not match the
     // content that needs to be loaded, perform a full load
-    var loadErrorCallback = function() {
+    var loadErrorCallback = function(errorCode) {
+      console.log("Fatal Error - " + errorCode);
 
       //Change the screen message, when there is an invalid URL license
       function setDRMmessage(){
         var imgUrl = $('.logo').css('background-image');
+        var backUrl = $('.player').css('background-image');
+        $('.player').css('background-image', 'url("assets/background.png');
         $('.logo').html('This streaming is invalid.')
         $('.logo').css('background-image', 'none');
         setTimeout(function() {
               $('.logo').html("");
-              $('.logo').css('background-image', imgUrl);
+              $(".logo").stop().animate({opacity: 0},1000,function(){
+                $(this).css({'background-image': imgUrl}).animate({opacity: 1},{duration:1000});
+              });
+              $('.player').css('background-image', backUrl);
            }, 15000);
       };
 
@@ -1156,6 +1205,11 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         host.licenseUrl = this.licenseUrl_ ;
         console.log('License URL was set');
       }
+      host.updateSegmentRequestInfo = function(requestInfo) {
+          // example of setting headers
+          requestInfo.headers = {};
+          requestInfo.headers['content-type'] = 'text/xml;charset=utf-8';
+      };
 
       host.onError = loadErrorCallback;
       this.player_ = new cast.player.api.Player(host);
@@ -1868,12 +1922,13 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
     var totalTime = this.mediaElement_.duration;
     if (!isNaN(curTime) && !isNaN(totalTime)) {
       var pct = 100 * (curTime / totalTime);
-      this.curTimeElement_.innerText = sampleplayer.formatDuration_(curTime);
-      this.totalTimeElement_.innerText = sampleplayer.formatDuration_(totalTime);
-      this.progressBarInnerElement_.style.width = pct + '%';
-      this.progressBarThumbElement_.style.left = pct + '%';
+      $('.controls-cur-time').text(sampleplayer.formatDuration_(curTime));
+      $('.controls-total-time').text(sampleplayer.formatDuration_(totalTime));
+      $('.controls-progress-inner').css("width", String(pct) + "%");
+      $('.controls-progress-thumb').css("left", String(pct) + "%");
       
       //Data Track
+      this.constantUpdate_("Time", [pct]);
       var pctInt = parseInt(pct);
       var curTimeInt = parseInt(curTime);
       
@@ -1906,7 +1961,7 @@ sampleplayer.CastPlayer.prototype.updateProgress_ = function() {
       if(this.title_ != undefined && this.title_ != 'undefined'){
         var title = this.title_ + percentage;
       } else{
-        var title = 'Untitled' + percentage;
+        var title = '';
       }
       sampleplayer.setInnerText_(titleElement, title);
       
@@ -2184,12 +2239,15 @@ sampleplayer.getProtocolFunction_ = function(mediaInformation) {
   if (sampleplayer.getExtension_(path) === 'm3u8' ||
           type === 'application/x-mpegurl' ||
           type === 'application/vnd.apple.mpegurl') {
+    console.log(type);
     return cast.player.api.CreateHlsStreamingProtocol;
   } else if (sampleplayer.getExtension_(path) === 'mpd' ||
           type === 'application/dash+xml') {
+    console.log(type);
     return cast.player.api.CreateDashStreamingProtocol;
   } else if (path.indexOf('.ism') > -1 ||
           type === 'application/vnd.ms-sstr+xml') {
+    console.log(type);
     return cast.player.api.CreateSmoothStreamingProtocol;
   }
   return null;
@@ -2242,7 +2300,9 @@ sampleplayer.canDisplayPreview_ = function(media) {
 sampleplayer.getType_ = function(media) {
   var contentId = media.contentId || '';
   var contentType = media.contentType || '';
+  console.log(contentType);
   var contentUrlPath = sampleplayer.getPath_(contentId);
+  console.log(sampleplayer.getExtension_(contentUrlPath));
   if (contentType.indexOf('audio/') === 0) {
     return sampleplayer.Type.AUDIO;
   } else if (contentType.indexOf('video/') === 0) {

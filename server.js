@@ -10,7 +10,7 @@ var express = require("express"),
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*'); // NOT SAFE FOR PRODUCTION
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   
     next();
 }
@@ -403,6 +403,6 @@ var allowCrossDomain = function(req, res, next) {
     });
 
     console.log('Request received');
-    console.log('Server running at port 9999');
+    console.log('Server running at port: 9999');
 
 app.listen(9999);

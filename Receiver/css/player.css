@@ -40,7 +40,7 @@ body {
 }
 
 .player {
-  background-image: url("assets/background.png");
+  background-image: url("assets/bcback.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -205,6 +205,9 @@ body {
   background-color: rgb(255, 0, 91);
 }
 
+#hide {
+  display: none;
+}
 .player .controls-progress {
   background-color: rgba(255, 255, 255, 0.2);
   height: 11px;
@@ -332,6 +335,11 @@ body {
   display: block;
 }
 
+.player[state="launching"] {
+  background-image: url("assets/background.png");
+}
+
+
 .player[type="video"][state="launching"] .logo {
   display: block;
 }
@@ -358,6 +366,10 @@ body {
 /* Player - Video - Loading                          */
 /* ------------------------------------------------- */
 
+.player[state="loading"] {
+  background-image: url("assets/background.png");
+}
+
 .player[type="video"][state="loading"] .overlay,
 .player[type="video"][state="loading"] .controls,
 .player[type="video"][state="loading"] .watermark {
@@ -379,6 +391,9 @@ body {
 /* ------------------------------------------------- */
 /* Player - Video - Buffering                        */
 /* ------------------------------------------------- */
+.player[state="buffering"] {
+  background-image: url("assets/background.png");
+}
 
 .player[type="video"][state="buffering"] .overlay,
 .player[type="video"][state="buffering"] .gradient {
@@ -723,7 +738,7 @@ body {
 }
 
 .player[state="idle"] .logo {
-  display: block;
+  display: none;
 }
 
 .player[state="idle"] .spinner {

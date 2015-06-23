@@ -111,10 +111,20 @@
       </div>
     </div>
 
-  <b><h5 id="contentId"> </h5></b>
+  
+<div class="container">
+<div class="alert alert-info" role="alert"> ContentID: <span id="contentId"> </span></div>
+</div>
 
   <div>
 <input type = "button" id = "goblet-submit" value = "ENTER!" style ="display:none" /><br/>
+</div>
+
+<div class="container">
+  <div class="progress">
+    <div class="progress-bar progress-bar-info" id="p1" role="progressbar" style="width:0%">
+    </div>
+  </div>
 </div>
 
   <div class="debugger">
@@ -256,105 +266,111 @@
         $("#milestone").html(Milestone);
         $('#textlog').val($('#textlog').val() + "MILESTONE ACHIEVED "+Milestone+"\n");
       } else if(key == "Time"){
-        var newTime = info[0];  
+        var newTime = info[0];
+        var notSeen = 100 - newTime
+        var pct = String(newTime) + "%";
+        var pct2 = String(notSeen) + "%";
+        $('#p1').css("width", pct);
+        $('#p2').css("width", pct2)
+        console.log(newTime);  
         //$("#state").html(newState);
       }
     }
     
-          var source = new EventSource("stream/date");
-          source.addEventListener("date", function(event) {
-          var currentData = event.data;
-          currentData = JSON.parse(currentData);
-          var key = Object.keys(currentData)[0];
-          var info = currentData[key];
-          console.log(currentData);
-          handleKey(key, info);
+        var source = new EventSource("stream/date");
+        source.addEventListener("date", function(event) {
+        var currentData = event.data;
+        currentData = JSON.parse(currentData);
+        var key = Object.keys(currentData)[0];
+        var info = currentData[key];
+        console.log(currentData);
+        handleKey(key, info);
 
         }, false);
         
 
-        $(document).on("click", "#goblet-submit", function() {
+      $(document).on("click", "#goblet-submit", function() {
             
           var arrayOfEvents = [];
 
-      var caption_message = {};
-      var data = {}
-      var captions = ["ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie"];
-      caption_message['captions'] = captions;
-      data["Captions"] = caption_message;
-      arrayOfEvents.push(data);
+          var caption_message = {};
+          var data = {}
+          var captions = ["ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie", "ola", "nao sei", "sei la", "aqui", "uxxollie"];
+          caption_message['captions'] = captions;
+          data["Captions"] = caption_message;
+          arrayOfEvents.push(data);
 
-      var video_bitrates_message = {};
-      var data = {};
-      var streamVideoBitrates = [0, 2, 4, 6, 3, 0, 2, 4, 6, 3, 0, 2, 4, 6, 3, 0, 2, 4, 6, 3];
-      video_bitrates_message['video_bitrates'] = streamVideoBitrates;
-      data["Bitrates"] = video_bitrates_message;
-      arrayOfEvents.push(data);
+          var video_bitrates_message = {};
+          var data = {};
+          var streamVideoBitrates = [0, 2, 4, 6, 3, 0, 2, 4, 6, 3, 0, 2, 4, 6, 3, 0, 2, 4, 6, 3];
+          video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+          data["Bitrates"] = video_bitrates_message;
+          arrayOfEvents.push(data);
 
-      var updateData = ["Cast Session started"];
-      var data = {};
-      data["Connected"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["Cast Session started"];
+          var data = {};
+          data["Connected"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["Cast Session ended"];
-      var data = {};
-      data["Disconnected"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["Cast Session ended"];
+          var data = {};
+          data["Disconnected"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["media.contentId", "this.title_", getRandomInt()];
-      var data = {};
-      data["Start/Restart"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["media.contentId", "this.title_", getRandomInt()];
+          var data = {};
+          data["Start/Restart"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["media.contentId", "this.title_", getRandomInt()];
-      var data = {};
-      data["Paused"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["media.contentId", "this.title_", getRandomInt()];
+          var data = {};
+          data["Paused"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["media.contentId", "this.title_", getRandomInt()];
-      var data = {};
-      data["VolumeChanged"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["media.contentId", "this.title_", getRandomInt()];
+          var data = {};
+          data["VolumeChanged"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["media.contentId", "this.title_", getRandomInt()];
-      var data = {};
-      data["Ended"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["media.contentId", "this.title_", getRandomInt()];
+          var data = {};
+          data["Ended"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["media.contentId", "this.title_", "this.lastMilestone_[media.contentId]"];
-      var data = {};
-      data["Milestone"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["media.contentId", "this.title_", "this.lastMilestone_[media.contentId]"];
+          var data = {};
+          data["Milestone"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["media.contentId", "this.title_", "this.duration"];
-      var data = {};
-      data["Constant"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["media.contentId", "this.title_", "this.duration"];
+          var data = {};
+          data["Constant"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["Yes"];
-      var data = {};
-      data["License"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["Yes"];
+          var data = {};
+          data["License"] = updateData;
+          arrayOfEvents.push(data);
 
-      var updateData = ["BUFFERING"];
-      var data = {};
-      data["State"] = updateData;
-      arrayOfEvents.push(data);
+          var updateData = ["BUFFERING"];
+          var data = {};
+          data["State"] = updateData;
+          arrayOfEvents.push(data);
 
-      var dataToSend = arrayOfEvents[getRandomInt()];
-        
-      var number = Math.random();
-      submit = $.ajax({
-        method: 'POST', // added,
-        url: "http://10.1.48.204:1337/",
-        data: dataToSend,
-        error: function(error) {
-          console.log(error);
-        }
-      });
+          var dataToSend = arrayOfEvents[getRandomInt()];
+            
+          var number = Math.random();
+          submit = $.ajax({
+            method: 'POST', // added,
+            url: "http://10.1.48.204:1337/",
+            data: dataToSend,
+            error: function(error) {
+              console.log(error);
+            }
+          });
 
-      submit.success(function (data) {
-      });
+          submit.success(function (data) {
+          });
     
         });
      
