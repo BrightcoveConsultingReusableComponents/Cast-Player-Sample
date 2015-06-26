@@ -1,33 +1,42 @@
 $( document ).ready(function() {
 console.log( "css edit ready!" );
 
-/*
 //changes the progress bar color
-var progressColor = "rgb(255, 255, 255)";
+var progressColor = null;
 
+/*rgb(255, 0, 91)*/
 
 //changes the background color
-var backgroundColor = "";
-
-//changes the image logo
-var myLogoUrl = "";
+var backgroundColor = null;
 
 //changes the background image cover
-var myBackgroundUrl = "";
+var myBackgroundUrl = 'css/assets/bcback.png';
 
+//changes the logo image cover
+var myLogoUrl = null;
+
+/*'css/assets/bcback.png'*/
+/*'css/assets/chromecast-logo.png'*/
 
 //progress bar color
+if(progressColor){
 $('.player .progressBar').css("background-color", progressColor);
-
+}
 
 //body background color
+if(backgroundColor){
 $('body').css("background-color", backgroundColor)
-
-//logo
-$('.player #logs').css("background-image", "url("+myLogoUrl+")"); 
-$('.player .logo').css("background-image", "url("+myLogoUrl+")"); 
+}
 
 //background image cover
-$('.player').css("background-image", "url("+myBackgroundUrl+")");  
-*/
+if(myBackgroundUrl){
+$('.player .background').css("background-image", "url("+myBackgroundUrl+")");  
+}
+
+//logo
+if(myLogoUrl){
+$('.player .logo').css("background-image", "url("+myLogoUrl+")"); 
+}
+
+
 });

@@ -54,10 +54,12 @@ The overlay layer holds:
 <body style="margin: 0">
   <!-- Player itself-->
     <div id="player" class="player">
+      <div class="background"></div>
         <div class="media">
             <video></video>
         </div>
         <!-- Logo, watermark, overlay, etc definitions-->
+        <div class="DRMerror">This streaming is invalid.</div>
         <div class="logo"></div>
         <div class="spinner"></div>
         <div class="watermark"></div>
@@ -109,7 +111,7 @@ The overlay layer holds:
     <script>
       //Starts the player
       var playerDiv = document.getElementById('player');
-      new sampleplayer.CastPlayer(playerDiv).start();
+      new bcplayer.CastPlayer(playerDiv).start();
     </script>
 </body>
 </html>
