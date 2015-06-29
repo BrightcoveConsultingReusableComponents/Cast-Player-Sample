@@ -101,7 +101,7 @@ body {
   background-image: url("assets/placeholder-audio.jpg");
 }
 
-.player .gradient-to-top {
+.player .gradient {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -109,7 +109,7 @@ body {
   top: 0;
 }
 
-.player .gradient-to-bottom {
+.player .gradientToBottom {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -235,7 +235,7 @@ body {
   background-image: url("assets/watermarkBLUE.png");
 }
 
-.player .gradient-to-top {
+.player .gradient {
   display: none;
   opacity: 0.9;
   background: linear-gradient(
@@ -246,7 +246,7 @@ body {
   );
 }
 
-.player .gradient-to-bottom {
+.player .gradientToBottom {
   display: none;
   opacity: 0.9;
   background: linear-gradient(
@@ -491,12 +491,12 @@ body {
 }
 
 .player[type="video"][state="buffering"] .overlay,
-.player[type="video"][state="buffering"] .gradient-to-top {
+.player[type="video"][state="buffering"] .gradient {
   display: block;
   visibility: visible;
 }
 
-.player[type="video"][state="buffering"] .gradient-to-top {
+.player[type="video"][state="buffering"] .gradient {
   opacity: 0.1;
 }
 
@@ -552,7 +552,7 @@ body {
 }
 
 .player[type="video"][state="paused"] .overlay,
-.player[type="video"][state="paused"] .gradient-to-top,
+.player[type="video"][state="paused"] .gradient,
 .player[type="video"][state="paused"] .watermark {
   display: block;
   visibility: visible;
@@ -596,7 +596,7 @@ body {
   opacity: 1;
 }
 
-.player[type="video"][state="paused"] .gradient-to-top {
+.player[type="video"][state="paused"] .gradient {
   opacity: 0.1;
   -webkit-transition: opacity 1s linear 5s;
 }
@@ -618,14 +618,14 @@ body {
 }
 
 .player[type="video"][state="playing"] .overlay,
-.player[type="video"][state="playing"] .gradient-to-top,
+.player[type="video"][state="playing"] .gradient,
 .player[type="video"][state="playing"] .watermark {
   display: block;
   visibility: hidden;
 }
 
 .player[type="video"][state="playing"].seeking .overlay,
-.player[type="video"][state="playing"].seeking .gradient-to-top {
+.player[type="video"][state="playing"].seeking .gradient {
   display: block;
   visibility: visible;
 }
@@ -666,12 +666,12 @@ body {
 }
 
 .player[type="video"][state="playing"][preview-mode="true"] .overlay,
-.player[type="video"][state="playing"][preview-mode="true"] .gradient-to-bottom{
+.player[type="video"][state="playing"][preview-mode="true"] .gradientToBottom{
   display: block;
   visibility: visible;
 }
 
-.player[type="video"][state="playing"][preview-mode="true"] .gradient-to-top,
+.player[type="video"][state="playing"][preview-mode="true"] .gradient,
 .player[type="video"][state="playing"][preview-mode="true"] .watermark {
   display: none;
   visibility: hidden;
@@ -745,8 +745,8 @@ body {
   margin-bottom: 54px !important;
 }
 
-.player[type="audio"][state="loading"] .gradient-to-top,
-.player[type="audio"][state="paused"] .gradient-to-top {
+.player[type="audio"][state="loading"] .gradient,
+.player[type="audio"][state="paused"] .gradient {
   display: block;
   visibility: visible;
 }

@@ -27,8 +27,8 @@ var bcplayer = bcplayer || {};
 
 /*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
   FinalDataServer is the server the will get the final analytics status after the cast session is over */
-var constantUpdateServer = 'http://10.1.48.200:1337/';
-var finalDataServer = '';
+var constantUpdateServer = null;
+var finalDataServer = null;
 
 
 /**
@@ -163,6 +163,13 @@ bcplayer.CastPlayer = function(element) {
    */
   
   this.maxBandwith_ = null;
+
+  /*
+   * Boolean to pause only once
+   * @private
+   */
+  
+  this.hasAlreadyPaused = false;
 
 
 
@@ -632,8 +639,11 @@ bcplayer.CastPlayer.prototype.constantUpdate_ = function(EventString, data){
   //Sending paused event to external server to generate analytics data
   var sendingUpdateMessage = {};
   sendingUpdateMessage[EventString] = data;
-  console.log(sendingUpdateMessage);
-  this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  if(this.constantUpdateServer){
+    console.log(sendingUpdateMessage);
+    this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  }
+
 };
 
 /**
@@ -728,7 +738,6 @@ bcplayer.CastPlayer.prototype.onMessage_ = function(event){
           showControls();
     } else if(myEvent['type'] === 'bandwith'){
           this.maxBandwith_ = myEvent.value;
-          console.log(this.maxBandwith_);
     } else if(myEvent['type'] === 'mode'){
            if(myEvent.value == '1'){
             $('.player').css('left', '150px');
@@ -811,7 +820,6 @@ bcplayer.CastPlayer.prototype.onMessage_ = function(event){
 bcplayer.CastPlayer.prototype.onLoadedData_ = function(){ 
   //Send constants update
   var media = this.mediaManager_.getMediaInformation();
-  console.log(media);
   var tempId = media.contentId;
   var tempDuration = media.duration;
   if(media.metadata != undefined){
@@ -825,7 +833,7 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
   }
   var tempConstant = [tempId, tempTitle, tempDuration];
   this.constantUpdate_("Constant", tempConstant);
-
+  
   var protocol = this.player_.getStreamingProtocol();
   var streamCount = protocol.getStreamCount();
   var streamInfo;
@@ -845,7 +853,6 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
       streamVideoBitrates = streamInfo.bitrates;
       if (this.maxBandwith_) {
           var videoLevel = protocol.getQualityLevel(c, this.maxBandwith_);
-          console.log(this.maxBandwith_);
         }
       else {
           var videoLevel = protocol.getQualityLevel(c);
@@ -1791,8 +1798,10 @@ bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   var updateData = ["Cast Session ended"];
   this.constantUpdate_("Disconnected", updateData);
   //Send all the data via ajax to final destination/processing server
-  this.sendAjaxData(this.videoStatsData_, finalDataServer);
-  console.log(finalDataServer);
+  if(finalDataServer){
+    this.sendAjaxData(this.videoStatsData_, finalDataServer);
+    console.log(finalDataServer);
+  }
   //console.log the disconnect message
   this.log_('onSenderDisconnected');
 
@@ -1865,8 +1874,7 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
     this.lastMilestone_[media.contentId] = 0;
     this.listOfVideosWatched_.push(media.contentId);
   }
-  
-  
+
   //Adds a restart event timestamp for the current video
   this.log_('onPlaying');
   var restartSecondInt = parseInt(this.mediaElement_.currentTime);
@@ -1876,8 +1884,6 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
   //Sending restart/start event to external server to generate analytics data
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
   this.constantUpdate_("Start/Restart", updateData);
-  
-  
   
   //Finally call the playing state functions
   this.cancelDeferredPlay_('media is already playing');
@@ -1926,11 +1932,11 @@ bcplayer.CastPlayer.prototype.onPause_ = function() {
 
 bcplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
   //Sending 'volume' event to external server to generate analytics data
+  var media = this.mediaManager_.getMediaInformation();
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
   this.constantUpdate_("VolumeChanged", updateData);
 
   //Adds a 'volume' event timestamp for the current video
-  var media = this.mediaManager_.getMediaInformation();
   var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
   this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
   this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
@@ -1984,7 +1990,12 @@ bcplayer.CastPlayer.prototype.onStop_ = function(event) {
  * @private
  */
 bcplayer.CastPlayer.prototype.onEnded_ = function() {
+  //test functions
+  this.mediaElement_.pause();
+
+
   this.log_('onEnded');
+  var media = this.mediaManager_.getMediaInformation();
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
   this.constantUpdate_("Ended", updateData);
   this.setState_(bcplayer.State.IDLE, true);
@@ -1998,6 +2009,8 @@ bcplayer.CastPlayer.prototype.onEnded_ = function() {
  * @private
  */
 bcplayer.CastPlayer.prototype.onAbort_ = function() {
+  this.mediaElement_.pause();
+
   this.log_('onAbort');
   this.setState_(bcplayer.State.IDLE, true);
   this.hidePreviewMode_();
@@ -2075,10 +2088,26 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
       }
       bcplayer.setInnerText_(titleElement, title);
       
+      //Handle next video if on a queue
+      function nextVideoPlayPause(item){
+        if(!item.hasAlreadyPaused){
+          item.mediaElement_.pause();
+          $('.preview-mode-info').fadeTo(2000, 1);
+        } else if(!(item.state === bcplayer.State.PLAYING)){
+          setTimeout(function(){
+            if(!(item.state === bcplayer.State.PLAYING)){
+              item.mediaElement_.play();
+              $('.preview-mode-info').fadeTo(2000, 0);
+            }
+          }, 9000)
+        }
+      }
 
       // Handle preview mode
       if (this.displayPreviewMode_) {
-        this.previewModeTimerElement_.innerText = "" + Math.round(totalTime-curTime);
+        var timeLeft = totalTime-curTime;
+        $('.preview-mode-artwork').height($('.preview-mode-artwork').width());
+        this.previewModeTimerElement_.innerText = "" + Math.round(totalTime-curTime);  
       }
     }
   }
@@ -2349,15 +2378,12 @@ bcplayer.getProtocolFunction_ = function(mediaInformation) {
   if (bcplayer.getExtension_(path) === 'm3u8' ||
           type === 'application/x-mpegurl' ||
           type === 'application/vnd.apple.mpegurl') {
-    console.log(type);
     return cast.player.api.CreateHlsStreamingProtocol;
   } else if (bcplayer.getExtension_(path) === 'mpd' ||
           type === 'application/dash+xml') {
-    console.log(type);
     return cast.player.api.CreateDashStreamingProtocol;
   } else if (path.indexOf('.ism') > -1 ||
           type === 'application/vnd.ms-sstr+xml') {
-    console.log(type);
     return cast.player.api.CreateSmoothStreamingProtocol;
   }
   return null;
@@ -2410,9 +2436,7 @@ bcplayer.canDisplayPreview_ = function(media) {
 bcplayer.getType_ = function(media) {
   var contentId = media.contentId || '';
   var contentType = media.contentType || '';
-  console.log(contentType);
   var contentUrlPath = bcplayer.getPath_(contentId);
-  console.log(bcplayer.getExtension_(contentUrlPath));
   if (contentType.indexOf('audio/') === 0) {
     return bcplayer.Type.AUDIO;
   } else if (contentType.indexOf('video/') === 0) {
@@ -2665,7 +2689,7 @@ bcplayer.getPath_ = function(url) {
  * @private
  */
 bcplayer.CastPlayer.prototype.log_ = function(message) {
-  if (this.debug_ && message) {
+  if (message) {
     console.log(message);
   }
 };
