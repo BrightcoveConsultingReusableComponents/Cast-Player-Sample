@@ -778,7 +778,7 @@ bcplayer.CastPlayer.prototype.onMessage_ = function(event){
     } 
 
   function changeColor(color) {
-    $('.player .progressBar').css("background-color", color);
+    this.changeColorPattern(color);
     showControls();
   }
 
@@ -810,6 +810,34 @@ bcplayer.CastPlayer.prototype.onMessage_ = function(event){
 };
 
 /**
+ * Changes the color pattern for the project
+ *
+ * @param color
+ * @return void
+ * @private
+ */
+
+bcplayer.CastPlayer.prototype.changeColorPattern = function(rgb){
+  
+  rgb = String(rgb);
+  function setWebkitColor(element, color){
+    var rgba = String(color.replace(')', ', 0.5)').replace('rgb', 'rgba'));
+    rgba = rgba+' 0px 0px 15px 5px';
+    $(element).css('-webkit-box-shadow', rgba);
+    $(element).css('-moz-box-shadow', rgba);
+    $(element).css('box-shadow', rgba);
+    $(element).css('border', rgba);
+  }
+  
+  setWebkitColor('.media-artwork', rgb);
+  setWebkitColor('.preview-mode-artwork', rgb);
+  $('.player .progressBar').css('background-color', rgb); 
+
+  var rgba = String(rgb.replace(')', ', 0.5)').replace('rgb', 'rgba'));
+  $('.player .badge').css('background', rgba);
+}
+
+/**
  * Handler for the loadedData event. Attempt to capture bitrates/video quality for the streaming video
  *
  * @param none
@@ -818,6 +846,9 @@ bcplayer.CastPlayer.prototype.onMessage_ = function(event){
  */
 
 bcplayer.CastPlayer.prototype.onLoadedData_ = function(){ 
+  //Set color pattern
+  var color = $('.progressBar').css('background-color');
+  this.changeColorPattern(color);
   //Send constants update
   var media = this.mediaManager_.getMediaInformation();
   var tempId = media.contentId;
@@ -834,7 +865,9 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
   var tempConstant = [tempId, tempTitle, tempDuration];
   this.constantUpdate_("Constant", tempConstant);
   
-  var protocol = this.player_.getStreamingProtocol();
+  if(this.player_.getStreamingProtocol()){
+    var protocol = this.player_.getStreamingProtocol();
+  }
   var streamCount = protocol.getStreamCount();
   var streamInfo;
   var streamVideoCodecs;
@@ -995,6 +1028,9 @@ bcplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
  * @private
  */
 bcplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) {
+  var width = String(parseInt($('.badge').width())) + 'px';
+  $('.badge').css('font-size', width);
+  console.log($('.badge').css('font-size'));
   this.displayPreviewMode_ = true;
   this.loadPreviewModeMetadata_(mediaInformation);
   this.showPreviewModeMetadata(true);
@@ -2690,7 +2726,7 @@ bcplayer.getPath_ = function(url) {
  */
 bcplayer.CastPlayer.prototype.log_ = function(message) {
   if (message) {
-    console.log(message);
+    //console.log('DEBUGGER: ' message);
   }
 };
 
