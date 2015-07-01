@@ -165,11 +165,25 @@ bcplayer.CastPlayer = function(element) {
   this.maxBandwith_ = null;
 
   /*
-   * Boolean to pause only once
+   * The list of items in the queue in order
    * @private
    */
   
-  this.hasAlreadyPaused = false;
+  this.currentQueue_ = null;
+
+  /*
+   * The current playing item of the queue
+   * @private
+   */
+  
+  this.currentQueueItemId_ = null;
+
+  /*
+   * The current playlist medias
+   * @private
+   */
+  
+  this.playlist_ = null;
 
 
 
@@ -440,6 +454,36 @@ bcplayer.CastPlayer = function(element) {
 
   this.mediaManager_.onPreload = this.onPreload_.bind(this);
   this.mediaManager_.onCancelPreload = this.onCancelPreload_.bind(this);
+
+   /**
+   * Queue functions
+   * Copy of the original and event listener added
+   */
+
+  this.onQueueLoadOrig_ = 
+      this.mediaManager_.onQueueLoad.bind(this.mediaManager_);
+  this.mediaManager_.onQueueLoad = this.onQueueLoad_.bind(this);
+
+  this.onQueueInsertOrig_ = 
+      this.mediaManager_.onQueueInsert.bind(this.mediaManager_);
+  this.mediaManager_.onQueueInsert = this.onQueueInsert_.bind(this);
+
+  this.onQueueRemoveOrig_ = 
+      this.mediaManager_.onQueueRemove.bind(this.mediaManager_);
+  this.mediaManager_.onQueueRemove = this.onQueueRemove_.bind(this);
+
+  this.onQueueUpdateOrig_ = 
+      this.mediaManager_.onQueueUpdate.bind(this.mediaManager_);
+  this.mediaManager_.onQueueUpdate = this.onQueueUpdate_.bind(this);
+
+  this.onQueueReorderOrig_ = 
+      this.mediaManager_.onQueueReorder.bind(this.mediaManager_);
+  this.mediaManager_.onQueueReorder = this.onQueueReorder_.bind(this);
+
+  this.onQueueEndedOrig_ = 
+      this.mediaManager_.onQueueEnded.bind(this.mediaManager_);
+  this.mediaManager_.onQueueEnded = this.onQueueEnded_.bind(this);
+
 };
 
 /*Constructor Ended. The states and related definitions start. */ 
@@ -1030,7 +1074,6 @@ bcplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
 bcplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) {
   var width = String(parseInt($('.badge').width())) + 'px';
   $('.badge').css('font-size', width);
-  console.log($('.badge').css('font-size'));
   this.displayPreviewMode_ = true;
   this.loadPreviewModeMetadata_(mediaInformation);
   this.showPreviewModeMetadata(true);
@@ -2027,10 +2070,14 @@ bcplayer.CastPlayer.prototype.onStop_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onEnded_ = function() {
   //test functions
+  if(this.currentQueueItemId_ && this.currentQueue_){
+    var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
+    this.currentQueueItemId_ = this.currentQueue_[index + 1];
+  }
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+
   this.mediaElement_.pause();
-
-
-  this.log_('onEnded');
+  console.log('onEnded');
   var media = this.mediaManager_.getMediaInformation();
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
   this.constantUpdate_("Ended", updateData);
@@ -2046,8 +2093,7 @@ bcplayer.CastPlayer.prototype.onEnded_ = function() {
  */
 bcplayer.CastPlayer.prototype.onAbort_ = function() {
   this.mediaElement_.pause();
-
-  this.log_('onAbort');
+  console.log('onAbort');
   this.setState_(bcplayer.State.IDLE, true);
   this.hidePreviewMode_();
 };
@@ -2222,6 +2268,135 @@ bcplayer.CastPlayer.prototype.onCancelPreload_ = function(event) {
   this.log_('onCancelPreload_');
   this.hidePreviewMode_();
   return true;
+};
+
+/**
+ * Called when we receive a QUEUE_LOAD message.
+ *
+ * @param {cast.receiver.MediaManager.Event} event The queue load event.
+ * @private
+ */
+bcplayer.CastPlayer.prototype.onQueueLoad_ = function(event) {
+  console.log('onQueueLoad_');
+  //console.log('A queue was loaded');
+  var items = event.data.items;
+  this.currentQueue_ = [];
+  this.playlist_ = {};
+  for(var i=0; i<items.length; i++){
+   this.currentQueue_.push(items[i].itemId);
+   this.playlist_[items[i].itemId] = items[i].media;
+  }
+  this.currentQueueItemId_ = items[0].itemId;
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  this.onQueueLoadOrig_(event);
+};
+/**
+ * Called when we receive a QUEUE_INSERT message.
+ *
+ * @param {cast.receiver.MediaManager.Event} event The queue insert event.
+ * @private
+ */
+bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
+  console.log('onQueueInsert_');
+  //console.log('Queue: An item was inserted');
+  if(!this.currentQueue_){
+    this.currentQueue_ = [];
+  }
+  if(!this.playlist_){
+    this.playlist_ = {};
+  }
+  var data = event.data;
+  var items = event.data.items;
+  if(data.insertBefore != undefined){
+    var index = this.currentQueue_.indexOf(data.insertBefore);
+    for(var i=items.length - 1; i>=0; i--){
+      this.currentQueue_.splice(index, 0, items[i].itemId);
+      this.playlist_[items[i].itemId] = items[i].media;
+    }
+  } else{
+    for(var i=0; i<items.length; i++){
+      this.currentQueue_.push(items[i].itemId);
+      this.playlist_[items[i].itemId] = items[i].media;
+    }
+  }
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  this.onQueueInsertOrig_(event);
+};
+/**
+ * Called when we receive a QUEUE_REMOVE message.
+ *
+ * @param {cast.receiver.MediaManager.Event} event The queue remove event.
+ * @private
+ */
+
+bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
+  console.log('onQueueRemove_');
+  //console.log('Queue: An item was removed');
+  var ids = event.data.itemIds;
+  for(var i=0; i<ids.length; i++){
+    var index = this.currentQueue_.indexOf(ids[i]);
+    if(ids[i] == this.currentQueueItemId_){
+      if((index + 1)<this.currentQueue_.length){
+        this.currentQueueItemId_ = this.currentQueue_[index + 1];
+      }else{
+         this.currentQueueItemId_ = null;
+      }
+    }
+    this.currentQueue_.splice(index, 1);
+    delete this.playlist_[ids[i]];
+  }
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  this.onQueueRemoveOrig_(event);
+};
+/**
+ * Called when we receive a QUEUE_UPDATE message.
+ *
+ * @param {cast.receiver.MediaManager.Event} event The queue update event.
+ * @private
+ */
+bcplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
+  console.log('onQueueUpdate_');
+  //console.log('The queue was udpated');
+  if(event.data.currentItemId != undefined){
+    this.currentQueueItemId_ = event.data.currentItemId;
+  } else{
+    var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
+    this.currentQueueItemId_ = this.currentQueue_[index - 1];
+  }
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  this.onQueueUpdateOrig_(event);
+};
+/**
+ * Called when we receive a QUEUE_REORDER message.
+ *
+ * @param {cast.receiver.MediaManager.Event} event The queue reorder event.
+ * @private
+ */
+bcplayer.CastPlayer.prototype.onQueueReorder_ = function(event) {
+  console.log('onQueueReorder_');
+  //console.log('The queue was reordered');
+  var currentIndex = this.currentQueue_.indexOf(event.data.itemIds[0]);
+  this.currentQueue_.splice(currentIndex, 1);
+  var newIndex = this.currentQueue_.indexOf(event.data.insertBefore);
+  this.currentQueue_.splice(newIndex, 0, event.data.itemIds[0]);
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  this.onQueueReorderOrig_(event);
+};
+/**
+ * Called when we receive a QUEUE_ENDED message.
+ *
+ * @param {cast.receiver.MediaManager.Event} event The queue ended event.
+ * @private
+ */
+bcplayer.CastPlayer.prototype.onQueueEnded_ = function(event) {
+  console.log('onQueueEnded_');
+  //console.log('The queue was ended');
+  console.log(event);
+  this.currentQueue_ = null;
+  this.currentQueueItemId_ = null;
+  this.playlist_ = null;
+  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  this.onQueueEndedOrig_(event);
 };
 
 
