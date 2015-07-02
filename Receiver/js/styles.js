@@ -1,5 +1,4 @@
 $( document ).ready(function() {
-console.log( "css edit ready!" );
 
 //changes the progress bar color
 var progressColor = null;

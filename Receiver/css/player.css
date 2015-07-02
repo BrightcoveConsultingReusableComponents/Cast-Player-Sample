@@ -129,7 +129,7 @@ body {
 }
 
 .player .media-info {
-  padding-bottom: 54px;
+  padding-bottom: 66px;
   display: flex;
 }
 
@@ -147,6 +147,7 @@ body {
   min-width: 96px;
   max-width: 266px;
   width: 100%;
+  background-image: url("assets/brightcove.png");
   /*width: 54%;*/
 }
 
@@ -230,13 +231,14 @@ body {
   right: 64px;*/
   top: 9%;
   left: 5%;
-  bottom: 9%;
+  bottom: 10%;
   right: 5%;
   display: none;
   background-position: bottom right;
   background-repeat: no-repeat;
   margin-bottom: 54px;
-  background-image: url("assets/watermarkBLUE.png");
+  background-image: url("assets/brightcove.png");
+  background-size: 80px 60px;
 }
 
 .player .gradient-to-top {
@@ -343,6 +345,7 @@ body {
 }
 
 .player .preview-mode-info {
+  opacity: 0;
   padding-bottom: 40%;
   display: none;
   margin: -143px 0 0 0;
@@ -353,7 +356,7 @@ body {
   -moz-box-shadow: 0px 0px 15px 5px rgba(255, 0, 91, 0.5);
   box-shadow: 0px 0px 15px 5px rgba(255, 0, 91, 0.5);
   border: 0.5px rgba(255, 0, 91, 0.5);
-  background-image: url("assets/logo.png");
+  background-image: url("assets/brightcove.png");
   background-size: cover;
   background-position: bottom;
   background-repeat: no-repeat;
@@ -406,40 +409,6 @@ body {
   font-weight: bold;
 }
 
-.queue {
-  display: none;
-  background-color: transparent;
-  position:relative;
-  width:7%;
-  height:12%;
-  margin-top: 5%;
-  margin-left: 85%;
-  margin-right: 5%;
-  background-image:url("assets/queueImg.png");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
-
-.badge {
-  position:absolute;
-  border: 1px solid white;
-  box-shadow: 1px 1px 1px black;
-  color: white;
-  font: bold;
-  font-size: 16px;
-  top: 9%;
-  right: -5%;
-  background: rgba(132,112,255,0.1);
-  border-radius: 9999px; 
-  box-shadow: 1px 1px 1px black;
-  height: 20%;
-  padding-top: 1%;
-  padding-right: 5%;
-  padding-left: 5%;
-  padding-bottom: 10%;
-  text-align: center;
-  width: 20%;
-}
 
 /* ------------------------------------------------- */
 /* Player - Video                                    */
@@ -518,7 +487,7 @@ body {
   height: 6%;
   margin-top: 1.5%;
   width: 65%;
-  margin-left: 18%;
+  margin-left: 19.5%;
   overflow: hidden;
   position: relative;
 }
@@ -534,11 +503,11 @@ body {
   max-width: none;
   height: 245px;
   width: 83%;
+  background-size: cover !important;
 }
 
 .player[type="video"][state="loading"] .media-title {
   font-size: 40px;
-  text-align: center;
 }
 
 .player[type="video"][state="loading"] .controls-cur-time,
@@ -549,23 +518,25 @@ body {
 }
 
 .player[type="video"][state="loading"] .controls-progress-inner {
-  width: 40% !important;
+  width: 20% !important;
   -webkit-animation: loading 2s infinite linear;
 }
 
-.player[type="video"][state="loading"] .queue {
-  display: block;
-  background-size: cover;
-  background-image: url("assets/buffering.png");
+.player[type="video"][state="loading"] .spinner {
   -webkit-animation: spin 1s infinite linear;
-  border: 0;
-  height: 40px;
-  width: 40px;
+  height: 50px;
+  width: 44px;
+  display: block;
+  position: absolute;
+  background-image: url("assets/buffering.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  bottom: 90%;
+  left: 90%;
+  margin-left: 32px / -2;
 }
 
-.player[type="video"][state="loading"] .badge {
-  display: none;
-}
+
 
 /* ------------------------------------------------- */
 /* Player - Video - Buffering                        */
@@ -624,7 +595,8 @@ body {
 }
 
 .player[type="video"][state="buffering"][preview-mode="true"] .preview-mode-info {
-  display: flex;
+  display: flex !important;
+  opacity: 1 !important;
 }
 
 /* ------------------------------------------------- */
@@ -754,11 +726,11 @@ body {
 }
 
 .player[type="video"][state="playing"][preview-mode="true"] .preview-mode-info {
-  display: flex;
+  display: flex !important;
+  opacity: 1 !important;
 }
 
 .player[type="video"][state="playing"][preview-mode="true"] .overlay,
-.player[type="video"][state="playing"][preview-mode="true"] .queue,
 .player[type="video"][state="playing"][preview-mode="true"] .gradient-to-bottom{
   display: block;
   visibility: visible;
@@ -781,7 +753,8 @@ body {
 }
 
 .player[type="video"][state="playing"][preview-mode="true"].seeking .preview-mode-info {
-  display: flex;
+  display: flex !important;
+  opacity: 1 !important;
 }
 
 /* ------------------------------------------------- */

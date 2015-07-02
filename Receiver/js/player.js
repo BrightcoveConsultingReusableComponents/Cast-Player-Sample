@@ -390,10 +390,6 @@ bcplayer.CastPlayer = function(element) {
   this.messageBus_ = this.receiverManager_.getCastMessageBus(
       'urn:x-cast:com.google.cast.sample.mediaplayer');
   this.messageBus_.onMessage = this.onMessage_.bind(this);
-  
-
-
-
 
   /**
    * The remote media object.
@@ -449,6 +445,17 @@ bcplayer.CastPlayer = function(element) {
       this.mediaManager_.onError.bind(this.mediaManager_);
   this.mediaManager_.onError = this.onError_.bind(this);
 
+  /**
+   * The original error callback
+   * @private {?function(!Object)}
+   */
+  this.onSetVolumeOrig_ =
+      this.mediaManager_.onSetVolume.bind(this.mediaManager_);
+  this.mediaManager_.onSetVolume = this.onSetVolume_.bind(this);
+
+  /**
+   * Status callback and preload
+   */
   this.mediaManager_.customizedStatusCallback =
       this.customizedStatusCallback_.bind(this);
 
@@ -875,10 +882,53 @@ bcplayer.CastPlayer.prototype.changeColorPattern = function(rgb){
   
   setWebkitColor('.media-artwork', rgb);
   setWebkitColor('.preview-mode-artwork', rgb);
-  $('.player .progressBar').css('background-color', rgb); 
+  $('.player .progressBar').css('background-color', rgb);
+  $('.preview-mode-timer').css('color', rgb);
+}
 
-  var rgba = String(rgb.replace(')', ', 0.5)').replace('rgb', 'rgba'));
-  $('.player .badge').css('background', rgba);
+/**
+ * Shows the playlist bar
+ *
+ * @param none
+ * @return void
+ * @private
+ */
+
+bcplayer.CastPlayer.prototype.showPlaylist_ = function(item, message){
+
+  var timeLeft = parseInt(this.mediaElement_.duration) - parseInt(this.mediaElement_.currentTime);
+  var isPlaying = this.state_ === bcplayer.State.PLAYING;
+  var enoughTimeLeft = timeLeft>9;
+  var notDisplayingPreview = $('.preview-mode-info').css('display') == 'none';
+
+  if(isPlaying && enoughTimeLeft && notDisplayingPreview){
+
+    var media = this.playlist_[item].media;
+    var metadata = media.metadata || {};
+    var imgUrl = bcplayer.getMediaImageUrl_(media);
+    var title = media.metadata.title || '';
+
+    if (imgUrl) {
+      var artworkElement = this.element_.querySelector('.preview-mode-artwork');
+      bcplayer.setBackgroundImage_(artworkElement, imgUrl);
+    }
+    $('.preview-mode-title').text(title);
+    $('.preview-mode-subtitle').text(message+' the queue');
+    $('.preview-mode-timer').css('display', 'none');
+
+    $('.preview-mode-info').css('display', 'flex');
+    $('.preview-mode-info').fadeTo(2000, 1);
+    $('.preview-mode-info').css('visibility', 'visible');
+    console.log($('.preview-mode-info').css('display'));
+    console.log($('.preview-mode-info').css('visibility'));
+    setTimeout(function(){
+      $('.preview-mode-info').fadeTo(1500, 0);
+    }, 3000)
+    setTimeout(function(){
+      $('.preview-mode-info').css('display', 'none');
+      $('.preview-mode-timer').css('display', 'flex');
+    }, 4500)
+  }
 }
 
 /**
@@ -909,49 +959,48 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
   var tempConstant = [tempId, tempTitle, tempDuration];
   this.constantUpdate_("Constant", tempConstant);
   
-  if(this.player_.getStreamingProtocol()){
+  if(this.player_ != null){
     var protocol = this.player_.getStreamingProtocol();
-  }
-  var streamCount = protocol.getStreamCount();
-  var streamInfo;
-  var streamVideoCodecs;
-  var streamAudioCodecs;
-  var captions = {};
-  var streamVideoBitrates;
-  var videoStreamIndex;
-  
-  for (var c = 0; c < streamCount; c++) {
-    streamInfo = protocol.getStreamInfo(c);
-    if (streamInfo.mimeType === 'text') {
-      captions[c] = streamInfo.language;
-    } else if (streamInfo.mimeType === 'video/mp4' ||
-        streamInfo.mimeType === 'video/mp2t') {
-      streamVideoCodecs = streamInfo.codecs;
-      streamVideoBitrates = streamInfo.bitrates;
-      if (this.maxBandwith_) {
-          var videoLevel = protocol.getQualityLevel(c, this.maxBandwith_);
-        }
+    var streamCount = protocol.getStreamCount();
+    var streamInfo;
+    var streamVideoCodecs;
+    var streamAudioCodecs;
+    var captions = {};
+    var streamVideoBitrates;
+    var videoStreamIndex;
+    
+    for (var c = 0; c < streamCount; c++) {
+      streamInfo = protocol.getStreamInfo(c);
+      if (streamInfo.mimeType === 'text') {
+        captions[c] = streamInfo.language;
+      } else if (streamInfo.mimeType === 'video/mp4' ||
+          streamInfo.mimeType === 'video/mp2t') {
+        streamVideoCodecs = streamInfo.codecs;
+        streamVideoBitrates = streamInfo.bitrates;
+        if (this.maxBandwith_) {
+            var videoLevel = protocol.getQualityLevel(c, this.maxBandwith_);
+          }
+        else {
+            var videoLevel = protocol.getQualityLevel(c);
+          }
+        videoStreamIndex = c;
+      } 
       else {
-          var videoLevel = protocol.getQualityLevel(c);
-        }
-      videoStreamIndex = c;
-    } 
-    else {
+      }
+    }
+
+    if (Object.keys(captions).length > 0) {
+      var caption_message = {};
+      caption_message['captions'] = captions;
+      this.constantUpdate_("Captions", caption_message);
+    }
+
+    if (streamVideoBitrates && Object.keys(streamVideoBitrates).length > 0) {
+      var video_bitrates_message = {};
+      video_bitrates_message['video_bitrates'] = streamVideoBitrates;
+      this.constantUpdate_("Bitrates", video_bitrates_message);
     }
   }
-
-  if (Object.keys(captions).length > 0) {
-    var caption_message = {};
-    caption_message['captions'] = captions;
-    this.constantUpdate_("Captions", caption_message);
-  }
-
-  if (streamVideoBitrates && Object.keys(streamVideoBitrates).length > 0) {
-    var video_bitrates_message = {};
-    video_bitrates_message['video_bitrates'] = streamVideoBitrates;
-    this.constantUpdate_("Bitrates", video_bitrates_message);
-  }
-  
 };
 
 /**
@@ -1072,8 +1121,8 @@ bcplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
  * @private
  */
 bcplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) {
-  var width = String(parseInt($('.badge').width())) + 'px';
-  $('.badge').css('font-size', width);
+  /*var width = String(parseInt($('.badge').width())) + 'px';
+  $('.badge').css('font-size', width);*/
   this.displayPreviewMode_ = true;
   this.loadPreviewModeMetadata_(mediaInformation);
   this.showPreviewModeMetadata(true);
@@ -1253,7 +1302,13 @@ bcplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
     bcplayer.setInnerText_(titleElement, this.title_);
 
     var subtitleElement = this.element_.querySelector('.media-subtitle');
-    bcplayer.setInnerText_(subtitleElement, metadata.subtitle);
+    if(this.currentQueue_ && this.currentQueue_.length>1){
+      var queueInfo = "Queue item " +(this.currentQueue_.indexOf(this.currentQueueItemId_)+1)+ " of "+this.currentQueue_.length;
+      var subtitle = queueInfo;
+      bcplayer.setInnerText_(subtitleElement, subtitle);
+    } else{
+      bcplayer.setInnerText_(subtitleElement, metadata.subtitle);
+    }
 
     var artwork = bcplayer.getMediaImageUrl_(media);
     if (artwork) {
@@ -1277,14 +1332,20 @@ bcplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function(media) {
     var titleElement = this.element_.querySelector('.preview-mode-title');
     bcplayer.setInnerText_(titleElement, metadata.title);
 
-    var subtitleElement = this.element_.querySelector('.preview-mode-subtitle');
-    bcplayer.setInnerText_(subtitleElement, metadata.subtitle);
-
     var artwork = bcplayer.getMediaImageUrl_(media);
     if (artwork) {
       var artworkElement = this.element_.querySelector('.preview-mode-artwork');
       bcplayer.setBackgroundImage_(artworkElement, artwork);
     }
+
+    var subtitleElement = this.element_.querySelector('.preview-mode-subtitle');
+    if(this.currentQueue_){
+      var queueInfo = "Queue item " +(this.currentQueue_.indexOf(this.currentQueueItemId_)+2)+ " of "+this.currentQueue_.length;
+      bcplayer.setInnerText_(subtitleElement, queueInfo);
+    } else{
+      bcplayer.setInnerText_(subtitleElement, metadata.subtitle);
+    }
+
   }
 };
 
@@ -2008,17 +2069,48 @@ bcplayer.CastPlayer.prototype.onPause_ = function() {
   this.updateProgress_();
 };
 
+/**
+ * Called when the system volume is changed.
+ *
+ * @private
+ */
 
 bcplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
   //Sending 'volume' event to external server to generate analytics data
   var media = this.mediaManager_.getMediaInformation();
-  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  if(media){
+    var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  } else{
+    var updateData = [this.title_, this.mediaElement_.currentTime];
+  }
   this.constantUpdate_("VolumeChanged", updateData);
 
   //Adds a 'volume' event timestamp for the current video
   var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
-  this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
-  this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
+  if(media){
+    this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
+    this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
+  }
+};
+
+bcplayer.CastPlayer.prototype.onSetVolume_ = function(event) {
+  console.log(event);
+  this.onSetVolumeOrig_(event);
+  //Sending 'volume' event to external server to generate analytics data
+ /* var media = this.mediaManager_.getMediaInformation();
+  if(media){
+    var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+  } else{
+    var updateData = [this.title_, this.mediaElement_.currentTime];
+  }
+  this.constantUpdate_("VolumeChanged", updateData);
+
+  //Adds a 'volume' event timestamp for the current video
+  var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
+  if(media){
+    this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
+    this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
+  }*/
 };
 
 /**
@@ -2074,7 +2166,6 @@ bcplayer.CastPlayer.prototype.onEnded_ = function() {
     var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
     this.currentQueueItemId_ = this.currentQueue_[index + 1];
   }
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
 
   this.mediaElement_.pause();
   console.log('onEnded');
@@ -2278,16 +2369,26 @@ bcplayer.CastPlayer.prototype.onCancelPreload_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onQueueLoad_ = function(event) {
   console.log('onQueueLoad_');
-  //console.log('A queue was loaded');
-  var items = event.data.items;
-  this.currentQueue_ = [];
-  this.playlist_ = {};
-  for(var i=0; i<items.length; i++){
-   this.currentQueue_.push(items[i].itemId);
-   this.playlist_[items[i].itemId] = items[i].media;
+  console.log('A queue was loaded');
+  try {
+    var items = event.data.items;
+    this.currentQueue_ = [];
+    this.playlist_ = {};
+    for(var i=0; i<items.length; i++){
+     this.currentQueue_.push(items[i].itemId);
+     var media = items[i].media;
+     var preloadTime = items[i].preloadTime;
+     var info = {'media': media, 'preload': preloadTime};
+     this.playlist_[items[i].itemId] = info;
+    }
+    this.currentQueueItemId_ = items[0].itemId;
+  } 
+  catch(err) {
+    this.currentQueue_ = null;
+    this.currentQueueItemId_ = null;
+    this.playlist_ = null;
+    console.log("Queue error - load");
   }
-  this.currentQueueItemId_ = items[0].itemId;
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
   this.onQueueLoadOrig_(event);
 };
 /**
@@ -2298,28 +2399,42 @@ bcplayer.CastPlayer.prototype.onQueueLoad_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
   console.log('onQueueInsert_');
-  //console.log('Queue: An item was inserted');
-  if(!this.currentQueue_){
-    this.currentQueue_ = [];
-  }
-  if(!this.playlist_){
-    this.playlist_ = {};
-  }
-  var data = event.data;
-  var items = event.data.items;
-  if(data.insertBefore != undefined){
-    var index = this.currentQueue_.indexOf(data.insertBefore);
-    for(var i=items.length - 1; i>=0; i--){
-      this.currentQueue_.splice(index, 0, items[i].itemId);
-      this.playlist_[items[i].itemId] = items[i].media;
+  console.log('Queue: An item was inserted');
+  try {
+    if(!this.currentQueue_){
+      this.currentQueue_ = [];
     }
-  } else{
-    for(var i=0; i<items.length; i++){
-      this.currentQueue_.push(items[i].itemId);
-      this.playlist_[items[i].itemId] = items[i].media;
+    if(!this.playlist_){
+      this.playlist_ = {};
     }
+    var data = event.data;
+    var items = event.data.items;
+    if(data.insertBefore != undefined){
+      var index = this.currentQueue_.indexOf(data.insertBefore);
+      for(var i=items.length - 1; i>=0; i--){
+        this.currentQueue_.splice(index, 0, items[i].itemId);
+        var media = items[i].media;
+        var preloadTime = items[i].preloadTime;
+        var info = {'media': media, 'preload': preloadTime};
+        this.playlist_[items[i].itemId] = info;
+      }
+    } else{
+      for(var i=0; i<items.length; i++){
+        this.currentQueue_.push(items[i].itemId);
+        var media = items[i].media;
+        var preloadTime = items[i].preloadTime;
+        var info = {'media': media, 'preload': preloadTime};
+        this.playlist_[items[i].itemId] = info;
+      }
+    }
+    this.showPlaylist_(items[0].itemId, "Inserted into");
   }
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  catch(err) {
+    this.currentQueue_ = null;
+    this.currentQueueItemId_ = null;
+    this.playlist_ = null;
+    console.log("Queue error - insert");
+  }
   this.onQueueInsertOrig_(event);
 };
 /**
@@ -2331,21 +2446,29 @@ bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
 
 bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
   console.log('onQueueRemove_');
-  //console.log('Queue: An item was removed');
-  var ids = event.data.itemIds;
-  for(var i=0; i<ids.length; i++){
-    var index = this.currentQueue_.indexOf(ids[i]);
-    if(ids[i] == this.currentQueueItemId_){
-      if((index + 1)<this.currentQueue_.length){
-        this.currentQueueItemId_ = this.currentQueue_[index + 1];
-      }else{
-         this.currentQueueItemId_ = null;
+  console.log('Queue: An item was removed');
+  try{
+    var ids = event.data.itemIds;
+    this.showPlaylist_(ids[0], "Removed from");
+    for(var i=0; i<ids.length; i++){
+      var index = this.currentQueue_.indexOf(ids[i]);
+      if(ids[i] == this.currentQueueItemId_){
+        if((index + 1)<this.currentQueue_.length){
+          this.currentQueueItemId_ = this.currentQueue_[index + 1];
+        }else{
+           this.currentQueueItemId_ = null;
+        }
       }
+      this.currentQueue_.splice(index, 1);
+      delete this.playlist_[ids[i]];
     }
-    this.currentQueue_.splice(index, 1);
-    delete this.playlist_[ids[i]];
   }
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  catch(err) {
+    this.currentQueue_ = null;
+    this.currentQueueItemId_ = null;
+    this.playlist_ = null;
+    console.log("Queue error - remove");
+  }
   this.onQueueRemoveOrig_(event);
 };
 /**
@@ -2356,14 +2479,21 @@ bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
   console.log('onQueueUpdate_');
-  //console.log('The queue was udpated');
-  if(event.data.currentItemId != undefined){
-    this.currentQueueItemId_ = event.data.currentItemId;
-  } else{
-    var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
-    this.currentQueueItemId_ = this.currentQueue_[index - 1];
+  console.log('The queue was udpated');
+  try{
+    if(event.data.currentItemId != undefined){
+      this.currentQueueItemId_ = event.data.currentItemId;
+    } else{
+      var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
+      this.currentQueueItemId_ = this.currentQueue_[index - 1];
+    }
   }
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  catch(err) {
+    this.currentQueue_ = null;
+    this.currentQueueItemId_ = null;
+    this.playlist_ = null;
+    console.log("Queue error - update");
+  }
   this.onQueueUpdateOrig_(event);
 };
 /**
@@ -2374,12 +2504,19 @@ bcplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onQueueReorder_ = function(event) {
   console.log('onQueueReorder_');
-  //console.log('The queue was reordered');
-  var currentIndex = this.currentQueue_.indexOf(event.data.itemIds[0]);
-  this.currentQueue_.splice(currentIndex, 1);
-  var newIndex = this.currentQueue_.indexOf(event.data.insertBefore);
-  this.currentQueue_.splice(newIndex, 0, event.data.itemIds[0]);
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
+  console.log('The queue was reordered');
+  try{
+    var currentIndex = this.currentQueue_.indexOf(event.data.itemIds[0]);
+    this.currentQueue_.splice(currentIndex, 1);
+    var newIndex = this.currentQueue_.indexOf(event.data.insertBefore);
+    this.currentQueue_.splice(newIndex, 0, event.data.itemIds[0]);
+  }
+  catch(err) {
+    this.currentQueue_ = null;
+    this.currentQueueItemId_ = null;
+    this.playlist_ = null;
+    console.log("Queue error - reorder");
+  }
   this.onQueueReorderOrig_(event);
 };
 /**
@@ -2390,12 +2527,10 @@ bcplayer.CastPlayer.prototype.onQueueReorder_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onQueueEnded_ = function(event) {
   console.log('onQueueEnded_');
-  //console.log('The queue was ended');
-  console.log(event);
+  console.log('The queue was ended');
   this.currentQueue_ = null;
   this.currentQueueItemId_ = null;
   this.playlist_ = null;
-  console.log(this.currentQueue_, this.currentQueueItemId_, this.playlist_);
   this.onQueueEndedOrig_(event);
 };
 

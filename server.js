@@ -18,7 +18,12 @@ var allowCrossDomain = function(req, res, next) {
 //use the allowCrossDomain function and bodyparsing
     app.use(allowCrossDomain);
     app.use(express.static(__dirname));
-    app.use(bs());
+    
+    //app.use(bodyParser()); //Now deprecated
+    app.use(bs.json());
+    app.use(bs.urlencoded({
+      extended: true
+    }));
 
 //server POST definitions
     app.post('/', function(req,res){
