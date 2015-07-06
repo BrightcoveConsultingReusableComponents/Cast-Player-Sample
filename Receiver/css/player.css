@@ -147,7 +147,7 @@ body {
   min-width: 96px;
   max-width: 266px;
   width: 100%;
-  background-image: url("assets/brightcove.png");
+  background-image: url("assets/fillervideo1.png");
   /*width: 54%;*/
 }
 
@@ -254,11 +254,11 @@ body {
 
 .player .gradient-to-bottom {
   display: none;
-  opacity: 0.9;
+  opacity: 0;
   background: linear-gradient(
     to bottom, 
     rgba(0, 0, 0, 1.0),  
-    rgba(0, 0, 0, 0.0) 60%,
+    rgba(0, 0, 0, 0.0) 85%,
     rgba(0, 0, 0, 0.0) 100%
     );
 }
@@ -271,14 +271,14 @@ body {
   display: none;
 }
 .player .controls-progress {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
   /*height: 11px;
   margin-top: 18px;
   margin-bottom: 9px;*/
   height: 24%;
   margin-top: 1.5%;
-  width: 78%;
-  margin-left: 11%;
+  width: 74%;
+  margin-left: 13.5%;
   overflow: hidden;
   position: relative;
 }
@@ -292,6 +292,7 @@ body {
   height: 100%;
   /*border-radius:12px;
   width: 12px;*/
+  opacity: 1;
   border-radius:9999px;
   width: 1.5%;
   background-color: rgba(255, 255, 255, 0.5);
@@ -356,7 +357,7 @@ body {
   -moz-box-shadow: 0px 0px 15px 5px rgba(255, 0, 91, 0.5);
   box-shadow: 0px 0px 15px 5px rgba(255, 0, 91, 0.5);
   border: 0.5px rgba(255, 0, 91, 0.5);
-  background-image: url("assets/brightcove.png");
+  background-image: url("assets/fillervideo1.png");
   background-size: cover;
   background-position: bottom;
   background-repeat: no-repeat;
@@ -730,10 +731,15 @@ body {
   opacity: 1 !important;
 }
 
-.player[type="video"][state="playing"][preview-mode="true"] .overlay,
+.player[type="video"][state="playing"][preview-mode="true"] .overlay{
+  display: block !important;
+  visibility: visible !important;
+}
+
 .player[type="video"][state="playing"][preview-mode="true"] .gradient-to-bottom{
-  display: block;
-  visibility: visible;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 0.9 !important;
 }
 
 .player[type="video"][state="playing"][preview-mode="true"] .gradient-to-top,
@@ -798,6 +804,21 @@ body {
 /* Player - Audio - Loading/Paused                   */
 /* ------------------------------------------------- */
 
+.player[type="audio"] .background {
+  display: none;
+  visibility: hidden !important;
+}
+
+.player[type="audio"][state="paused"] .controls,
+.player[type="audio"][state="loading"] .controls {
+  height: 45px !important; 
+}
+
+.player[type="audio"][state="loading"] .controls-progress-thumb {
+  display: none;
+}
+
+
 .player[type="audio"][state="loading"] .overlay,
 .player[type="audio"][state="paused"] .overlay {
   display: block;
@@ -819,7 +840,7 @@ body {
 
 .player[type="audio"][state="paused"] .controls-play-pause {
   display: block;
-  background-image: url("assets/paused.png");
+  background-image: url("assets/extraextra.png");
 }
 
 .player[type="audio"][state="loading"] .controls-play-pause {
@@ -887,22 +908,10 @@ body {
 
 .player[type="audio"][state="buffering"] .controls,
 .player[type="audio"][state="playing"] .controls {
-  height: 4px;
-  position: absolute;
-  width: 384px;
-  bottom: auto;
-  left: auto;
-  right: auto;
-  top: auto;
-  display: block;
+  display: none;
+  visibility: hidden;
 }
 
-.player[type="audio"][state="buffering"] .controls-progress,
-.player[type="audio"][state="playing"] .controls-progress {
-  height: 4px;
-  margin-top: 0;
-  margin-bottom: 0;
-}
 
 .player[type="audio"][state="buffering"] .controls-cur-time,
 .player[type="audio"][state="buffering"] .controls-total-time,

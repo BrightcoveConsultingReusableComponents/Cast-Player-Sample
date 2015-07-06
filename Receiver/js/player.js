@@ -501,7 +501,7 @@ bcplayer.CastPlayer = function(element) {
 bcplayer.IDLE_TIMEOUT = {
   LAUNCHING: 1000 * 60 * 5, // 5 minutes
   LOADING: 1000 * 60 * 5,  // 5 minutes
-  PAUSED: 1000 * 60 * 20,  // 20 minutes
+  PAUSED: 1000 * 60 * 120,  // 120 minutes - 2 hours
   DONE: 1000 * 60 * 5,     // 5 minutes
   IDLE: 1000 * 60 * 5      // 5 minutes
 };
@@ -772,92 +772,10 @@ bcplayer.CastPlayer.prototype.checkMilestone = function(array, duration, oldMile
  */
 
 bcplayer.CastPlayer.prototype.onMessage_ = function(event){
-  
   var myEvent = JSON.parse(event['data']);
-    if (myEvent['type'] === 'license') {
-      this.licenseUrl_ = myEvent.value;
-      if(this.licenseUrl_.length === 0 || !this.licenseUrl_.trim()){
-        this.licenseUrl_ = null;
-        this.constantUpdate_("License", ["No"]);
-      } else{
-        this.constantUpdate_("License", ["Yes"]);
-      }
-    } else if (myEvent['type'] === 'color'){
-         var progressColor = myEvent.value;
-         changeColor(progressColor);
-    } else if (myEvent['type'] === 'control'){
-          showControls();
-    } else if(myEvent['type'] === 'bandwith'){
-          this.maxBandwith_ = myEvent.value;
-    } else if(myEvent['type'] === 'mode'){
-           if(myEvent.value == '1'){
-            $('.player').css('left', '150px');
-            $('.player').css('right', '150px');
-            $('.player').css('top', 0);
-            $('.player').css('bottom', 0);
-           } else if(myEvent.value == '2'){
-            $('.player').css('left', 0);
-            $('.player').css('right', 0);
-            $('.player').css('top', '70px');
-            $('.player').css('bottom', '70px');
-           } else{
-            $('.player').css('left', 0);
-            $('.player').css('right', 0);
-            $('.player').css('top', 0);
-            $('.player').css('bottom', 0);
-           }       
-    } else if (myEvent['type'] === 'manifestCredentials') {
-        this.manifestCredentials_ = myEvent.value;
-        if(this.manifestCredentials_.length === 0 || !this.manifestCredentials_.trim()){
-          this.manifestCredentials_ = null;
-        }
-    } else if (myEvent['type'] === 'segmentCredentials') {
-        this.segmentCredentials_ = myEvent.value;
-        if(this.segmentCredentials_.length === 0 || !this.segmentCredentials_.trim()){
-          this.segmentCredentials_ = null;
-        }
-    } else if (myEvent['type'] === 'licenseCredentials') {
-        this.licenseCredentials_ = myEvent.value;
-        if(this.licenseCredentials_.length === 0 || !this.licenseCredentials_.trim()){
-          this.licenseCredentials_ = null;
-        }
-    } else if (myEvent['type'] === 'customData') {
-        this.customData_ = myEvent.value;
-        if(this.customData_.length === 0 || !this.customData_.trim()){
-          this.customData_ = null;
-        }
-    } 
-
-  function changeColor(color) {
-    this.changeColorPattern(color);
-    showControls();
-  }
-
-  function showControls(){
-    if($('.player .overlay').css("visibility") == "hidden"){
-      $('#hide').css("display", "block");
-      $('#hide').css("visibility", "visible");
-      $('#hide .controls-play-pause').css("display", "block");
-      $('#hide .controls-play-pause').css("visibility", "visible");
-      $('#hide .controls-cur-time').css("display", "block");
-      $('#hide .controls-cur-time').css("visibility", "visible");
-      $('#hide .controls-total-time').css("display", "block");
-      $('#hide .controls-total-time').css("visibility", "visible");
-      $('#hide').fadeTo(4000, 0);
-      setTimeout(function() {
-              $('#hide').css("display", "none");
-              $('#hide').css("visibility", "hidden");
-              $('#hide .controls-play-pause').css("display", "none");
-              $('#hide .controls-play-pause').css("visibility", "hidden");
-              $('#hide .controls-cur-time').css("display", "none");
-              $('#hide .controls-cur-time').css("visibility", "hidden");
-              $('#hide .controls-total-time').css("display", "none");
-              $('#hide .controls-total-time').css("visibility", "hidden");
-              $('#hide').fadeTo(100, 1);
-             }, 4000);
-    }
-  }
-
+  var type = myEvent['type'];
+  var value = myEvent.value
+  dealWithMessage(this, type, value);
 };
 
 /**
@@ -902,31 +820,40 @@ bcplayer.CastPlayer.prototype.showPlaylist_ = function(item, message){
   var notDisplayingPreview = $('.preview-mode-info').css('display') == 'none';
 
   if(isPlaying && enoughTimeLeft && notDisplayingPreview){
+    
 
     var media = this.playlist_[item].media;
     var metadata = media.metadata || {};
     var imgUrl = bcplayer.getMediaImageUrl_(media);
     var title = media.metadata.title || '';
+    var subtitle = media.metadata.subtitle || '';
 
     if (imgUrl) {
       var artworkElement = this.element_.querySelector('.preview-mode-artwork');
       bcplayer.setBackgroundImage_(artworkElement, imgUrl);
     }
+    $('.preview-mode-timer-countdown').text(message);
     $('.preview-mode-title').text(title);
-    $('.preview-mode-subtitle').text(message+' the queue');
-    $('.preview-mode-timer').css('display', 'none');
-
+    $('.preview-mode-subtitle').text(subtitle);
+    $('.preview-mode-timer-starts').css('display', 'none');
+    $('.preview-mode-timer-sec').css('display', 'none');
+    
+    //Fade effect
+    $('.player .gradient-to-bottom').css('display', 'block');
+    $('.player .gradient-to-bottom').css('visibility', 'visible');
+    $('.player .gradient-to-bottom').fadeTo(2000, 0.8);
     $('.preview-mode-info').css('display', 'flex');
     $('.preview-mode-info').fadeTo(2000, 1);
     $('.preview-mode-info').css('visibility', 'visible');
-    console.log($('.preview-mode-info').css('display'));
-    console.log($('.preview-mode-info').css('visibility'));
     setTimeout(function(){
       $('.preview-mode-info').fadeTo(1500, 0);
+      $('.player .gradient-to-bottom').fadeTo(1500, 0);
     }, 3000)
     setTimeout(function(){
       $('.preview-mode-info').css('display', 'none');
       $('.preview-mode-timer').css('display', 'flex');
+      $('.player .gradient-to-bottom').css('display', 'none');
+    $('.player .gradient-to-bottom').css('visibility', 'hidden');
     }, 4500)
   }
 }
@@ -1161,13 +1088,8 @@ bcplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
     'url': url,
     'mediaElement': self.mediaElement_
   });
-  //run licenseUrl
-  if(this.licenseUrl_){
-        host.licenseUrl = this.licenseUrl_;
-        console.log('License URL was set');
-  }
-  //check the credentials
-  this.checkCredentials_(host);
+  // run license check
+  checkLicense(this, host, url);
 
   host.onError = function() {
     self.preloadPlayer_.unload();
@@ -1416,8 +1338,8 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
 
       //Change the screen message, when there is an invalid URL license
       function setDRMmessage(){
+        $('.background').css('opacity', 0);
         $('.logo').fadeTo(2000, 0);
-        $('.background').fadeTo(2000, 0);
         $('.DRMerror').fadeTo(2000, 1);
         setTimeout(function() {
               $('.background').fadeTo(2000, 1);
@@ -1428,7 +1350,9 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
 
       // unload player and trigger error event on media element
       if (self.player_) {
-        setDRMmessage();
+        if(parseInt(errorCode) == 2){
+          setDRMmessage();
+        }
         self.resetMediaElement_();
         self.mediaElement_.dispatchEvent(new Event('error'));
       }
@@ -1444,13 +1368,8 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         'url': url,
         'mediaElement': this.mediaElement_
       });
-      //run licenseUrl
-      if(this.licenseUrl_){
-            host.licenseUrl = this.licenseUrl_;
-            console.log('License URL was set');
-      }
-      //check the credentials
-      this.checkCredentials_(host);
+      //run license check
+      checkLicense(this, host, url)
 
       /*host.updateSegmentRequestInfo = function(requestInfo) {
           // example of setting headers
@@ -1458,10 +1377,8 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
           requestInfo.headers['content-type'] = 'text/xml;charset=utf-8';
       };*/
 
-
-
-
       host.onError = loadErrorCallback;
+
       this.player_ = new cast.player.api.Player(host);
       this.player_.load(protocolFunc(host));
       //this.currentProtocol_ = protocolFunc(host);
@@ -1627,13 +1544,8 @@ bcplayer.CastPlayer.prototype.processTtmlCues_ =
         'url': '',
         'mediaElement': this.mediaElement_
       });
-      //run licenseUrl
-      if(this.licenseUrl_){
-            host.licenseUrl = this.licenseUrl_;
-            console.log('License URL was set');
-      }
-      //check the credentials
-      this.checkCredentials_(host);
+      //run license check
+      checkLicense(this, host, '');
 
       this.protocol_ = null;
       this.player_ = new cast.player.api.Player(host);
@@ -2280,6 +2192,8 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
       if (this.displayPreviewMode_) {
         var timeLeft = totalTime-curTime;
         $('.preview-mode-artwork').height($('.preview-mode-artwork').width());
+        $('.preview-mode-timer-starts').css('display', 'block');
+        $('.preview-mode-timer-sec').css('display', 'block');
         this.previewModeTimerElement_.innerText = "" + Math.round(totalTime-curTime);  
       }
     }
@@ -2411,12 +2325,26 @@ bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
     var items = event.data.items;
     if(data.insertBefore != undefined){
       var index = this.currentQueue_.indexOf(data.insertBefore);
-      for(var i=items.length - 1; i>=0; i--){
+      var playingNow = this.currentQueue_.indexOf(this.currentQueueItemId_);
+      console.log(index);
+      console.log(playingNow);
+      if(index != playingNow){
+        for(var i=items.length - 1; i>=0; i--){
         this.currentQueue_.splice(index, 0, items[i].itemId);
         var media = items[i].media;
         var preloadTime = items[i].preloadTime;
         var info = {'media': media, 'preload': preloadTime};
         this.playlist_[items[i].itemId] = info;
+        }
+        this.showPlaylist_(items[0].itemId, "Inserted");
+      } else{
+        for(var i=items.length - 1; i>=0; i--){
+        this.currentQueue_.splice(index, 0, items[i].itemId);
+        var media = items[i].media;
+        var preloadTime = items[i].preloadTime;
+        var info = {'media': media, 'preload': preloadTime};
+        this.playlist_[items[i].itemId] = info;
+        }
       }
     } else{
       for(var i=0; i<items.length; i++){
@@ -2426,8 +2354,8 @@ bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
         var info = {'media': media, 'preload': preloadTime};
         this.playlist_[items[i].itemId] = info;
       }
+      this.showPlaylist_(items[0].itemId, "Inserted");
     }
-    this.showPlaylist_(items[0].itemId, "Inserted into");
   }
   catch(err) {
     this.currentQueue_ = null;
@@ -2449,7 +2377,9 @@ bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
   console.log('Queue: An item was removed');
   try{
     var ids = event.data.itemIds;
-    this.showPlaylist_(ids[0], "Removed from");
+    if(ids[i] != this.currentQueueItemId_){
+     this.showPlaylist_(ids[0], "Removed");
+    }
     for(var i=0; i<ids.length; i++){
       var index = this.currentQueue_.indexOf(ids[i]);
       if(ids[i] == this.currentQueueItemId_){

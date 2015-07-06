@@ -1,0 +1,23 @@
+/*body background color*/
+body {
+
+}
+
+/*progress bar color*/
+.player .progressBar {
+  background-color: green;
+}
+
+/*rgb(255, 0, 91)*/
+
+/*background image url cover*/
+.player .background {
+   background-image: url("assets/bcback.png");
+}
+
+/*logo image url*/
+.player .logo {
+
+}
+
+
