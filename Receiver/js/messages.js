@@ -1,6 +1,77 @@
+/*
+ This file deals with the extra messages between sender-receiver, such as color change and also with the messages sent
+ to an external server to keep track of data.
+ */
+
+/*
+ * SERVER MESSAGES
+ **************************
+ */
+
+
+ /*
+ConstantUpdateServer is the server that will constantly get the information provided by user interaction
+FinalDataServer is the server the will get the final analytics status after the cast session is over 
+*/
+
+var constantUpdateServer = "http://10.1.48.224:1337";
+var finalDataServer = "http://10.1.48.224:9999";
+
+/**
+ * Send data via ajax to a determined server
+ *
+ * @param content and server url
+ * @return Void
+ * @private
+ */
+function sendAjaxData(dataContent, urlString) {
+  var submit = $.ajax({
+          url: urlString, 
+          type: 'POST', 
+          contentType: 'application/json', 
+          data: JSON.stringify(dataContent),
+        error: function(error) {
+          console.log("Error.");
+        }
+      });
+        submit.success(function (data) {
+          console.log("Success");
+      });
+};
+
+/**
+ * Uses sendAjaxData to send a sample message for the pattern/normal events
+ *
+ * @param EventString
+ * @return Void
+ * @private
+ */
+function constantUpdate(EventString, data){
+  //Sending paused event to external server to generate analytics data
+  var sendingUpdateMessage = {};
+  sendingUpdateMessage[EventString] = data;
+  if(constantUpdateServer){
+      sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  }
+
+};
+
+/*
+ * GENERAL MESSAGES - SENDER->RECEIVER
+ **************************
+ */
+
+/**
+ * Deal with the messages delivered to the receiver directly
+ *
+ * @param the player, the type and value of the message
+ * @return Void
+ * @private
+ */
 function dealWithMessage(self, type, value){
-	//If the message is related, we deal with it in a separate file
-	//Check js/license.js to see the DRM settings for the function licenseMessage
+	//Logs the message
+	console.log('MESSAGE: type-> '+type+' value-> '+value)
+	//If the message is related, we deal with it in a separate function
 	if (type === 'license' || type === 'manifestCredentials' || type === 'segmentCredentials' || type === 'licenseCredentials' || type === 'customData') {
 	  licenseMessage(self, type, value);
 	} else if (type === 'color'){
@@ -60,4 +131,102 @@ function dealWithMessage(self, type, value){
 	   }, 4000);
 	}
 	}
+};
+
+
+/*
+ * LICENSE
+ **************************
+ */
+
+
+/**
+ * Deal with the messages related to licensing
+ *
+ * @param the player, the type and value of the message
+ * @return Void
+ * @private
+ */
+
+function licenseMessage(self, type, value){
+  /*If the message is related to license or credentials, we deal with it separately
+
+  The license URL is added here. If some message specify some kind of credentials we add it here too*/
+  console.log("HEEEEY");
+  //Add license URL
+  if (type === 'license') {
+    self.licenseUrl_ = value;
+    if(self.licenseUrl_.length === 0 || !self.licenseUrl_.trim()){
+      self.licenseUrl_ = null;
+      constantUpdate("License", ["No"]);
+    } else{
+      constantUpdate("License", ["Yes"]);
+    }
+  } 
+  //Check for different kind of credentials and add them 
+  else if (type === 'manifestCredentials') {
+      self.manifestCredentials_ = value;
+      if(self.manifestCredentials_.length === 0 || !self.manifestCredentials_.trim()){
+        self.manifestCredentials_ = null;
+      }
+  } else if (type === 'segmentCredentials') {
+      self.segmentCredentials_ = value;
+      if(self.segmentCredentials_.length === 0 || !self.segmentCredentials_.trim()){
+        self.segmentCredentials_ = null;
+      }
+  } else if (type === 'licenseCredentials') {
+      self.licenseCredentials_ = value;
+      if(self.licenseCredentials_.length === 0 || !self.licenseCredentials_.trim()){
+        self.licenseCredentials_ = null;
+      }
+  } else if (type === 'customData') {
+      self.customData_ = value;
+      if(self.customData_.length === 0 || !self.customData_.trim()){
+        self.customData_ = null;
+      }
+  }
+}
+
+
+/**
+ * Adds the license and credentials information to the host
+ *
+ * @param the player, the host and the url
+ * @return Void
+ * @private
+ */
+
+function checkLicense(self, host, url){
+  //run license url
+  if(self.licenseUrl_){
+        host.licenseUrl = self.licenseUrl_;
+        console.log('License URL was set');
+  }
+  //check the credentials
+  checkCredentials(self, host, url);
+  
+  //If credentials were set, we add the respective content to guarantee they will be used
+  function checkCredentials(self, mediaHost, url){
+    if (self.manifestCredentials_) {
+        mediaHost.updateManifestRequestInfo = function(requestInfo) {
+          if (!requestInfo.url) {
+            requestInfo.url = url;
+          }
+          requestInfo.withCredentials = true;
+        };
+    }
+    if (self.segmentCredentials_) {
+      mediaHost.updateSegmentRequestInfo = function(requestInfo) {
+        requestInfo.withCredentials = true;
+        // example of setting headers - it should be CHANGED for different use cases
+        requestInfo.headers = {};
+        requestInfo.headers['content-type'] = 'text/xml;charset=utf-8';
+      };
+    }
+    if (self.licenseCredentials_) {
+      mediaHost.updateLicenseRequestInfo = function(requestInfo) {
+        requestInfo.withCredentials = true;
+      };
+    }
+  }
 };

@@ -1,23 +1,31 @@
 /*body background color*/
 body {
-
+ 	/*background-color: black;*/
 }
 
 /*progress bar color*/
 .player .progressBar {
-  background-color: green;
+	background-color: green;
 }
-
-/*rgb(255, 0, 91)*/
 
 /*background image url cover*/
 .player .background {
-   background-image: url("assets/bcback.png");
+	background-image: url("assets/bcback.png");
 }
 
 /*logo image url*/
 .player .logo {
-
+	/*background-image: url("assets/chromecast-logo.png");*/
 }
 
+.player .watermark {
+	/*background-image: url("assets/chromecast-logo.png");*/
+}
 
+.player .media-artwork {
+	/*background-image: url("assets/chromecast-logo.png");*/
+}
+
+.player .preview-mode-artwork {
+	/*background-image: url("assets/chromecast-logo.png");*/
+}

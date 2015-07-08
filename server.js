@@ -19,7 +19,7 @@ var allowCrossDomain = function(req, res, next) {
     app.use(allowCrossDomain);
     app.use(express.static(__dirname));
     
-    //app.use(bodyParser()); //Now deprecated
+//app.use(bodyParser()); is now deprecated
     app.use(bs.json());
     app.use(bs.urlencoded({
       extended: true

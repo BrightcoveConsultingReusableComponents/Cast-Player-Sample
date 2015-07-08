@@ -15,6 +15,18 @@
     stroke-width: 1;
     fill: none;
   }
+  
+  #none1{
+    display: none;
+  }
+
+  #none2{
+    display: none;
+  }
+
+  #none3{
+    display: none;
+  }
 
 
   #log{
@@ -22,7 +34,7 @@
     width: 40%;
     margin-left: 10%;
     height: 330px;
-    padding-top: 20px;
+    padding-top: 120px;
   }
   #textlog {
     width: 100%;
@@ -40,7 +52,7 @@
     margin-left: 10%;
     width: 35%;
     display: inline-block;
-    padding-top: 30px;
+    padding-top: 10px;
 }
 
   .list-group { 
@@ -156,17 +168,17 @@
         <i class="glyphicon glyphicon-flash"></i>
         Current State
       </li>
-      <li class="list-group-item">
+      <li class="list-group-item" id="none1">
         <span class="badge" id="Start">0</span>
         <i class="glyphicon glyphicon-play"></i>
         Play
       </li>
-      <li class="list-group-item">
+      <li class="list-group-item" id="none2">
         <span class="badge" id="Paused">0</span>
         <i class="glyphicon glyphicon-pause"></i>
         Pause
       </li>
-      <li class="list-group-item">
+      <li class="list-group-item" id="none3">
         <span class="badge" id="VolumeChanged">0</span>
         <i class="glyphicon glyphicon-volume-down"></i>
         Volume Change
@@ -274,6 +286,10 @@
         $('#p2').css("width", pct2)
         console.log(newTime);  
         //$("#state").html(newState);
+      } else if(key == "Debug"){
+        console.log(info);
+        var debugData = info;
+        $('#textlog').val($('#textlog').val() + debugData+"\n");
       }
     }
     

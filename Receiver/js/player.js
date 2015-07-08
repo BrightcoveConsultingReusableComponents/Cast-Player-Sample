@@ -5,40 +5,25 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
-
-
 
 'use strict';
 
 
 /**
- * Creates the namespace
+ * Namespace
  */
 var bcplayer = bcplayer || {};
 
-
-/*ConstantUpdateServer is the server that will constantly get the information provided by user interaction
-  FinalDataServer is the server the will get the final analytics status after the cast session is over */
-var constantUpdateServer = null;
-var finalDataServer = null;
-
-
 /**
  * 
- * Cast player constructor - This does the following:
- * Bind a listener to visibilitychange
- * Set the default state
- * Bind event listeners for img & video tags: error, stalled, waiting, playing, pause, ended, timeupdate, seeking, &
- * seeked and remember the various elements
- * Create the MediaManager and bind to onLoad & onStop
+ * Cast player constructor - 
+ * Main functions:
+ * Bind a listener to "visibility change"
+ * Set the default states
+ * Bind event listeners for img & video tags: error, stalled, waiting, playing, pause, ended, timeupdate, seeking, etc
+ * Create the MediaManager and bind the functions related to it
  * 
  * @param {!Element} element the element to attach the player
  * @struct
@@ -47,10 +32,9 @@ var finalDataServer = null;
  */
 bcplayer.CastPlayer = function(element) {
    
-   /** Data Track **
-   *   Added Variables to collect data from the following events, before they are even declare
-    *****************************************************************************************
-   */
+  /*
+  /*  All the data structures to keep track of the information released by the player
+  **************************************************************************************
 
    /*
    * The last second watched
@@ -190,6 +174,7 @@ bcplayer.CastPlayer = function(element) {
   /*
   /*  All the necesssary listeners and functions to start the player
   ***********************************************************************
+
   /**
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
@@ -223,7 +208,6 @@ bcplayer.CastPlayer = function(element) {
   this.state_;
   
  
-
   /**
    * Timestamp when state transition happened last time.
    * @private {number}
@@ -446,7 +430,7 @@ bcplayer.CastPlayer = function(element) {
   this.mediaManager_.onError = this.onError_.bind(this);
 
   /**
-   * The original error callback
+   * The original set volume callback
    * @private {?function(!Object)}
    */
   this.onSetVolumeOrig_ =
@@ -464,7 +448,7 @@ bcplayer.CastPlayer = function(element) {
 
    /**
    * Queue functions
-   * Copy of the original and event listener added
+   * The original and the event listener added
    */
 
   this.onQueueLoadOrig_ = 
@@ -501,7 +485,7 @@ bcplayer.CastPlayer = function(element) {
 bcplayer.IDLE_TIMEOUT = {
   LAUNCHING: 1000 * 60 * 5, // 5 minutes
   LOADING: 1000 * 60 * 5,  // 5 minutes
-  PAUSED: 1000 * 60 * 120,  // 120 minutes - 2 hours
+  PAUSED: 1000 * 60 * 60,  // 60 minutes 
   DONE: 1000 * 60 * 5,     // 5 minutes
   IDLE: 1000 * 60 * 5      // 5 minutes
 };
@@ -611,13 +595,16 @@ bcplayer.DISABLE_DEBUG_ = false;
 
 
 /**
- * All functions for the project
- ***********************************************************************
+ * All functions
+ *************************
  */
 
 
-/**
- * First, the Data Track auxiliar functions*/
+/*
+ * First, the Data Track auxiliar functions
+ ***************************************************
+ */
+
 
  /**
  * Returns the array of int intervals for a determined video
@@ -656,46 +643,6 @@ bcplayer.CastPlayer.prototype.addSecond = function(array, second) {
     array.push(second);
   }
 }
-
-/**
- * Send data via ajax to a determined server
- *
- * @param content and server url
- * @return Void
- * @private
- */
-bcplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString) {
-  var submit = $.ajax({
-          url: urlString, 
-          type: 'POST', 
-          contentType: 'application/json', 
-          data: JSON.stringify(dataContent),
-        error: function(error) {
-          console.log("Error.");
-        }
-      });
-        submit.success(function (data) {
-          console.log("Success");
-      });
-};
-
-/**
- * Uses sendAjaxData to send a sample message for the pattern/normal events
- *
- * @param EventString
- * @return Void
- * @private
- */
-bcplayer.CastPlayer.prototype.constantUpdate_ = function(EventString, data){
-  //Sending paused event to external server to generate analytics data
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage[EventString] = data;
-  if(this.constantUpdateServer){
-    console.log(sendingUpdateMessage);
-    this.sendAjaxData(sendingUpdateMessage, constantUpdateServer);
-  }
-
-};
 
 /**
  * Handle the credentials for the media
@@ -884,7 +831,7 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
     var tempTitle = '';
   }
   var tempConstant = [tempId, tempTitle, tempDuration];
-  this.constantUpdate_("Constant", tempConstant);
+  constantUpdate("Constant", tempConstant);
   
   if(this.player_ != null){
     var protocol = this.player_.getStreamingProtocol();
@@ -919,20 +866,20 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
     if (Object.keys(captions).length > 0) {
       var caption_message = {};
       caption_message['captions'] = captions;
-      this.constantUpdate_("Captions", caption_message);
+      constantUpdate("Captions", caption_message);
     }
 
     if (streamVideoBitrates && Object.keys(streamVideoBitrates).length > 0) {
       var video_bitrates_message = {};
       video_bitrates_message['video_bitrates'] = streamVideoBitrates;
-      this.constantUpdate_("Bitrates", video_bitrates_message);
+      constantUpdate("Bitrates", video_bitrates_message);
     }
   }
 };
 
-/**
- * Sample functions (modified to extract data)
- ***********************************************************************
+/*
+ * Now, the player functions
+ ***************************************************
  */
 
 
@@ -1113,6 +1060,10 @@ bcplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
 bcplayer.CastPlayer.prototype.load = function(info) {
   this.log_('onLoad_');
   clearTimeout(this.idleTimerId_);
+  //Set color pattern
+  var color = $('.progressBar').css('background-color');
+  this.changeColorPattern(color);
+  //Load
   var self = this;
   var media = info.message.media || {};
   var contentType = media.contentType;
@@ -1261,7 +1212,7 @@ bcplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function(media) {
     }
 
     var subtitleElement = this.element_.querySelector('.preview-mode-subtitle');
-    if(this.currentQueue_){
+    if(this.currentQueue_ && this.currentQueue_.length>1){
       var queueInfo = "Queue item " +(this.currentQueue_.indexOf(this.currentQueueItemId_)+2)+ " of "+this.currentQueue_.length;
       bcplayer.setInnerText_(subtitleElement, queueInfo);
     } else{
@@ -1334,7 +1285,7 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     // If we have not preloaded or the content preloaded does not match the
     // content that needs to be loaded, perform a full load
     var loadErrorCallback = function(errorCode) {
-      console.log("Fatal Error - " + errorCode);
+      console.log("DEBUGGER: Fatal Error - " + errorCode);
 
       //Change the screen message, when there is an invalid URL license
       function setDRMmessage(){
@@ -1812,7 +1763,7 @@ bcplayer.CastPlayer.prototype.updateApplicationState_ = function() {
       this.receiverManager_.setApplicationState(applicationState);
     }
     if(this.state_ != 'paused' && this.state_ != 'loading' && this.state_ != 'playing'){
-      this.constantUpdate_("State", [this.state_]);
+      constantUpdate("State", [this.state_]);
     }
   }
 };
@@ -1832,7 +1783,7 @@ bcplayer.CastPlayer.prototype.onReady_ = function() {
 bcplayer.CastPlayer.prototype.onSenderConnected_ = function(event) {
   //Sending 'connected' event to external server to generate analytics data
   var updateData = ["Cast Session started"];
-  this.constantUpdate_("Connected", updateData);
+  constantUpdate("Connected", updateData);
 };
 
 
@@ -1848,13 +1799,14 @@ bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
 
   //Sending 'connected' event to external server to generate analytics data
   var updateData = ["Cast Session ended"];
-  this.constantUpdate_("Disconnected", updateData);
+  constantUpdate("Disconnected", updateData);
   //Send all the data via ajax to final destination/processing server
   if(finalDataServer){
-    this.sendAjaxData(this.videoStatsData_, finalDataServer);
-    console.log(finalDataServer);
+    if (this.receiverManager_.getSenders().length === 0 && event.reason === cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+      sendAjaxData(this.videoStatsData_, finalDataServer);
+    }
   }
-  //console.log the disconnect message
+  //this.log_ the disconnect message
   this.log_('onSenderDisconnected');
 
   // When the last or only sender is connected to a receiver,
@@ -1935,7 +1887,7 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
   
   //Sending restart/start event to external server to generate analytics data
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  this.constantUpdate_("Start/Restart", updateData);
+  constantUpdate("Start/Restart", updateData);
   
   //Finally call the playing state functions
   this.cancelDeferredPlay_('media is already playing');
@@ -1964,7 +1916,7 @@ bcplayer.CastPlayer.prototype.onPause_ = function() {
   
   //Sending paused event to external server to generate analytics data
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  this.constantUpdate_("Paused", updateData);
+  constantUpdate("Paused", updateData);
   
 
   this.cancelDeferredPlay_('media is paused');
@@ -1995,7 +1947,7 @@ bcplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
   } else{
     var updateData = [this.title_, this.mediaElement_.currentTime];
   }
-  this.constantUpdate_("VolumeChanged", updateData);
+  constantUpdate("VolumeChanged", updateData);
 
   //Adds a 'volume' event timestamp for the current video
   var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
@@ -2006,7 +1958,6 @@ bcplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
 };
 
 bcplayer.CastPlayer.prototype.onSetVolume_ = function(event) {
-  console.log(event);
   this.onSetVolumeOrig_(event);
   //Sending 'volume' event to external server to generate analytics data
  /* var media = this.mediaManager_.getMediaInformation();
@@ -2015,7 +1966,7 @@ bcplayer.CastPlayer.prototype.onSetVolume_ = function(event) {
   } else{
     var updateData = [this.title_, this.mediaElement_.currentTime];
   }
-  this.constantUpdate_("VolumeChanged", updateData);
+  constantUpdate("VolumeChanged", updateData);
 
   //Adds a 'volume' event timestamp for the current video
   var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
@@ -2080,10 +2031,10 @@ bcplayer.CastPlayer.prototype.onEnded_ = function() {
   }
 
   this.mediaElement_.pause();
-  console.log('onEnded');
+  this.log_('onEnded');
   var media = this.mediaManager_.getMediaInformation();
   var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  this.constantUpdate_("Ended", updateData);
+  constantUpdate("Ended", updateData);
   this.setState_(bcplayer.State.IDLE, true);
   this.hidePreviewMode_();
 };
@@ -2096,7 +2047,7 @@ bcplayer.CastPlayer.prototype.onEnded_ = function() {
  */
 bcplayer.CastPlayer.prototype.onAbort_ = function() {
   this.mediaElement_.pause();
-  console.log('onAbort');
+  this.log_('onAbort');
   this.setState_(bcplayer.State.IDLE, true);
   this.hidePreviewMode_();
 };
@@ -2136,7 +2087,7 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
       $('.controls-progress-thumb').css("left", String(pct) + "%");
       
       //Data Track
-      this.constantUpdate_("Time", [pct]);
+      constantUpdate("Time", [pct]);
       var pctInt = parseInt(pct);
       var curTimeInt = parseInt(curTime);
       
@@ -2158,7 +2109,7 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
         this.lastMilestone_[media.contentId] = check;
         //send the message
         var updateData = [media.contentId, this.title_, this.lastMilestone_[media.contentId]];
-        this.constantUpdate_("Milestone", updateData);
+        constantUpdate("Milestone", updateData);
 
       }
       
@@ -2282,8 +2233,8 @@ bcplayer.CastPlayer.prototype.onCancelPreload_ = function(event) {
  * @private
  */
 bcplayer.CastPlayer.prototype.onQueueLoad_ = function(event) {
-  console.log('onQueueLoad_');
-  console.log('A queue was loaded');
+  this.log_('onQueueLoad_');
+  this.log_('A queue was loaded');
   try {
     var items = event.data.items;
     this.currentQueue_ = [];
@@ -2301,7 +2252,7 @@ bcplayer.CastPlayer.prototype.onQueueLoad_ = function(event) {
     this.currentQueue_ = null;
     this.currentQueueItemId_ = null;
     this.playlist_ = null;
-    console.log("Queue error - load");
+    this.log_("Queue error - load");
   }
   this.onQueueLoadOrig_(event);
 };
@@ -2312,8 +2263,8 @@ bcplayer.CastPlayer.prototype.onQueueLoad_ = function(event) {
  * @private
  */
 bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
-  console.log('onQueueInsert_');
-  console.log('Queue: An item was inserted');
+  this.log_('onQueueInsert_');
+  this.log_('Queue: An item was inserted');
   try {
     if(!this.currentQueue_){
       this.currentQueue_ = [];
@@ -2326,8 +2277,8 @@ bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
     if(data.insertBefore != undefined){
       var index = this.currentQueue_.indexOf(data.insertBefore);
       var playingNow = this.currentQueue_.indexOf(this.currentQueueItemId_);
-      console.log(index);
-      console.log(playingNow);
+      this.log_(index);
+      this.log_(playingNow);
       if(index != playingNow){
         for(var i=items.length - 1; i>=0; i--){
         this.currentQueue_.splice(index, 0, items[i].itemId);
@@ -2361,7 +2312,7 @@ bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
     this.currentQueue_ = null;
     this.currentQueueItemId_ = null;
     this.playlist_ = null;
-    console.log("Queue error - insert");
+    this.log_("Queue error - insert");
   }
   this.onQueueInsertOrig_(event);
 };
@@ -2373,8 +2324,8 @@ bcplayer.CastPlayer.prototype.onQueueInsert_ = function(event) {
  */
 
 bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
-  console.log('onQueueRemove_');
-  console.log('Queue: An item was removed');
+  this.log_('onQueueRemove_');
+  this.log_('Queue: An item was removed');
   try{
     var ids = event.data.itemIds;
     if(ids[i] != this.currentQueueItemId_){
@@ -2397,7 +2348,7 @@ bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
     this.currentQueue_ = null;
     this.currentQueueItemId_ = null;
     this.playlist_ = null;
-    console.log("Queue error - remove");
+    this.log_("Queue error - remove");
   }
   this.onQueueRemoveOrig_(event);
 };
@@ -2408,8 +2359,8 @@ bcplayer.CastPlayer.prototype.onQueueRemove_ = function(event) {
  * @private
  */
 bcplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
-  console.log('onQueueUpdate_');
-  console.log('The queue was udpated');
+  this.log_('onQueueUpdate_');
+  this.log_('The queue was udpated');
   try{
     if(event.data.currentItemId != undefined){
       this.currentQueueItemId_ = event.data.currentItemId;
@@ -2422,7 +2373,7 @@ bcplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
     this.currentQueue_ = null;
     this.currentQueueItemId_ = null;
     this.playlist_ = null;
-    console.log("Queue error - update");
+    this.log_("Queue error - update");
   }
   this.onQueueUpdateOrig_(event);
 };
@@ -2433,8 +2384,8 @@ bcplayer.CastPlayer.prototype.onQueueUpdate_ = function(event) {
  * @private
  */
 bcplayer.CastPlayer.prototype.onQueueReorder_ = function(event) {
-  console.log('onQueueReorder_');
-  console.log('The queue was reordered');
+  this.log_('onQueueReorder_');
+  this.log_('The queue was reordered');
   try{
     var currentIndex = this.currentQueue_.indexOf(event.data.itemIds[0]);
     this.currentQueue_.splice(currentIndex, 1);
@@ -2445,7 +2396,7 @@ bcplayer.CastPlayer.prototype.onQueueReorder_ = function(event) {
     this.currentQueue_ = null;
     this.currentQueueItemId_ = null;
     this.playlist_ = null;
-    console.log("Queue error - reorder");
+    this.log_("Queue error - reorder");
   }
   this.onQueueReorderOrig_(event);
 };
@@ -2456,8 +2407,8 @@ bcplayer.CastPlayer.prototype.onQueueReorder_ = function(event) {
  * @private
  */
 bcplayer.CastPlayer.prototype.onQueueEnded_ = function(event) {
-  console.log('onQueueEnded_');
-  console.log('The queue was ended');
+  this.log_('onQueueEnded_');
+  this.log_('The queue was ended');
   this.currentQueue_ = null;
   this.currentQueueItemId_ = null;
   this.playlist_ = null;
@@ -2555,7 +2506,7 @@ bcplayer.CastPlayer.prototype.onMetadataLoaded_ = function(info) {
  */
 bcplayer.CastPlayer.prototype.onLoadMetadataError_ = function(event) {
   this.log_('onLoadMetadataError_');
-  console.log("Error: "+event.data);
+  this.log_("Error: "+event.data);
   var self = this;
   bcplayer.transition_(self.element_, bcplayer.TRANSITION_DURATION_,
       function() {
@@ -2966,7 +2917,9 @@ bcplayer.getPath_ = function(url) {
  */
 bcplayer.CastPlayer.prototype.log_ = function(message) {
   if (message) {
-    //console.log('DEBUGGER: ' message);
+    var debugMessage = 'DEBUGGER: ' + message;
+    constantUpdate('Debug', debugMessage);
+    console.log(debugMessage);
   }
 };
 
