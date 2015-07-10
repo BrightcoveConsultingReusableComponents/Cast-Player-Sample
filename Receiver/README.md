@@ -134,14 +134,6 @@ this.sendAjaxData(this.videoStatsData_, finalDataServer);
 ```
 This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
 
-# Styles.js
-It basically uses jQuery to change the css structure of the page. An example to easily change the background color:
-```javascript
-/changes the progress bar color
-var progressColor = "rgb(255, 255, 255)";
-/progress bar color
-$('.player .progressBar').css("background-color", progressColor);
-```
 
 # Player.css
 
