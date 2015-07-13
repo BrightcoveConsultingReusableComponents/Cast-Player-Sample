@@ -1762,7 +1762,7 @@ bcplayer.CastPlayer.prototype.updateApplicationState_ = function() {
       this.currentApplicationState_ = applicationState;
       this.receiverManager_.setApplicationState(applicationState);
     }
-    if(this.state_ != 'paused' && this.state_ != 'loading' && this.state_ != 'playing'){
+    if(this.state_){
       constantUpdate("State", [this.state_]);
     }
   }

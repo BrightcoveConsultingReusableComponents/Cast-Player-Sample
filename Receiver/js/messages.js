@@ -14,8 +14,8 @@ ConstantUpdateServer is the server that will constantly get the information prov
 FinalDataServer is the server the will get the final analytics status after the cast session is over 
 */
 
-var constantUpdateServer = "http://10.1.48.224:1337";
-var finalDataServer = "http://10.1.48.224:9999";
+var constantUpdateServer = "http://10.1.49.38:1337";
+var finalDataServer = null;
 
 /**
  * Send data via ajax to a determined server
@@ -31,11 +31,12 @@ function sendAjaxData(dataContent, urlString) {
           contentType: 'application/json', 
           data: JSON.stringify(dataContent),
         error: function(error) {
-          console.log("Error.");
+          console.log("Error - AJAX");
         }
       });
         submit.success(function (data) {
-          console.log("Success");
+          var success = data;
+          //console.log(success)
       });
 };
 
@@ -50,6 +51,7 @@ function constantUpdate(EventString, data){
   //Sending paused event to external server to generate analytics data
   var sendingUpdateMessage = {};
   sendingUpdateMessage[EventString] = data;
+  console.log(data);
   if(constantUpdateServer){
       sendAjaxData(sendingUpdateMessage, constantUpdateServer);
   }
@@ -200,6 +202,7 @@ function checkLicense(self, host, url){
   //run license url
   if(self.licenseUrl_){
         host.licenseUrl = self.licenseUrl_;
+        constantUpdate("License", ["Yes"]);
         console.log('License URL was set');
   }
   //check the credentials

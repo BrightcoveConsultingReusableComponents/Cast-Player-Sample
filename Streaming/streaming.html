@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!-- Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Firebase -->
+  <script src="https://cdn.firebase.com/js/client/2.2.7/firebase.js"></script>
+  <style>
+  /* Directly loaded css properties*/
+  svg{
+    width: 100%;
+    border: 1px solid black; 
+  }
+
+  path {
+    stroke: steelblue;
+    stroke-width: 1;
+    fill: none;
+  }
+  
+  #log{
+    display: inline-block;
+    width: 40%;
+    margin-left: 10%;
+    height: 330px;
+    padding-top: 20px;
+  }
+
+  #textlog {
+    width: 100%;
+    height: 100%;
+  }
+
+  #contentId {
+    margin-left: 10%;
+    width: 80%;
+  }
+
+  .jumbotron { 
+    height: 200px;
+  }
+
+  .debugger {
+    margin-left: 10%;
+    width: 35%;
+    display: inline-block;
+    padding-top: 30px;
+  }
+
+  .list-group { 
+    width: 100%;
+  }
+
+  .badge{
+    background-color: #87CEFA;
+    /*##E7E75C*/
+  }
+
+  .axis {
+    shape-rendering: crispEdges;
+    font: 10px sans-serif;
+  }
+
+  .x.axis line {
+    stroke: lightgrey;
+  }
+
+  .x.axis .minor {
+    stroke-opacity: .5;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+
+  .y.axis line{
+    display: none;
+    fill: none;
+    stroke: #000;
+  } 
+
+  .y.axis path {
+    fill: none;
+    stroke: #000;
+  }
+
+  .bar {
+    fill: steelblue;
+  }
+
+  .bar:hover {
+    fill: blue;
+  }
+  
+  </style>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- TITLE-->
+  <title>Debugger</title>
+
+  <!-- REFERENCE LINKS-->
+  <!-- D3 -->
+  <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
+  <!-- JQuery -->
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <!-- END OF REFERENCE LINKS-->
+</head>
+<body>
+  <!-- Title in Jumbotron -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="text-center">Real-Time Chromecast </h1>
+      <p class="text-center"> Events happening now.
+      </div>
+    </div>
+
+  
+<div class="container">
+<div class="alert alert-info" role="alert"> ContentID: <span id="currentId"> </span></div>
+</div>
+
+  <div>
+<input type = "button" id = "goblet-submit" value = "ENTER!" style ="display:none" /><br/>
+</div>
+
+<div class="container">
+  <div class="progress">
+    <div class="progress-bar progress-bar-info" id="p1" role="progressbar" style="width:0%">
+    </div>
+  </div>
+</div>
+
+  <div class="debugger">
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="badge" id="pct"></span>
+        <i class="glyphicon glyphicon-facetime-video"></i>
+        Percentage
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="title"></span>
+        <i class="glyphicon glyphicon-text-width"></i>
+        Title
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="bitrates">0</span>
+        <i class="glyphicon glyphicon-transfer"></i>
+        Average Bitrates
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="duration">0</span>
+        <i class="glyphicon glyphicon-time"></i>
+        Duration
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="license">YES</span>
+        <i class="glyphicon glyphicon-pencil"></i>
+        License Set?
+      </li>
+    </ul>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="badge" id="state">IDLE</span>
+        <i class="glyphicon glyphicon-flash"></i>
+        Current State
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="Start">0</span>
+        <i class="glyphicon glyphicon-play"></i>
+        Play
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="Paused">0</span>
+        <i class="glyphicon glyphicon-pause"></i>
+        Pause
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="VolumeChanged">0</span>
+        <i class="glyphicon glyphicon-volume-down"></i>
+        Volume Change
+      </li>
+      <li class="list-group-item">
+        <span class="badge" id="milestone">0</span>
+        <i class="glyphicon glyphicon-signal"></i>
+        Last Milestone Achieved
+      </li>
+    </ul>
+  </div>
+  
+  <div id="log">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab1" id="tab1" data-toggle="tab">Logs</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active"></div>
+        <div class="tab-pane" ></div>
+        <div class="tab-pane" ></div>
+        <div class="tab-pane" ></div>
+      </div>
+  <textarea id="textlog">
+  </textarea>
+</div>
+   
+    <!-- End space -->
+    <h1>&nbsp;</h1>
+    
+    <script>
+    //Firebase structure
+    var data = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/'); 
+    data.set ({
+      Debug : "",
+      Milestone : "0%",
+      Paused : 0,
+      Start : 0,
+      VolumeChanged : 0,
+      bitRates : 0,
+      currentDuration : 0,
+      currentId : "",
+      currentTitle : "",
+      isLicenseSet : "No",
+      newState : "idle",
+      newTime : "0%"
+    });
+
+    var dataDebug = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Debug');
+    var dataMilestone = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Milestone');
+    var dataPaused = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Paused');
+    var dataStart = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Start');
+    var dataVolumeChanged = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/VolumeChanged');
+    var dataBitRates = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/bitRates');
+    var dataCurrentDuration = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/currentDuration');
+    var dataCurrentId = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/currentId');
+    var dataCurrentTitle = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/currentTitle');
+    var dataIsLicenseSet = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/isLicenseSet');
+    var dataNewState = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/newState');
+    var dataNewTime = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/newTime');
+
+    var started = false;
+
+    dataDebug.on("value", function(snapshot) {
+      var debugData = snapshot.val();
+      $('#textlog').val($('#textlog').val() + debugData+"\n");
+    });
+    dataMilestone.on("value", function(snapshot) {
+      $("#milestone").html(snapshot.val());
+      changeColor('#milestone');
+    });
+    dataStart.on("value", function(snapshot) {
+      $('#p1').css('background-color', '#E7E75C');
+      $('#pct').css('background-color', '#E7E75C');
+      $("#Start").html(snapshot.val());
+      changeColor('#Start');
+    });
+    dataPaused.on("value", function(snapshot) {
+      $('#p1').css('background-color', 'rgb(91, 192, 222)');
+      $('#pct').css('background-color', '#87CEFA');
+      $("#Paused").html(snapshot.val());
+      changeColor('#Paused');
+    });
+    dataVolumeChanged.on("value", function(snapshot) {
+      $("#VolumeChanged").html(snapshot.val());
+    });
+    dataBitRates.on("value", function(snapshot) {
+      $("#bitrates").html(snapshot.val());
+      changeColor('#bitrates');
+    });
+    dataCurrentDuration.on("value", function(snapshot) {
+      $("#duration").html(snapshot.val());
+      changeColor('#duration');
+    });
+    dataCurrentId.on("value", function(snapshot) {
+      $("#currentId").html(snapshot.val());
+      changeColor('#currentId');
+      dataPaused.set(0);
+      dataStart.set(0);
+      dataVolumeChanged.set(0);
+    });
+    dataCurrentTitle.on("value", function(snapshot) {
+      $("#title").html(snapshot.val());
+      changeColor('#title');
+    });
+    dataIsLicenseSet.on("value", function(snapshot) {
+      $("#license").html(snapshot.val());
+      changeColor('#license');
+    });
+    dataNewState.on("value", function(snapshot) {
+      $("#state").html(snapshot.val());
+      changeColor('#state');
+    });
+    dataNewTime.on("value", function(snapshot) {
+      $('#p1').css("width", snapshot.val());
+      $("#pct").html(snapshot.val());
+    });
+    
+    var started = true;
+
+    function changeColor(element){
+      if(started){
+        var element = element;
+        $(element).css('background-color', '#E7E75C');
+        setTimeout(function(){
+          $(element).css('background-color', '#87CEFA');
+        }, 7000);
+      }
+    }
+
+
+    </script>
+
+    <!-- jQuery (bootstrap) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  </body>
+  </html>

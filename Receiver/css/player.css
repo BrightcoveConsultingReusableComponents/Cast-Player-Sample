@@ -689,10 +689,14 @@ body {
   visibility: hidden;
 }
 
-.player[type="video"][state="playing"].seeking .overlay,
-.player[type="video"][state="playing"].seeking .gradient-to-top {
+.player[type="video"][state="playing"].seeking .overlay {
   display: block;
   visibility: visible;
+}
+
+.player[type="video"][state="playing"].seeking .gradient-to-top {
+  display: none;
+  visibility: hidden;
 }
 
 .player[type="video"][state="playing"].seeking .media-info {
@@ -700,7 +704,27 @@ body {
 }
 
 .player[type="video"][state="playing"].seeking .controls {
+  display: none;
+}
+
+.player[type="video"][state="playing"].seeking .gradient-to-bottom{
   display: block;
+  visibility: visible;
+  opacity: 0.7;
+}
+
+.player[type="video"][state="playing"].seeking .spinner {
+  -webkit-animation: spin 1s infinite linear;
+  height: 50px;
+  width: 44px;
+  display: block;
+  position: absolute;
+  background-image: url("assets/buffering.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  bottom: 90%;
+  left: 90%;
+  margin-left: 32px / -2;
 }
 
 .player[type="video"][state="playing"] .controls-play-pause {
