@@ -4,6 +4,7 @@ var express = require("express"),
     qs = require('querystring'),
     fs = require('fs'),
     bs = require( "body-parser"),
+    Firebase = require("firebase"),
     stringify = require("json-stringify-pretty-compact");
 
 //CORS middleware - Allow Cross Origin requests
@@ -31,110 +32,148 @@ var allowCrossDomain = function(req, res, next) {
         var newData = req.body;
         var newDataKeys = Object.keys(newData);
 
-        var file_content = fs.readFileSync('log/log.json');
-        
-        //See if file is empty or not
-        try {
-            var currentData = JSON.parse(file_content);
-            var currentDataKeys = Object.keys(currentData);
-        } catch (e) {
-            var currentData = {};
-            console.log("File was empty");
-        }
-        
-        //Transform to binary array
-        for(var n=0; n<newDataKeys.length; n++){
-            var copy = newData[newDataKeys[n]];
-            var duration = parseInt(newData[newDataKeys[n]].duration);
-            newData[newDataKeys[n]].secondsSeen = transformToBinaryArray(copy.secondsSeen, duration);
-            newData[newDataKeys[n]].secondsPaused = transformToBinaryArray(copy.secondsPaused, duration);
-            newData[newDataKeys[n]].secondsRestart = transformToBinaryArray(copy.secondsRestart, duration);
-            newData[newDataKeys[n]].secondsVolumeChanged = transformToBinaryArray(copy.secondsVolumeChanged, duration);
-        }
-       
+        var database = new Firebase('https://intense-heat-5166.firebaseio.com/analytics/');
+        var currentData = {};
+        database.once("value", function(snapshot) {
+            currentData = snapshot.val();
+            //See if database is empty or not
+            try {
+                var currentDataKeys = Object.keys(currentData);
+            } catch (e) {
+                var currentData = {};
+                console.log("Database was empty");
+            }
+            
+            //Transform to binary array
+            for(var n=0; n<newDataKeys.length; n++){
+                var copy = newData[newDataKeys[n]];
+                var duration = parseInt(newData[newDataKeys[n]].duration);
+                newData[newDataKeys[n]].secondsSeen = transformToBinaryArray(copy.secondsSeen, duration);
+                newData[newDataKeys[n]].secondsPaused = transformToBinaryArray(copy.secondsPaused, duration);
+                newData[newDataKeys[n]].secondsRestart = transformToBinaryArray(copy.secondsRestart, duration);
+                newData[newDataKeys[n]].secondsVolumeChanged = transformToBinaryArray(copy.secondsVolumeChanged, duration);
+            }
+           
 
-        
-        for(var c = 0; c<newDataKeys.length; c++){
-            if(typeof(currentDataKeys) != 'undefined'){
-                if(currentDataKeys.indexOf(newDataKeys[c]) > -1){
-                //Information about the data on file and on ajax call for the contentId related to c
-                    var oldInfo = currentData[newDataKeys[c]];
-                    var newInfo = newData[newDataKeys[c]];
-                    var views = oldInfo["Views"];
-                    var duration = oldInfo["duration"];
-                //Update MilestonePercentagePerSession
-                    var newInfoAvgWatched = getAverageWatched(newInfo.secondsSeen);
-                    var check = checkMilestone(newInfoAvgWatched);
-                    currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
-                //***Seconds Arrays****
-                //Divide into intervals of 5% of the video
-                    if(duration>20){
-                        for(var n=0; n<newDataKeys.length; n++){
-                            var copy = newData[newDataKeys[n]];
-                            newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, 20);
-                            newData[newDataKeys[n]].secondsPaused = getSumArray(copy.secondsPaused, 20);
-                            newData[newDataKeys[n]].secondsRestart = getSumArray(copy.secondsRestart, 20);
-                            newData[newDataKeys[n]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
-                        }  
+            
+            for(var c = 0; c<newDataKeys.length; c++){
+                if(typeof(currentDataKeys) != 'undefined'){
+                    if(currentDataKeys.indexOf(newDataKeys[c]) > -1){
+                    //Information about the data on file and on ajax call for the contentId related to c
+                        var oldInfo = currentData[newDataKeys[c]];
+                        var newInfo = newData[newDataKeys[c]];
+                        var views = oldInfo["Views"];
+                        var duration = oldInfo["duration"];
+                    //Update MilestonePercentagePerSession
+                        var newInfoAvgWatched = getAverageWatched(newInfo.secondsSeen);
+                        var check = checkMilestone(newInfoAvgWatched);
+                        currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
+                    //***Seconds Arrays****
+                    //Divide into intervals of 5% of the video
+                        if(duration>20){
+                            for(var n=0; n<newDataKeys.length; n++){
+                                var copy = newData[newDataKeys[n]];
+                                newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, 20);
+                                newData[newDataKeys[n]].secondsPaused = getSumArray(copy.secondsPaused, 20);
+                                newData[newDataKeys[n]].secondsRestart = getSumArray(copy.secondsRestart, 20);
+                                newData[newDataKeys[n]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
+                            }  
+                        } else{
+                            for(var n=0; n<newDataKeys.length; n++){
+                                var copy = newData[newDataKeys[n]];
+                                newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, Math.floor(duration));
+                                newData[newDataKeys[n]].secondsPaused = getSumArray(copy.secondsPaused, Math.floor(duration));
+                                newData[newDataKeys[n]].secondsRestart = getSumArray(copy.secondsRestart, Math.floor(duration));
+                                newData[newDataKeys[n]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, Math.floor(duration));
+                            }       
+                        }
+                    //Seconds seen Update
+                        var updatedSecondsS = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsSeen), newInfo.secondsSeen);
+                        currentData[newDataKeys[c]].secondsSeen = updatedSecondsS; 
+                    //Seconds Paused Update
+                        var updatedSecondsP = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsPaused), newInfo.secondsPaused);
+                        currentData[newDataKeys[c]].secondsPaused = updatedSecondsP;   
+                    //Seconds Restarted Update
+                        var updatedSecondsR = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsRestart), newInfo.secondsRestart);
+                        currentData[newDataKeys[c]].secondsRestart = updatedSecondsR;
+                    //Seconds Restarted Update
+                        var updatedSecondsV = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsVolumeChanged), newInfo.secondsVolumeChanged);
+                        currentData[newDataKeys[c]].secondsVolumeChanged = updatedSecondsV; 
+                    //Add a view
+                        currentData[newDataKeys[c]]["Views"] += 1;
+                    //Add/update avg percentage watched 
+                        var normalSecondsS =  normalizeArray(updatedSecondsS, (duration/updatedSecondsS.length));
+                        normalSecondsS =  normalizeArray(normalSecondsS, (views+1));
+                        normalSecondsS =  normalizeArray(normalSecondsS, Math.max.apply(null, normalSecondsS));
+                        currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(normalSecondsS);
+                    //Add Date Values
+                        var today = new Date();
+                        var month = today.getMonth();
+                        var year = today.getFullYear();
+
+                        
+                        if(year in currentData[newDataKeys[c]]["viewsYear"]){
+                           currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
+                        } else {
+                            currentData[newDataKeys[c]]["viewsYear"][year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                            currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
+                        }
+                        
+                        //Compress
+                        currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
+                        currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
+                        currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
+                        currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
+                
                     } else{
-                        for(var n=0; n<newDataKeys.length; n++){
-                            var copy = newData[newDataKeys[n]];
-                            newData[newDataKeys[n]].secondsSeen = getSumArray(copy.secondsSeen, Math.floor(duration));
-                            newData[newDataKeys[n]].secondsPaused = getSumArray(copy.secondsPaused, Math.floor(duration));
-                            newData[newDataKeys[n]].secondsRestart = getSumArray(copy.secondsRestart, Math.floor(duration));
-                            newData[newDataKeys[n]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, Math.floor(duration));
-                        }       
-                    }
-                //Seconds seen Update
-                    console.log(decompressToDecArray(oldInfo.secondsSeen));
-                    console.log(newInfo.secondsSeen);
-                    var updatedSecondsS = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsSeen), newInfo.secondsSeen);
-                    currentData[newDataKeys[c]].secondsSeen = updatedSecondsS; 
-                //Seconds Paused Update
-                    var updatedSecondsP = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsPaused), newInfo.secondsPaused);
-                    currentData[newDataKeys[c]].secondsPaused = updatedSecondsP;   
-                //Seconds Restarted Update
-                    var updatedSecondsR = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsRestart), newInfo.secondsRestart);
-                    currentData[newDataKeys[c]].secondsRestart = updatedSecondsR;
-                //Seconds Restarted Update
-                    var updatedSecondsV = updatedArrayOfSeconds(decompressToDecArray(oldInfo.secondsVolumeChanged), newInfo.secondsVolumeChanged);
-                    currentData[newDataKeys[c]].secondsVolumeChanged = updatedSecondsV; 
-                //Add a view
-                    currentData[newDataKeys[c]]["Views"] += 1;
-                //Add/update avg percentage watched 
-                    var normalSecondsS =  normalizeArray(updatedSecondsS, (duration/updatedSecondsS.length));
-                    normalSecondsS =  normalizeArray(normalSecondsS, (views+1));
-                    normalSecondsS =  normalizeArray(normalSecondsS, Math.max.apply(null, normalSecondsS));
-                    currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(normalSecondsS);
-                //Add Date Values
-                    var today = new Date();
-                    var month = today.getMonth();
-                    var year = today.getFullYear();
+                        //Update ***Seconds Arrays****
+                         currentData[newDataKeys[c]] = newData[newDataKeys[c]];
+                         //Add a view
+                         currentData[newDataKeys[c]]["Views"] += 1;
 
-                    
-                    if(year in currentData[newDataKeys[c]]["viewsYear"]){
-                       currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
-                    } else {
+                        //TO-DO - CHANGE - - - Add/update avg percentage watched  
+                        currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
+
+                        //TO-DO - CHANGE - - - Update MilestonePercentagePerSession
+                        var newInfoAvgWatched = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
+                        var check = checkMilestone(newInfoAvgWatched);
+                        currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0];
+                        currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
+
+                        //Update Date data
+                        var today = new Date();
+                        var month = today.getMonth();
+                        var year = today.getFullYear();
+                        
+                        currentData[newDataKeys[c]]["viewsYear"] = {};
                         currentData[newDataKeys[c]]["viewsYear"][year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                         currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
+
+                        //Divide into intervals of 5% of the video
+                        for(var n=0; n<newDataKeys.length; n++){
+                            var copy = currentData[newDataKeys[c]];
+                            currentData[newDataKeys[c]].secondsSeen = getSumArray(copy.secondsSeen, 20);
+                            currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
+                            currentData[newDataKeys[c]].secondsPaused = getSumArray(copy.secondsPaused, 20);
+                            currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
+                            currentData[newDataKeys[c]].secondsRestart = getSumArray(copy.secondsRestart, 20);
+                            currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
+                            currentData[newDataKeys[c]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
+                            currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
+                        } 
+
+
                     }
-                    
-                    //Compress
-                    currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
-                    currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
-                    currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
-                    currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
-            
                 } else{
                     //Update ***Seconds Arrays****
                      currentData[newDataKeys[c]] = newData[newDataKeys[c]];
                      //Add a view
                      currentData[newDataKeys[c]]["Views"] += 1;
 
-                    //TO-DO - CHANGE - - - Add/update avg percentage watched  
+                    //Add/update avg percentage watched  
                     currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
 
-                    //TO-DO - CHANGE - - - Update MilestonePercentagePerSession
+                    //Update MilestonePercentagePerSession
                     var newInfoAvgWatched = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
                     var check = checkMilestone(newInfoAvgWatched);
                     currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0];
@@ -160,53 +199,17 @@ var allowCrossDomain = function(req, res, next) {
                         currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
                         currentData[newDataKeys[c]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
                         currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
-                    } 
-
+                    }
 
                 }
-            } else{
-                //Update ***Seconds Arrays****
-                 currentData[newDataKeys[c]] = newData[newDataKeys[c]];
-                 //Add a view
-                 currentData[newDataKeys[c]]["Views"] += 1;
-
-                //Add/update avg percentage watched  
-                currentData[newDataKeys[c]]["AvgPercentageWatched"] = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
-
-                //Update MilestonePercentagePerSession
-                var newInfoAvgWatched = getAverageWatched(newData[newDataKeys[c]].secondsSeen);
-                var check = checkMilestone(newInfoAvgWatched);
-                currentData[newDataKeys[c]]["MilestonePercentagePerSession"] = [0, 0, 0, 0, 0];
-                currentData[newDataKeys[c]]["MilestonePercentagePerSession"][check] += 1;
-
-                //Update Date data
-                var today = new Date();
-                var month = today.getMonth();
-                var year = today.getFullYear();
-                
-                currentData[newDataKeys[c]]["viewsYear"] = {};
-                currentData[newDataKeys[c]]["viewsYear"][year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                currentData[newDataKeys[c]]["viewsYear"][year][month] += 1;
-
-                //Divide into intervals of 5% of the video
-                for(var n=0; n<newDataKeys.length; n++){
-                    var copy = currentData[newDataKeys[c]];
-                    currentData[newDataKeys[c]].secondsSeen = getSumArray(copy.secondsSeen, 20);
-                    currentData[newDataKeys[c]].secondsSeen = compressToHexString(currentData[newDataKeys[c]].secondsSeen);
-                    currentData[newDataKeys[c]].secondsPaused = getSumArray(copy.secondsPaused, 20);
-                    currentData[newDataKeys[c]].secondsPaused = compressToHexString(currentData[newDataKeys[c]].secondsPaused);
-                    currentData[newDataKeys[c]].secondsRestart = getSumArray(copy.secondsRestart, 20);
-                    currentData[newDataKeys[c]].secondsRestart = compressToHexString(currentData[newDataKeys[c]].secondsRestart);
-                    currentData[newDataKeys[c]].secondsVolumeChanged = getSumArray(copy.secondsVolumeChanged, 20);
-                    currentData[newDataKeys[c]].secondsVolumeChanged = compressToHexString(currentData[newDataKeys[c]].secondsVolumeChanged);
-                }
-
             }
-        }
-        //The parsing is done
-        console.log("Done.");
-        var spacedLog = stringify(currentData);
-        fs.writeFileSync("log/log.json", spacedLog);
+            //The parsing is done
+            console.log("Done.");
+            var spacedLog = currentData;
+            database.transaction(function (value) {
+                return (spacedLog);
+            });
+        });
         
         /*
         ******* AUXILIAR FUNCTIONS

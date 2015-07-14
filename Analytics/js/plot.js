@@ -2,18 +2,18 @@ $(document).ready(function(){
   //Global variables
   var contentId = "";
   var year = 2015;
-  var file = "../log/log.json";
+  var database = new Firebase('https://intense-heat-5166.firebaseio.com/analytics/'); 
   //function to trigger a svg plot
   function triggerPlot(contentId){
     tab = String($( ".active a" ).attr('id')); 
     if(tab == "tab4"){
-      otherEvents(file, contentId); 
+      otherEvents(database, contentId); 
     } else if(tab == "tab3"){
-      lastMilestoneAchieved(file, contentId);
+      lastMilestoneAchieved(database, contentId);
     } else if(tab == "tab2"){
-      partsWatched(file, contentId); 
+      partsWatched(database, contentId); 
     }else {
-     viewStatistics(file, contentId, year);
+     viewStatistics(database, contentId, year);
    }
  } 
 
@@ -23,14 +23,13 @@ $(document).ready(function(){
  .attr("height", 400);
 
  //gets the keys from json and make them values for the select video tab
- d3.json(file, function(data) { 
-   var objects = data;
+ database.on("value", function(snapshot) {
+   var objects = snapshot.val();
    var keys = Object.keys(objects);
    var selectValues = {};
    for(var i=0; i<keys.length; i++){
      selectValues[keys[i]] = objects[keys[i]]["title"];
    }
-   
    $.each(selectValues, function(key, value) {   
      $('#selectOpt')
      .append($('<option>', { value : key })
@@ -82,16 +81,16 @@ $(document).ready(function(){
 
  //Tab events to trigger different plots
  $("#tab1").on("click", function(){ 
-  viewStatistics(file, contentId, year);
+  viewStatistics(database, contentId, year);
 });
  $("#tab2").on("click", function(){
-  partsWatched(file, contentId); 
+  partsWatched(database, contentId); 
 });
  $("#tab3").on("click", function(){
-  lastMilestoneAchieved(file, contentId);
+  lastMilestoneAchieved(database, contentId);
 });
  $("#tab4").on("click", function(){
-  otherEvents(file, contentId); 
+  otherEvents(database, contentId); 
 });
 
 

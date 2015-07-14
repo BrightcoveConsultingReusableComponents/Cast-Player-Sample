@@ -1796,13 +1796,24 @@ bcplayer.CastPlayer.prototype.onSenderConnected_ = function(event) {
 bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //Data Track
   //When disconnected, sends the data to the respective recipients
-
   //Sending 'connected' event to external server to generate analytics data
   var updateData = ["Cast Session ended"];
   constantUpdate("Disconnected", updateData);
   //Send all the data via ajax to final destination/processing server
+  function encodeURIComponentWithDots(url) {
+    var newUrl = encodeURIComponent(url);
+    newUrl = newUrl.split('.').join('%2E');
+    return newUrl;
+  }
   if(finalDataServer){
     if (this.receiverManager_.getSenders().length === 0 && event.reason === cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+      var keys = Object.keys(this.videoStatsData_);
+      for(var i = 0; i<keys.length; i++){
+        var value = this.videoStatsData_[keys[i]];
+        var encoded = encodeURIComponentWithDots(keys[i]);
+        this.videoStatsData_[encoded] = value;
+        delete this.videoStatsData_[keys[i]];
+      }
       sendAjaxData(this.videoStatsData_, finalDataServer);
     }
   }

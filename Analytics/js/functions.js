@@ -33,24 +33,25 @@ function decompressToDecArray(hexString){
    }
 }
 
-function partsWatched(file, contentId){
+function partsWatched(database, contentId){
+  database.on("value", function(snapshot) {
   // Desired dimensions and margin.
-  var m = [80, 90, 80, 90]; // margins
-  var w = 1000 - m[1] - m[3]; // width
-  var h = 450 - m[0] - m[2]; // height
-  //remove the previous svg element
-  d3.select("#svgGraph").remove();
-  
-  //Add the new svg element
-  var graph = d3.select("#graphs").append("svg:svg")
-  .attr("id", "svgGraph")
-  .attr("width", w + m[1] + m[3])
-  .attr("height", h + m[0] + m[2])
-  .append("svg:g")
-  .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+    var m = [80, 90, 80, 90]; // margins
+    var w = 1000 - m[1] - m[3]; // width
+    var h = 450 - m[0] - m[2]; // height
+    //remove the previous svg element
+    d3.select("#svgGraph").remove();
+    
+    //Add the new svg element
+    var graph = d3.select("#graphs").append("svg:svg")
+    .attr("id", "svgGraph")
+    .attr("width", w + m[1] + m[3])
+    .attr("height", h + m[0] + m[2])
+    .append("svg:g")
+    .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-  //gets data from JSON
-  d3.json(file, function(data) {
+  //Plot functions - Getting data
+    var data = snapshot.val();
     //Change the title string
     var name = data[contentId].title;
     var views = data[contentId].Views;
@@ -113,25 +114,26 @@ function partsWatched(file, contentId){
   });
 }
 
-function viewStatistics(file, contentId, year) {
+function viewStatistics(database, contentId, year) {
 
+  database.on("value", function(snapshot) {
   // Desired dimensions and margin.
-  var m = [80, 90, 80, 90]; // margins
-  var w = 1000 - m[1] - m[3]; // width
-  var h = 450 - m[0] - m[2]; // height
-  //remove the previous svg element
-  d3.select("#svgGraph").remove();
-  
-  //Add the new svg element
-  var graph = d3.select("#graphs").append("svg:svg")
-  .attr("id", "svgGraph")
-  .attr("width", w + m[1] + m[3])
-  .attr("height", h + m[0] + m[2])
-  .append("svg:g")
-  .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+    var m = [80, 90, 80, 90]; // margins
+    var w = 1000 - m[1] - m[3]; // width
+    var h = 450 - m[0] - m[2]; // height
+    //remove the previous svg element
+    d3.select("#svgGraph").remove();
+    
+    //Add the new svg element
+    var graph = d3.select("#graphs").append("svg:svg")
+    .attr("id", "svgGraph")
+    .attr("width", w + m[1] + m[3])
+    .attr("height", h + m[0] + m[2])
+    .append("svg:g")
+    .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-  //gets data from JSON
-  d3.json(file, function(data){
+  //Plot functions - Getting data
+    var data = snapshot.val();
     //Change the title string
     var name = data[contentId].title;
     var views = data[contentId].Views;
@@ -209,43 +211,45 @@ function viewStatistics(file, contentId, year) {
   });
 }
 
-function lastMilestoneAchieved(file, contentId){
+function lastMilestoneAchieved(database, contentId){
+
+  database.on("value", function(snapshot) {
   //remove previous SVG element
-  d3.select("#svgGraph").remove();
-  var margin = {top: 20, right: 20, bottom: 30, left: 40};
-  var width = 850,
-  height = 400;
+    d3.select("#svgGraph").remove();
+    var margin = {top: 20, right: 20, bottom: 30, left: 40};
+    var width = 850,
+    height = 400;
   
-  //Create x, y and color scales and axis
-  var x = d3.scale.ordinal()
-  .rangeRoundBands([0, width], .1);
+    //Create x, y and color scales and axis
+    var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
 
-  var y = d3.scale.linear()
-  .range([height, 0]);
+    var y = d3.scale.linear()
+    .range([height, 0]);
 
-  var color = d3.scale.linear()
-  .domain([-1, 2])
-  .range(["yellow", "blue"]);
+    var color = d3.scale.linear()
+    .domain([-1, 2])
+    .range(["yellow", "blue"]);
 
-  var xAxis = d3.svg.axis()
-  .scale(x)
-  .orient("bottom");
+    var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
 
-  var yAxis = d3.svg.axis()
-  .scale(y)
-  .orient("left")
-  .ticks(10, "%");
+    var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10, "%");
 
-  //Append the new svg
-  var svg = d3.select("#graphs").append("svg")
-  .attr("id", "svgGraph")
-  .attr("width", width)
-  .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    //Append the new svg
+    var svg = d3.select("#graphs").append("svg")
+    .attr("id", "svgGraph")
+    .attr("width", width)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  //gets data from JSON file
-  d3.json(file, function(milestone){
+  //Plot functions - Getting data
+    var milestone = snapshot.val();
     //Change the title string
     var name = milestone[contentId].title;
     var views = milestone[contentId].Views;
@@ -303,100 +307,101 @@ function lastMilestoneAchieved(file, contentId){
   });
 }
 
-function otherEvents(file, contentId){
-// Desired dimensions and margin.
-  var m = [80, 80, 80, 80]; // margins
-  var w = 1000 - m[1] - m[3]; // width
-  var h = 450 - m[0] - m[2]; // height
-  //remove the previous svg element
-  d3.select("#svgGraph").remove();
-  
-  //Add the new svg element
-  var graph = d3.select("#graphs").append("svg:svg")
-  .attr("id", "svgGraph")
-  .attr("width", w + m[1] + m[3])
-  .attr("height", h + m[0] + m[2])
-  .append("svg:g")
-  .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
-  //gets data from JSON
-  d3.json(file, function(data) {
-  //Change the title string
-  var name = data[contentId].title;
-  var views = data[contentId].Views;
-  var duration = data[contentId].duration;
-  $(".container h4").html('<mark>Name:</mark> '+name+' <mark>Views:</mark> '+views+' <mark>Duration:</mark> '+parseInt(duration))+'sec';
-
-  //Gets the relevant information
-  var dataPause = decompressToDecArray(data[contentId].secondsPaused);
-  dataPause = normalizeArray(dataPause);
-  var dataRestart = decompressToDecArray(data[contentId].secondsRestart);
-  dataRestart = normalizeArray(dataRestart)
-  var dataVolumeChanges = decompressToDecArray(data[contentId].secondsVolumeChanged);
-  dataVolumeChanges = normalizeArray(dataVolumeChanges);
-  
-
-  for(var i=0; i<dataPause.length; i++){
-    dataPause[i] *= 100;
-    dataRestart[i] *= 100;
-    dataVolumeChanges[i] *= 100;
-  }
-
-  var maxArray = [Math.max.apply(null, dataPause), Math.max.apply(null, dataRestart), Math.max.apply(null, dataVolumeChanges)];
-  var max = Math.max.apply(null, maxArray);
-  var multi = 100/dataPause.length;
-
-  // x scale
-  var x = d3.scale.linear().domain([0, (multi*dataPause.length)]).range([0, w]);
-  // y scale
-  var y = d3.scale.linear().domain([0, 1.1*(max)]).range([h, 0]);
-
-  // create a line function for each of the concepts
-  var linePause = d3.svg.line()
-    .x(function(dataPause,i) { 
-      return x(i*multi); 
-    })
-    .y(function(dataPause) { 
-      return y(dataPause); 
-    });
-
-  var lineRestart = d3.svg.line()
-    .x(function(dataRestart,i) { 
-      return x(i*multi); 
-    })
-    .y(function(dataRestart) { 
-      return y(dataRestart); 
-    });
-
-  var lineVolume = d3.svg.line()
-    .x(function(dataVolumeChanges,i) { 
-      return x(i*multi); 
-    })
-    .y(function(dataVolumeChanges) { 
-      return y(dataVolumeChanges); 
-    });
-
-    // create xAxis
-    var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickFormat(function(d){return String(d)+'%'}).tickSubdivide(true);
-    // Add to the plot
-    graph.append("svg:g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + h + ")")
-    .call(xAxis);
-
-
-    // create yAxis
-    var yAxisLeft = d3.svg.axis().scale(y).ticks(4).tickFormat(function(d){return String(d)+'%'}).orient("left");
-    // Add to the plot
-    graph.append("svg:g")
-    .attr("class", "y axis")
-    .attr("transform", "translate(-25,0)")
-    .call(yAxisLeft);
-
+function otherEvents(database, contentId){
+  database.on("value", function(snapshot) {
+  // Desired dimensions and margin.
+    var m = [80, 80, 80, 80]; // margins
+    var w = 1000 - m[1] - m[3]; // width
+    var h = 450 - m[0] - m[2]; // height
+    //remove the previous svg element
+    d3.select("#svgGraph").remove();
     
-     //Makes the lines
-    graph.append("svg:path").attr("d", lineRestart(dataRestart)).style("stroke", "darkgreen");
-    graph.append("svg:path").attr("d", linePause(dataPause)).style("stroke", "red");
-    graph.append("svg:path").attr("d", lineVolume(dataVolumeChanges)).style("stroke", "orange");
+    //Add the new svg element
+    var graph = d3.select("#graphs").append("svg:svg")
+    .attr("id", "svgGraph")
+    .attr("width", w + m[1] + m[3])
+    .attr("height", h + m[0] + m[2])
+    .append("svg:g")
+    .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+
+  //Plot functions - Getting data
+    var data = snapshot.val();
+    //Change the title string
+    var name = data[contentId].title;
+    var views = data[contentId].Views;
+    var duration = data[contentId].duration;
+    $(".container h4").html('<mark>Name:</mark> '+name+' <mark>Views:</mark> '+views+' <mark>Duration:</mark> '+parseInt(duration))+'sec';
+
+    //Gets the relevant information
+    var dataPause = decompressToDecArray(data[contentId].secondsPaused);
+    dataPause = normalizeArray(dataPause);
+    var dataRestart = decompressToDecArray(data[contentId].secondsRestart);
+    dataRestart = normalizeArray(dataRestart)
+    var dataVolumeChanges = decompressToDecArray(data[contentId].secondsVolumeChanged);
+    dataVolumeChanges = normalizeArray(dataVolumeChanges);
+    
+
+    for(var i=0; i<dataPause.length; i++){
+      dataPause[i] *= 100;
+      dataRestart[i] *= 100;
+      dataVolumeChanges[i] *= 100;
+    }
+
+    var maxArray = [Math.max.apply(null, dataPause), Math.max.apply(null, dataRestart), Math.max.apply(null, dataVolumeChanges)];
+    var max = Math.max.apply(null, maxArray);
+    var multi = 100/dataPause.length;
+
+    // x scale
+    var x = d3.scale.linear().domain([0, (multi*dataPause.length)]).range([0, w]);
+    // y scale
+    var y = d3.scale.linear().domain([0, 1.1*(max)]).range([h, 0]);
+
+    // create a line function for each of the concepts
+    var linePause = d3.svg.line()
+      .x(function(dataPause,i) { 
+        return x(i*multi); 
+      })
+      .y(function(dataPause) { 
+        return y(dataPause); 
+      });
+
+    var lineRestart = d3.svg.line()
+      .x(function(dataRestart,i) { 
+        return x(i*multi); 
+      })
+      .y(function(dataRestart) { 
+        return y(dataRestart); 
+      });
+
+    var lineVolume = d3.svg.line()
+      .x(function(dataVolumeChanges,i) { 
+        return x(i*multi); 
+      })
+      .y(function(dataVolumeChanges) { 
+        return y(dataVolumeChanges); 
+      });
+
+      // create xAxis
+      var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickFormat(function(d){return String(d)+'%'}).tickSubdivide(true);
+      // Add to the plot
+      graph.append("svg:g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + h + ")")
+      .call(xAxis);
+
+
+      // create yAxis
+      var yAxisLeft = d3.svg.axis().scale(y).ticks(4).tickFormat(function(d){return String(d)+'%'}).orient("left");
+      // Add to the plot
+      graph.append("svg:g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(-25,0)")
+      .call(yAxisLeft);
+
+      
+       //Makes the lines
+      graph.append("svg:path").attr("d", lineRestart(dataRestart)).style("stroke", "darkgreen");
+      graph.append("svg:path").attr("d", linePause(dataPause)).style("stroke", "red");
+      graph.append("svg:path").attr("d", lineVolume(dataVolumeChanges)).style("stroke", "orange");
   });
 }
