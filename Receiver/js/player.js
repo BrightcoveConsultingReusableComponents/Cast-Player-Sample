@@ -429,13 +429,6 @@ bcplayer.CastPlayer = function(element) {
       this.mediaManager_.onError.bind(this.mediaManager_);
   this.mediaManager_.onError = this.onError_.bind(this);
 
-  /**
-   * The original set volume callback
-   * @private {?function(!Object)}
-   */
-  this.onSetVolumeOrig_ =
-      this.mediaManager_.onSetVolume.bind(this.mediaManager_);
-  this.mediaManager_.onSetVolume = this.onSetVolume_.bind(this);
 
   /**
    * Status callback and preload
@@ -734,21 +727,25 @@ bcplayer.CastPlayer.prototype.onMessage_ = function(event){
  */
 
 bcplayer.CastPlayer.prototype.changeColorPattern = function(rgb){
-  
-  rgb = String(rgb);
-  function setWebkitColor(element, color){
-    var rgba = String(color.replace(')', ', 0.5)').replace('rgb', 'rgba'));
-    rgba = rgba+' 0px 0px 15px 5px';
-    $(element).css('-webkit-box-shadow', rgba);
-    $(element).css('-moz-box-shadow', rgba);
-    $(element).css('box-shadow', rgba);
-    $(element).css('border', rgba);
+  try {
+    rgb = String(rgb);
+    function setWebkitColor(element, color){
+      var rgba = String(color.replace(')', ', 0.5)').replace('rgb', 'rgba'));
+      rgba = rgba+' 0px 0px 15px 5px';
+      $(element).css('-webkit-box-shadow', rgba);
+      $(element).css('-moz-box-shadow', rgba);
+      $(element).css('box-shadow', rgba);
+      $(element).css('border', rgba);
+    }
+    
+    setWebkitColor('.media-artwork', rgb);
+    setWebkitColor('.preview-mode-artwork', rgb);
+    $('.player .progressBar').css('background-color', rgb);
+    $('.preview-mode-timer').css('color', rgb);  
+  } 
+  catch(err) {
+    console.log('Color Pattern Error')
   }
-  
-  setWebkitColor('.media-artwork', rgb);
-  setWebkitColor('.preview-mode-artwork', rgb);
-  $('.player .progressBar').css('background-color', rgb);
-  $('.preview-mode-timer').css('color', rgb);
 }
 
 /**
@@ -995,8 +992,6 @@ bcplayer.CastPlayer.prototype.showPreviewModeMetadata = function(show) {
  * @private
  */
 bcplayer.CastPlayer.prototype.showPreviewMode_ = function(mediaInformation) {
-  /*var width = String(parseInt($('.badge').width())) + 'px';
-  $('.badge').css('font-size', width);*/
   this.displayPreviewMode_ = true;
   this.loadPreviewModeMetadata_(mediaInformation);
   this.showPreviewModeMetadata(true);
@@ -1222,7 +1217,6 @@ bcplayer.CastPlayer.prototype.loadPreviewModeMetadata_ = function(media) {
   }
 };
 
-
 /**
  * Lets player handle autoplay, instead of depending on underlying
  * MediaElement to handle it. By this way, we can make sure that media playback
@@ -1238,7 +1232,6 @@ bcplayer.CastPlayer.prototype.letPlayerHandleAutoPlay_ = function(info) {
   this.mediaElement_.autoplay = false;
   this.playerAutoPlay_ = autoplay == undefined ? true : autoplay;
 };
-
 
 /**
  * Loads some audio content.
@@ -1289,14 +1282,19 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
 
       //Change the screen message, when there is an invalid URL license
       function setDRMmessage(){
-        $('.background').css('opacity', 0);
-        $('.logo').fadeTo(2000, 0);
-        $('.DRMerror').fadeTo(2000, 1);
-        setTimeout(function() {
-              $('.background').fadeTo(2000, 1);
-              $('.logo').fadeTo(2000, 1);
-              $('.DRMerror').fadeTo(2000, 0);
-           }, 10000);
+        try {
+          $('.background').css('opacity', 0);
+          $('.logo').fadeTo(2000, 0);
+          $('.DRMerror').fadeTo(2000, 1);
+          setTimeout(function() {
+                $('.background').fadeTo(2000, 1);
+                $('.logo').fadeTo(2000, 1);
+                $('.DRMerror').fadeTo(2000, 0);
+             }, 10000);
+        } 
+        catch(err) {
+          console.log('DRM Message error');
+        }
       };
 
       // unload player and trigger error event on media element
@@ -1797,25 +1795,30 @@ bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
   //Data Track
   //When disconnected, sends the data to the respective recipients
   //Sending 'connected' event to external server to generate analytics data
-  var updateData = ["Cast Session ended"];
-  constantUpdate("Disconnected", updateData);
-  //Send all the data via ajax to final destination/processing server
-  function encodeURIComponentWithDots(url) {
-    var newUrl = encodeURIComponent(url);
-    newUrl = newUrl.split('.').join('%2E');
-    return newUrl;
-  }
-  if(finalDataServer){
-    if (this.receiverManager_.getSenders().length === 0 && event.reason === cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
-      var keys = Object.keys(this.videoStatsData_);
-      for(var i = 0; i<keys.length; i++){
-        var value = this.videoStatsData_[keys[i]];
-        var encoded = encodeURIComponentWithDots(keys[i]);
-        this.videoStatsData_[encoded] = value;
-        delete this.videoStatsData_[keys[i]];
-      }
-      sendAjaxData(this.videoStatsData_, finalDataServer);
+  try {
+    var updateData = ["Cast Session ended"];
+    constantUpdate("Disconnected", updateData);
+    //Send all the data via ajax to final destination/processing server
+    function encodeURIComponentWithDots(url) {
+      var newUrl = encodeURIComponent(url);
+      newUrl = newUrl.split('.').join('%2E');
+      return newUrl;
     }
+    if(finalDataServer){
+      if (this.receiverManager_.getSenders().length === 0 && event.reason === cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+        var keys = Object.keys(this.videoStatsData_);
+        for(var i = 0; i<keys.length; i++){
+          var value = this.videoStatsData_[keys[i]];
+          var encoded = encodeURIComponentWithDots(keys[i]);
+          this.videoStatsData_[encoded] = value;
+          delete this.videoStatsData_[keys[i]];
+        }
+        sendAjaxData(this.videoStatsData_, finalDataServer);
+    }
+  }
+    } 
+    catch(err) {
+      console.log('VideoStats data error');
   }
   //this.log_ the disconnect message
   this.log_('onSenderDisconnected');
@@ -1874,33 +1877,38 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
   //Data Track
   /*Check if this video was watched. If not, create an element on the associative
    array that carries its data*/
-  var media = this.mediaManager_.getMediaInformation();
-  if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
-    if(media.metadata != undefined){
-      this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
-    }else{
-      this.videoStatsData_[media.contentId] = {"title": "Untitled", "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
-    }
-    this.timeArray_[media.contentId] = [];
-    this.secondsSeen_[media.contentId] = [];
-    this.secondsPaused_[media.contentId] = [];
-    this.secondsRestart_[media.contentId] = [];
-    this.secondsVolumeChanged_[media.contentId] = [];
-    this.lastMilestone_[media.contentId] = 0;
-    this.listOfVideosWatched_.push(media.contentId);
-  }
+  try {
+      var media = this.mediaManager_.getMediaInformation();
+      if(this.listOfVideosWatched_.indexOf(media.contentId) == -1){
+        if(media.metadata != undefined){
+          this.videoStatsData_[media.contentId] = {"title": media.metadata.title, "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
+        }else{
+          this.videoStatsData_[media.contentId] = {"title": "Untitled", "duration": this.mediaElement_.duration, "secondsSeen": [], "secondsPaused": [], "secondsRestart": [], "secondsVolumeChanged": [], "Views": 0};
+        }
+        this.timeArray_[media.contentId] = [];
+        this.secondsSeen_[media.contentId] = [];
+        this.secondsPaused_[media.contentId] = [];
+        this.secondsRestart_[media.contentId] = [];
+        this.secondsVolumeChanged_[media.contentId] = [];
+        this.lastMilestone_[media.contentId] = 0;
+        this.listOfVideosWatched_.push(media.contentId);
+      }
 
-  //Adds a restart event timestamp for the current video
-  this.log_('onPlaying');
-  var restartSecondInt = parseInt(this.mediaElement_.currentTime);
-  this.addSecond(this.secondsRestart_[media.contentId], restartSecondInt)
-  this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
-  
-  //Sending restart/start event to external server to generate analytics data
-  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  constantUpdate("Start/Restart", updateData);
+      //Adds a restart event timestamp for the current video
+      var restartSecondInt = parseInt(this.mediaElement_.currentTime);
+      this.addSecond(this.secondsRestart_[media.contentId], restartSecondInt)
+      this.videoStatsData_[media.contentId]["secondsRestart"] = this.secondsRestart_[media.contentId];
+      
+      //Sending restart/start event to external server to generate analytics data
+      var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+      constantUpdate("Start/Restart", updateData);
+    } 
+    catch(err) {
+      console.log('Playing data error');
+  }
   
   //Finally call the playing state functions
+  this.log_('onPlaying');
   this.cancelDeferredPlay_('media is already playing');
   var isAudio = this.type_ == bcplayer.Type.AUDIO;
   var isLoading = this.state_ == bcplayer.State.LOADING;
@@ -1917,19 +1925,24 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
  * @private
  */
 bcplayer.CastPlayer.prototype.onPause_ = function() {
-  this.log_('onPause');
   //Data Track
   //Adds a restart event timestamp for the current video
-  var media = this.mediaManager_.getMediaInformation();
-  var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
-  this.addSecond(this.secondsPaused_[media.contentId], pauseSecondInt);
-  this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
+  try {
+      var media = this.mediaManager_.getMediaInformation();
+      var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
+      this.addSecond(this.secondsPaused_[media.contentId], pauseSecondInt);
+      this.videoStatsData_[media.contentId]["secondsPaused"] = this.secondsPaused_[media.contentId];
+      
+      //Sending paused event to external server to generate analytics data
+      var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+      constantUpdate("Paused", updateData);
+    } 
+    catch(err) {
+      console.log('Pause data error');
+  }
   
-  //Sending paused event to external server to generate analytics data
-  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  constantUpdate("Paused", updateData);
-  
-
+  //Pause functions
+  this.log_('onPause');
   this.cancelDeferredPlay_('media is paused');
   var isIdle = this.state_ === bcplayer.State.IDLE;
   var isDone = this.mediaElement_.currentTime === this.mediaElement_.duration;
@@ -1966,25 +1979,6 @@ bcplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
     this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
     this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
   }
-};
-
-bcplayer.CastPlayer.prototype.onSetVolume_ = function(event) {
-  this.onSetVolumeOrig_(event);
-  //Sending 'volume' event to external server to generate analytics data
- /* var media = this.mediaManager_.getMediaInformation();
-  if(media){
-    var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  } else{
-    var updateData = [this.title_, this.mediaElement_.currentTime];
-  }
-  constantUpdate("VolumeChanged", updateData);
-
-  //Adds a 'volume' event timestamp for the current video
-  var pauseSecondInt = parseInt(this.mediaElement_.currentTime);
-  if(media){
-    this.addSecond(this.secondsVolumeChanged_[media.contentId], pauseSecondInt);
-    this.videoStatsData_[media.contentId]["secondsVolumeChanged"] = this.secondsVolumeChanged_[media.contentId];
-  }*/
 };
 
 /**
@@ -2036,16 +2030,21 @@ bcplayer.CastPlayer.prototype.onStop_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onEnded_ = function() {
   //test functions
-  if(this.currentQueueItemId_ && this.currentQueue_){
-    var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
-    this.currentQueueItemId_ = this.currentQueue_[index + 1];
+  try {
+      if(this.currentQueueItemId_ && this.currentQueue_){
+        var index = this.currentQueue_.indexOf(this.currentQueueItemId_);
+        this.currentQueueItemId_ = this.currentQueue_[index + 1];
+      }
+
+      var media = this.mediaManager_.getMediaInformation();
+      var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
+      constantUpdate("Ended", updateData);
+    } 
+    catch(err) {
+      console.log('Ended data error');
   }
 
-  this.mediaElement_.pause();
   this.log_('onEnded');
-  var media = this.mediaManager_.getMediaInformation();
-  var updateData = [media.contentId, this.title_, this.mediaElement_.currentTime];
-  constantUpdate("Ended", updateData);
   this.setState_(bcplayer.State.IDLE, true);
   this.hidePreviewMode_();
 };
@@ -2057,7 +2056,6 @@ bcplayer.CastPlayer.prototype.onEnded_ = function() {
  * @private
  */
 bcplayer.CastPlayer.prototype.onAbort_ = function() {
-  this.mediaElement_.pause();
   this.log_('onAbort');
   this.setState_(bcplayer.State.IDLE, true);
   this.hidePreviewMode_();
@@ -2098,32 +2096,35 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
       $('.controls-progress-thumb').css("left", String(pct) + "%");
       
       //Data Track
-      constantUpdate("Time", [pct]);
-      var pctInt = parseInt(pct);
-      var curTimeInt = parseInt(curTime);
-      
-      //Adds a "seen" event timestamp for the current video
-      var media = this.mediaManager_.getMediaInformation();
-      this.timeArray_[media.contentId] = this.getArrayOfIntervals_(this.timeInterval_, this.mediaElement_.duration);
-      //Division by time of the video watched    
-        if(this.timeArray_[media.contentId].indexOf(curTimeInt)>-1){
+      try {
+          constantUpdate("Time", [pct]);
+          var pctInt = parseInt(pct);
+          var curTimeInt = parseInt(curTime);
+          
+          //Adds a "seen" event timestamp for the current video
+          var media = this.mediaManager_.getMediaInformation();
+          this.timeArray_[media.contentId] = this.getArrayOfIntervals_(this.timeInterval_, this.mediaElement_.duration);
+          //Division by time of the video watched    
+          if(this.timeArray_[media.contentId].indexOf(curTimeInt)>-1){
             var index = this.timeArray_[media.contentId].indexOf(curTimeInt);
             this.lastSecond_ = this.timeArray_[media.contentId][index];
             this.addSecond(this.secondsSeen_[media.contentId], this.lastSecond_);
             this.videoStatsData_[media.contentId]["secondsSeen"] = this.secondsSeen_[media.contentId];
             this.timeArray_[media.contentId].splice(index, 1);
-        }
+          }
       
-      //Sending milestone to external server to generate analytics data
-      var check = this.checkMilestone(this.secondsSeen_[media.contentId], this.mediaElement_.duration, this.lastMilestone_[media.contentId]);
-      if(this.lastMilestone_[media.contentId] != check){
-        this.lastMilestone_[media.contentId] = check;
-        //send the message
-        var updateData = [media.contentId, this.title_, this.lastMilestone_[media.contentId]];
-        constantUpdate("Milestone", updateData);
-
+          //Sending milestone to external server to generate analytics data
+          var check = this.checkMilestone(this.secondsSeen_[media.contentId], this.mediaElement_.duration, this.lastMilestone_[media.contentId]);
+          if(this.lastMilestone_[media.contentId] != check){
+            this.lastMilestone_[media.contentId] = check;
+            //send the message
+            var updateData = [media.contentId, this.title_, this.lastMilestone_[media.contentId]];
+            constantUpdate("Milestone", updateData);
+          }
+      } 
+        catch(err) {
+          console.log('Update progress data error');
       }
-      
       
       //Change the title with the percentage watched
       var titleElement = this.element_.querySelector('.media-title');
@@ -2135,21 +2136,6 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
       }
       bcplayer.setInnerText_(titleElement, title);
       
-      //Handle next video if on a queue
-      function nextVideoPlayPause(item){
-        if(!item.hasAlreadyPaused){
-          item.mediaElement_.pause();
-          $('.preview-mode-info').fadeTo(2000, 1);
-        } else if(!(item.state === bcplayer.State.PLAYING)){
-          setTimeout(function(){
-            if(!(item.state === bcplayer.State.PLAYING)){
-              item.mediaElement_.play();
-              $('.preview-mode-info').fadeTo(2000, 0);
-            }
-          }, 9000)
-        }
-      }
-
       // Handle preview mode
       if (this.displayPreviewMode_) {
         var timeLeft = totalTime-curTime;

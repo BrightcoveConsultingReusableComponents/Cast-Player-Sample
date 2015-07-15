@@ -273,7 +273,7 @@ function lastMilestoneAchieved(database, contentId){
       data[i] = {"letter": String(25*(i)) + "% Milestone", "frequency": frequency};
     }
     data[4] =  {"letter": "+90% Milestone", "frequency": info[4]/getSum(info)};
-    
+    console.log(data);
     //mapping x,y with the data values
     x.domain(data.map(function(d) { return d.letter; }));
     y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
@@ -308,6 +308,105 @@ function lastMilestoneAchieved(database, contentId){
 }
 
 function otherEvents(database, contentId){
+  database.on("value", function(snapshot) {
+         //remove previous SVG element
+    d3.select("#svgGraph").remove();
+    var margin = {top: 20, right: 20, bottom: 30, left: 40};
+    var width = 850,
+    height = 400;
+  
+    //Create x, y and color scales and axis
+    var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+    .range([height, 0]);
+
+    var color = d3.scale.linear()
+    .domain([-1, 2])
+    .range(["yellow", "steelblue"]);
+
+    var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10, "%");
+
+    //Append the new svg
+    var svg = d3.select("#graphs").append("svg")
+    .attr("id", "svgGraph")
+    .attr("width", width)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Plot functions - Getting data
+    var info = snapshot.val();
+    //Change the title string
+    var name = info[contentId].title;
+    var views = info[contentId].Views;
+    var duration = info[contentId].duration;
+    $(".container h4").html('<mark>Name:</mark> '+name+' <mark>Views:</mark> '+views+' <mark>Duration:</mark> '+parseInt(duration))+'sec';
+
+    function getPercentage(array, views){
+      var total = 0;
+      for(var i=0; i<array.length; i++){
+        total = total + array[i];
+      }
+      if(views>0){
+        return (total/views);
+      } else{
+        return 0;
+      }
+    }
+
+    var data = [];
+    
+    //retrieves data
+    var dataPause = decompressToDecArray(info[contentId].secondsPaused);
+    var dataRestart = decompressToDecArray(info[contentId].secondsRestart);
+    var dataVolumeChanges = decompressToDecArray(info[contentId].secondsVolumeChanged);
+
+
+    data[0] =  {"letter": "Plays per view", "frequency": getPercentage(dataRestart, views)};
+    data[1] =  {"letter": "Pauses per view", "frequency": getPercentage(dataPause, views)};
+    data[2] =  {"letter": "Volume changes per view", "frequency": getPercentage(dataVolumeChanges, views)};
+    
+    //mapping x,y with the data values
+    x.domain(data.map(function(d) { return d.letter; }));
+    y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+    //group append to call axis
+    svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end");
+    
+    //Makes the bars
+    svg.selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.letter); })
+    .attr("width", x.rangeBand())
+    .attr("y", function(d) { return y(d.frequency); })
+    .attr("height", function(d) { return height - y(d.frequency); })
+    .style("fill", function(d) { return color(d.frequency)});
+  });
+}
+function otherEventsTwo(database, contentId){
   database.on("value", function(snapshot) {
   // Desired dimensions and margin.
     var m = [80, 80, 80, 80]; // margins

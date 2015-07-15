@@ -6,8 +6,10 @@ $(document).ready(function(){
   //function to trigger a svg plot
   function triggerPlot(contentId){
     tab = String($( ".active a" ).attr('id')); 
-    if(tab == "tab4"){
-      otherEvents(database, contentId); 
+    if(tab == "tab5"){
+      otherEventsTwo(database, contentId); 
+    } else if(tab == "tab4"){
+      otherEvents(database, contentId);
     } else if(tab == "tab3"){
       lastMilestoneAchieved(database, contentId);
     } else if(tab == "tab2"){
@@ -91,6 +93,9 @@ $(document).ready(function(){
 });
  $("#tab4").on("click", function(){
   otherEvents(database, contentId); 
+});
+  $("#tab5").on("click", function(){
+  otherEventsTwo(database, contentId); 
 });
 
 

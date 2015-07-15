@@ -14,7 +14,7 @@ ConstantUpdateServer is the server that will constantly get the information prov
 FinalDataServer is the server the will get the final analytics status after the cast session is over 
 */
 
-var constantUpdateServer = null;
+var constantUpdateServer = "http://10.1.49.38:1337";
 var finalDataServer = "http://10.1.49.38:9999";
 
 /**
@@ -49,11 +49,15 @@ function sendAjaxData(dataContent, urlString) {
  */
 function constantUpdate(EventString, data){
   //Sending paused event to external server to generate analytics data
-  var sendingUpdateMessage = {};
-  sendingUpdateMessage[EventString] = data;
-  console.log(data);
-  if(constantUpdateServer){
-      sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+  try {
+      var sendingUpdateMessage = {};
+      sendingUpdateMessage[EventString] = data;
+      if(constantUpdateServer){
+          sendAjaxData(sendingUpdateMessage, constantUpdateServer);
+      }
+    } 
+    catch(err) {
+      console.log('Constant update error');
   }
 
 };
@@ -154,7 +158,6 @@ function licenseMessage(self, type, value){
   /*If the message is related to license or credentials, we deal with it separately
 
   The license URL is added here. If some message specify some kind of credentials we add it here too*/
-  console.log("HEEEEY");
   //Add license URL
   if (type === 'license') {
     self.licenseUrl_ = value;
@@ -199,14 +202,19 @@ function licenseMessage(self, type, value){
  */
 
 function checkLicense(self, host, url){
-  //run license url
-  if(self.licenseUrl_){
-        host.licenseUrl = self.licenseUrl_;
-        constantUpdate("License", ["Yes"]);
-        console.log('License URL was set');
+  try {
+    //run license url
+    if(self.licenseUrl_){
+          host.licenseUrl = self.licenseUrl_;
+          constantUpdate("License", ["Yes"]);
+          console.log('License URL was set');
+    }
+    //check the credentials
+    checkCredentials(self, host, url);
+  } 
+  catch(err) {
+      console.log('License Check Error');
   }
-  //check the credentials
-  checkCredentials(self, host, url);
   
   //If credentials were set, we add the respective content to guarantee they will be used
   function checkCredentials(self, mediaHost, url){

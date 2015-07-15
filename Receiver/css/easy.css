@@ -1,25 +1,35 @@
 /*body background color*/
 body {
- 	/*background-color: black;*/
+ 	/*background-color: white;*/
 }
 
 /*progress bar color*/
 .player .progressBar {
-	background-color: green;
+	/*background-color: green;*/
 }
 
 /*background image url cover*/
 .player .background {
 	background-image: url("assets/bcback.png");
+	/*background-image: url("assets/hulubig.png");*/
+	/*background-image: url("assets/hulu.png");*/
 }
 
 /*logo image url*/
 .player .logo {
-	/*background-image: url("assets/chromecast-logo.png");*/
+	/*background-image: url("assets/hulu.jpg");*/
 }
 
 .player .watermark {
 	/*background-image: url("assets/chromecast-logo.png");*/
+}
+
+.player .media-info .media-title {
+  /*color: black;*/
+}
+
+.player .media-info .media-subtitle {
+  /*color: black;*/
 }
 
 .player .media-artwork {
