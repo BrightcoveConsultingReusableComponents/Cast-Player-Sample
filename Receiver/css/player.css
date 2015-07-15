@@ -267,6 +267,7 @@ body {
 
 #hide {
   display: none;
+  opacity: 0;
 }
 .player .controls-progress {
   background-color: rgba(255, 255, 255, 0.3);
@@ -739,8 +740,10 @@ body {
 }
 
 .player[type="video"][state="playing"] .controls-play-pause {
-  background-image: url("assets/buffering.png");
-  -webkit-animation: spin 1s infinite linear;
+  background-image: url("assets/playing.png");
+  width: 2.7%;
+  height: 60%;
+  margin-top: 0.65%;
 }
 
 .player[type="video"][state="playing"]:not(.seeking) .controls-play-pause {

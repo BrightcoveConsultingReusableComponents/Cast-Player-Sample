@@ -123,22 +123,23 @@ function dealWithMessage(self, type, value){
 	  $('#hide .controls-cur-time').css("visibility", "visible");
 	  $('#hide .controls-total-time').css("display", "block");
 	  $('#hide .controls-total-time').css("visibility", "visible");
-	  $('#hide').fadeTo(4000, 0);
+	  $('#hide').fadeTo(2000, 1);
 	  setTimeout(function() {
-	      $('#hide').css("display", "none");
-	      $('#hide').css("visibility", "hidden");
-	      $('#hide .controls-play-pause').css("display", "none");
-	      $('#hide .controls-play-pause').css("visibility", "hidden");
-	      $('#hide .controls-cur-time').css("display", "none");
-	      $('#hide .controls-cur-time').css("visibility", "hidden");
-	      $('#hide .controls-total-time').css("display", "none");
-	      $('#hide .controls-total-time').css("visibility", "hidden");
-	      $('#hide').fadeTo(100, 1);
-	   }, 4000);
+	      $('#hide').fadeTo(1500, 0);
+	   }, 3000);
+    setTimeout(function(){
+        $('#hide').css("display", "none");
+        $('#hide').css("visibility", "hidden");
+        $('#hide .controls-play-pause').css("display", "none");
+        $('#hide .controls-play-pause').css("visibility", "hidden");
+        $('#hide .controls-cur-time').css("display", "none");
+        $('#hide .controls-cur-time').css("visibility", "hidden");
+        $('#hide .controls-total-time').css("display", "none");
+        $('#hide .controls-total-time').css("visibility", "hidden");
+    }, 4500);
 	}
 	}
 };
-
 
 /*
  * LICENSE
