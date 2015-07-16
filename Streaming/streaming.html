@@ -91,7 +91,7 @@
   .bar:hover {
     fill: blue;
   }
-  
+
   </style>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -224,73 +224,59 @@
       newTime : "0%"
     });
 
-    var dataDebug = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Debug');
-    var dataMilestone = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Milestone');
-    var dataPaused = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Paused');
-    var dataStart = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/Start');
-    var dataVolumeChanged = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/VolumeChanged');
-    var dataBitRates = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/bitRates');
-    var dataCurrentDuration = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/currentDuration');
-    var dataCurrentId = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/currentId');
-    var dataCurrentTitle = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/currentTitle');
-    var dataIsLicenseSet = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/isLicenseSet');
-    var dataNewState = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/newState');
-    var dataNewTime = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/newTime');
-
     var started = false;
 
-    dataDebug.on("value", function(snapshot) {
+    data.child('Debug').on("value", function(snapshot) {
       var debugData = snapshot.val();
       $('#textlog').val($('#textlog').val() + debugData+"\n");
     });
-    dataMilestone.on("value", function(snapshot) {
+    data.child('Milestone').on("value", function(snapshot) {
       $("#milestone").html(snapshot.val());
       changeColor('#milestone');
     });
-    dataStart.on("value", function(snapshot) {
+    data.child('Start').on("value", function(snapshot) {
       $('#p1').css('background-color', '#E7E75C');
       $('#pct').css('background-color', '#E7E75C');
       $("#Start").html(snapshot.val());
       changeColor('#Start');
     });
-    dataPaused.on("value", function(snapshot) {
+    data.child('Paused').on("value", function(snapshot) {
       $('#p1').css('background-color', 'rgb(91, 192, 222)');
       $('#pct').css('background-color', '#87CEFA');
       $("#Paused").html(snapshot.val());
       changeColor('#Paused');
     });
-    dataVolumeChanged.on("value", function(snapshot) {
+    data.child('VolumeChanged').on("value", function(snapshot) {
       $("#VolumeChanged").html(snapshot.val());
-      changeColor('#VolumeChanged');
     });
-    dataBitRates.on("value", function(snapshot) {
+    data.child('bitRates').on("value", function(snapshot) {
       $("#bitrates").html(snapshot.val());
       changeColor('#bitrates');
     });
-    dataCurrentDuration.on("value", function(snapshot) {
+    data.child('currentDuration').on("value", function(snapshot) {
       $("#duration").html(snapshot.val());
       changeColor('#duration');
     });
-    dataCurrentId.on("value", function(snapshot) {
+    data.child('currentId').on("value", function(snapshot) {
       $("#currentId").html(snapshot.val());
       changeColor('#currentId');
-      dataPaused.set(0);
-      dataStart.set(0);
-      dataVolumeChanged.set(0);
+      data.child('Paused').set(0);
+      data.child('Start').set(0);
+      data.child('VolumeChanged').set(0);
     });
-    dataCurrentTitle.on("value", function(snapshot) {
+    data.child('currentTitle').on("value", function(snapshot) {
       $("#title").html(snapshot.val());
       changeColor('#title');
     });
-    dataIsLicenseSet.on("value", function(snapshot) {
+    data.child('isLicenseSet').on("value", function(snapshot) {
       $("#license").html(snapshot.val());
       changeColor('#license');
     });
-    dataNewState.on("value", function(snapshot) {
+    data.child('newState').on("value", function(snapshot) {
       $("#state").html(snapshot.val());
       changeColor('#state');
     });
-    dataNewTime.on("value", function(snapshot) {
+    data.child('newTime').on("value", function(snapshot) {
       $('#p1').css("width", snapshot.val());
       $("#pct").html(snapshot.val());
     });
