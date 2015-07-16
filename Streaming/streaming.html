@@ -261,6 +261,7 @@
     });
     dataVolumeChanged.on("value", function(snapshot) {
       $("#VolumeChanged").html(snapshot.val());
+      changeColor('#VolumeChanged');
     });
     dataBitRates.on("value", function(snapshot) {
       $("#bitrates").html(snapshot.val());

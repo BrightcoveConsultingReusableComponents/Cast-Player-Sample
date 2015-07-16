@@ -39,7 +39,11 @@ data.on("value", function(snapshot) {
 //use the allowCrossDomain function and bodyparsing
 app.use(allowCrossDomain);
 app.use(express.static(__dirname));
-app.use(bs());
+//app.use(bodyParser()); is now deprecated
+app.use(bs.json());
+app.use(bs.urlencoded({
+  extended: true
+}));
 
 app.post('/', function(req,res){
         //get and parse data
