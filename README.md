@@ -27,9 +27,9 @@ NODE.js server to implement the application itself and POST requests. Full expla
 The full structure is explained [here](./Receiver/README.md), but a simple and general explanation is given in this file. 
 <b>Streaming</b> <br>
 Contains the JSON-style database with all the information from each video. The full structure is explained [here](./Streaming/README.md)
-<br><br>
+<br>
 <b>Analytics: </b> <br>
-Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md)
+Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md)<br>
 <b>Firebase </b> <br>
 The Firebase data storage is explained [here](./firebase.md).
 
