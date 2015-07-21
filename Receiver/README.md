@@ -16,9 +16,10 @@ Player.html is the html loaded. Player.js coordinates the use of the API. Player
 
 # Player.js
 
-<h7> WARNING: The parts of the code copied here were changed and decreased to fit the spaces properly.</h7><br>
+<h5> WARNING: The parts of the code copied here were changed and decreased to fit the spaces properly.</h5><br>
 <h5> Let's show some interesting examples of how the player.js works and also the messages.js connection. </h5><br>
-<b>First of all, we define the basic properties with Player.js</b>
+<b>First of all, we define the basic properties with Player.js</b> <br>
+
 ```javascript
 'use strict';
 var bcplayer = bcplayer || {};
