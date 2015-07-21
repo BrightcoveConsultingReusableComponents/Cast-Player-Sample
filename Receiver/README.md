@@ -16,9 +16,9 @@ Player.html is the html loaded. Player.js coordinates the use of the API. Player
 
 # Player.js
 
-<h5> WARNING: The parts of the code copied here were changed and decreased to fit the spaces properly.</h5><br>
-<h5> Let's show some interesting examples of how the player.js works and also the messages.js connection. </h5><br>
-<b>First of all, we define the basic properties with Player.js</b> <br>
+ WARNING: The parts of the code copied here were changed and decreased to fit the spaces properly.<br>
+ Let's show some interesting examples of how the player.js works and also the messages.js connection. <br>
+* First of all, we define the basic properties with Player.js <br>
 
 ```javascript
 'use strict';
@@ -27,9 +27,7 @@ bcplayer.CastPlayer = function(element) {
 ...
 ```
 
-The bcplayer is the javascript object that will be used to call all the functions, variables and orient the API process.<br>
-
-<b>Then, the basic variables are determined</b>
+* The bcplayer is the javascript object that will be used to call all the functions, variables and orient the API process. Then, the basic variables are determined. <br>
 ```javascript
   /*
    * The interval set for time divisions
@@ -37,7 +35,7 @@ The bcplayer is the javascript object that will be used to call all the function
    */
   this.timeInterval_ =  1;
 ```
-This one represents the division of interval (seconds) for the data track implemented.
+* This one represents the division of interval (seconds) for the data track implemented.
 ```javascript
 /*
    * The dictionary with the data capture from each video
@@ -53,9 +51,7 @@ This one represents the division of interval (seconds) for the data track implem
   
   this.licenseUrl_ = '';
 ```
-These are <b> important </b> variables for example. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server.
-
-<b>Another fundamental step, setting the media listener events</b>
+* These are <b> important </b> variables for example. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server. Another fundamental step, setting the media listener events.
 ```javascript
 /**
    * The media element.
@@ -86,7 +82,7 @@ These are <b> important </b> variables for example. They define a licenseUrl, us
   this.receiverManager_.onSystemVolumeChanged = this.onSystemVolumeChanged_.bind(this);
   ...
 ```
-<b>Now, it's time to set the actual binding of events with mediaManager. This is basically what makes all the definitions work and the media actually plays.</b>
+* Now, it's time to set the actual binding of events with mediaManager. This is basically what makes all the definitions work and the media actually plays.
 ```javascript
 /**
    * The remote media object.
@@ -102,20 +98,20 @@ These are <b> important </b> variables for example. They define a licenseUrl, us
       this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.mediaManager_.onLoad = this.onLoad_.bind(this);
 ```
-This is the "Playing" event and the function that sends the constant update sending the information that the media started/restarted.
+* This is the "Playing" event and the function that sends the constant update sending the information that the media started/restarted.
 ```javascript
 bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
 sendAjaxData(this.videoStatsData_, finalDataServer);
 ...
 ```
-This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
+* This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
 
 ## messages.js
 
-<b> The messages.js files related to all the things that are externally related to the player. For instance, we get the data and adjust the functions/queue/plays with the main Player.js, but the functions that send the data externally, edit the player visualization with sender information or add the license url to the host.</b> <br>
+* The messages.js files related to all the things that are externally related to the player. For instance, we get the data and adjust the functions/queue/plays with the main Player.js, but the functions that send the data externally, edit the player visualization with sender information or add the license url to the host. <br>
 
 <h5> We can find some examples here </h5>
-<h7> Here are the external server functions</h7>
+ Here are the external server functions
 
 ```javascript
 var constantUpdateServer = '';
