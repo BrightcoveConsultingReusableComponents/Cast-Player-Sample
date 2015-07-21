@@ -24,21 +24,21 @@ allows the full edition of the code regarding Chromecast API to properly load th
 ```
 <h5> Documentation files </h5>
 <b>Server</b> <br>
-NODE.js server to implement the application itself and POST requests. Full explanation is given below in this file.<br>
+* NODE.js server to implement the application itself and POST requests. Full explanation is given below in this file.<br>
 <b>Receiver App</b> <br>
-The full structure is explained [here](./Receiver/README.md), but a simple and general explanation is given in this file. <br>
+* The full structure is explained [here](./Receiver/README.md), but a simple and general explanation is given in this file. <br>
 <b>Streaming</b> <br>
-Contains the JSON-style database with all the information from each video. The full structure is explained [here](./Streaming/README.md).
+* Contains the JSON-style database with all the information from each video. The full structure is explained [here](./Streaming/README.md).
 <br>
 <b>Analytics </b> <br>
-Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md).<br>
+* Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md).<br>
 <b>Firebase </b> <br>
-The Firebase data storage is explained [here](./firebase.md).
+* The Firebase data storage is explained [here](./firebase.md).
 <br>
 <b>Extra </b><br>
-Simple server version without POST requests for analytics/streaming [here](./extra/simple-server.js) <br>
-Sample Sender for DRM testing. Built upon the Google sample, but the functionalities between sender-receiver were changed to meet some other testing criteria and proof-of-concepts<br>
-Sample sender for normal testing. This is the sample from Google for simple testing without any changes.<br>
+* Simple server version without POST requests for analytics/streaming [here](./extra/simple-server.js) <br>
+* Sample Sender for DRM testing. Built upon the Google sample, but the functionalities between sender-receiver were changed to meet some other testing criteria and proof-of-concepts<br>
+* Sample sender for normal testing. This is the sample from Google for simple testing without any changes.<br>
 
 
 # Chromecast - Setup
