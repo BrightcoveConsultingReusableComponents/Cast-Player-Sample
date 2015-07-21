@@ -277,7 +277,7 @@
       changeColor('#license');
     });
     data.child('newState').on("value", function(snapshot) {
-      $("#state").html(snapshot.val());
+      $("#state").html(String(snapshot.val()).toUpperCase());
       changeColor('#state');
     });
     

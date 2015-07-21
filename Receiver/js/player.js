@@ -1845,6 +1845,7 @@ bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
  */
 bcplayer.CastPlayer.prototype.onError_ = function(error) {
   this.log_('onError');
+  this.log_('Player Error: check YOUR-CHROMECAST-IP:9222 for full disclosure');
   var self = this;
   bcplayer.transition_(self.element_, bcplayer.TRANSITION_DURATION_,
       function() {
@@ -1852,7 +1853,6 @@ bcplayer.CastPlayer.prototype.onError_ = function(error) {
         self.onErrorOrig_(error);
       });
 };
-
 
 /**
  * Called when media is buffering. If we were previously playing,
