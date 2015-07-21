@@ -27,9 +27,7 @@ The chosen variables for these parts are:<br>
 * Play <br>
 * Pause <br>
 * Volume Change <br> <br>
-
 * Content ID <br> <br>
-
 * Percentage <br>
 * Title <br>
 * Average Bitrates <br>
