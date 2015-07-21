@@ -22,14 +22,14 @@ allows the full edition of the code regarding Chromecast API to properly load th
 ```
 <h5> Documentation files </h5><br>
 <b>Server</b> <br>
-NODE.js server to implement the application itself and POST requests. Full explanation is given below in this file.<br><br>
+NODE.js server to implement the application itself and POST requests. Full explanation is given below in this file.<br>
 <b>Receiver App</b> <br>
-The full structure is explained [here](./Receiver/README.md), but a simple and general explanation is given in this file. 
+The full structure is explained [here](./Receiver/README.md), but a simple and general explanation is given in this file. <br>
 <b>Streaming</b> <br>
-Contains the JSON-style database with all the information from each video. The full structure is explained [here](./Streaming/README.md)
+Contains the JSON-style database with all the information from each video. The full structure is explained [here](./Streaming/README.md).
 <br>
 <b>Analytics: </b> <br>
-Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md)<br>
+Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md).<br>
 <b>Firebase </b> <br>
 The Firebase data storage is explained [here](./firebase.md).
 
