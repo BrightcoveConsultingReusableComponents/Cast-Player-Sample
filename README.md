@@ -16,8 +16,8 @@ allows the full edition of the code regarding Chromecast API to properly load th
 ------css
 ------js
 ------player.html
--log
-------log.json
+-streaming
+------streaming.html
 -server.js
 ```
 # Chromecast - Setup

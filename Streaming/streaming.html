@@ -53,7 +53,6 @@
 
   .badge{
     background-color: #87CEFA;
-    /*##E7E75C*/
   }
 
   .axis {
@@ -100,8 +99,6 @@
   <title>Debugger</title>
 
   <!-- REFERENCE LINKS-->
-  <!-- D3 -->
-  <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
   <!-- JQuery -->
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
@@ -116,80 +113,77 @@
       </div>
     </div>
 
-  
-<div class="container">
-<div class="alert alert-info" role="alert"> ContentID: <span id="currentId"> </span></div>
-</div>
 
-  <div>
-<input type = "button" id = "goblet-submit" value = "ENTER!" style ="display:none" /><br/>
-</div>
-
-<div class="container">
-  <div class="progress">
-    <div class="progress-bar progress-bar-info" id="p1" role="progressbar" style="width:0%">
+    <div class="container">
+      <div class="alert alert-info" role="alert"> ContentID: <span id="currentId"> </span></div>
     </div>
-  </div>
-</div>
 
-  <div class="debugger">
-    <ul class="list-group">
-      <li class="list-group-item">
-        <span class="badge" id="pct"></span>
-        <i class="glyphicon glyphicon-facetime-video"></i>
-        Percentage
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="title"></span>
-        <i class="glyphicon glyphicon-text-width"></i>
-        Title
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="bitrates">0</span>
-        <i class="glyphicon glyphicon-transfer"></i>
-        Average Bitrates
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="duration">0</span>
-        <i class="glyphicon glyphicon-time"></i>
-        Duration
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="license">YES</span>
-        <i class="glyphicon glyphicon-pencil"></i>
-        License Set?
-      </li>
-    </ul>
-    <ul class="list-group">
-      <li class="list-group-item">
-        <span class="badge" id="state">IDLE</span>
-        <i class="glyphicon glyphicon-flash"></i>
-        Current State
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="Start">0</span>
-        <i class="glyphicon glyphicon-play"></i>
-        Play
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="Paused">0</span>
-        <i class="glyphicon glyphicon-pause"></i>
-        Pause
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="VolumeChanged">0</span>
-        <i class="glyphicon glyphicon-volume-down"></i>
-        Volume Change
-      </li>
-      <li class="list-group-item">
-        <span class="badge" id="milestone">0</span>
-        <i class="glyphicon glyphicon-signal"></i>
-        Last Milestone Achieved
-      </li>
-    </ul>
-  </div>
-  
-  <div id="log">
+
+    <div class="container">
+      <div class="progress">
+        <div class="progress-bar progress-bar-info" id="p1" role="progressbar" style="width:0%">
+        </div>
+      </div>
+    </div>
+
+    <div class="debugger">
+      <ul class="list-group">
+        <li class="list-group-item">
+          <span class="badge" id="pct"></span>
+          <i class="glyphicon glyphicon-facetime-video"></i>
+          Percentage
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="title"></span>
+          <i class="glyphicon glyphicon-text-width"></i>
+          Title
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="bitrates">0</span>
+          <i class="glyphicon glyphicon-transfer"></i>
+          Average Bitrates
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="duration">0</span>
+          <i class="glyphicon glyphicon-time"></i>
+          Duration
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="license">YES</span>
+          <i class="glyphicon glyphicon-pencil"></i>
+          License Set?
+        </li>
+      </ul>
+      <ul class="list-group">
+        <li class="list-group-item">
+          <span class="badge" id="state">IDLE</span>
+          <i class="glyphicon glyphicon-flash"></i>
+          Current State
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="Start">0</span>
+          <i class="glyphicon glyphicon-play"></i>
+          Play
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="Paused">0</span>
+          <i class="glyphicon glyphicon-pause"></i>
+          Pause
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="VolumeChanged">0</span>
+          <i class="glyphicon glyphicon-volume-down"></i>
+          Volume Change
+        </li>
+        <li class="list-group-item">
+          <span class="badge" id="milestone">0</span>
+          <i class="glyphicon glyphicon-signal"></i>
+          Last Milestone Achieved
+        </li>
+      </ul>
+    </div>
+
+    <div id="log">
       <ul class="nav nav-tabs">
         <li class="active"><a href="#tab1" id="tab1" data-toggle="tab">Logs</a></li>
       </ul>
@@ -199,16 +193,17 @@
         <div class="tab-pane" ></div>
         <div class="tab-pane" ></div>
       </div>
-  <textarea id="textlog">
-  </textarea>
-</div>
+      <textarea id="textlog">
+      </textarea>
+    </div>
    
     <!-- End space -->
     <h1>&nbsp;</h1>
     
     <script>
-    //Firebase structure
+    //Call the database (Firebase)
     var data = new Firebase('https://intense-heat-5166.firebaseio.com/streaming/'); 
+    //Set it to the idle state
     data.set ({
       Debug : "",
       Milestone : "0%",
@@ -223,17 +218,24 @@
       newState : "idle",
       newTime : "0%"
     });
-
+    
+    //This variable is only to guarantee that it won't change color on the first time it loads the database
     var started = false;
-
-    data.child('Debug').on("value", function(snapshot) {
-      var debugData = snapshot.val();
-      $('#textlog').val($('#textlog').val() + debugData+"\n");
+    
+    //If the contentId changes, change the ID list item to show the new ID and restart the pause/start/volume settings
+    data.child('currentId').on("value", function(snapshot) {
+      $("#currentId").html(snapshot.val());
+      changeColor('#currentId');
+      data.child('Paused').set(0);
+      data.child('Start').set(0);
+      data.child('VolumeChanged').set(0);
     });
-    data.child('Milestone').on("value", function(snapshot) {
-      $("#milestone").html(snapshot.val());
-      changeColor('#milestone');
+    //Changes the progress bar and the percentage list item
+    data.child('newTime').on("value", function(snapshot) {
+      $('#p1').css("width", snapshot.val());
+      $("#pct").html(snapshot.val());
     });
+    //If the start/volume/pause is called, change the number value and the respective color
     data.child('Start').on("value", function(snapshot) {
       $('#p1').css('background-color', '#E7E75C');
       $('#pct').css('background-color', '#E7E75C');
@@ -249,6 +251,15 @@
     data.child('VolumeChanged').on("value", function(snapshot) {
       $("#VolumeChanged").html(snapshot.val());
     });
+    //Change the string on the respective list item and change temporarily the color when changed
+    data.child('Debug').on("value", function(snapshot) {
+      var debugData = snapshot.val();
+      $('#textlog').val($('#textlog').val() + debugData+"\n");
+    });
+    data.child('Milestone').on("value", function(snapshot) {
+      $("#milestone").html(snapshot.val());
+      changeColor('#milestone');
+    });
     data.child('bitRates').on("value", function(snapshot) {
       $("#bitrates").html(snapshot.val());
       changeColor('#bitrates');
@@ -256,13 +267,6 @@
     data.child('currentDuration').on("value", function(snapshot) {
       $("#duration").html(snapshot.val());
       changeColor('#duration');
-    });
-    data.child('currentId').on("value", function(snapshot) {
-      $("#currentId").html(snapshot.val());
-      changeColor('#currentId');
-      data.child('Paused').set(0);
-      data.child('Start').set(0);
-      data.child('VolumeChanged').set(0);
     });
     data.child('currentTitle').on("value", function(snapshot) {
       $("#title").html(snapshot.val());
@@ -276,17 +280,17 @@
       $("#state").html(snapshot.val());
       changeColor('#state');
     });
-    data.child('newTime').on("value", function(snapshot) {
-      $('#p1').css("width", snapshot.val());
-      $("#pct").html(snapshot.val());
-    });
     
+    //the started variable is now true after the first load
     var started = true;
 
     function changeColor(element){
+      //Check if it is the first time the database was loaded or if it changed with time
       if(started){
         var element = element;
+        //Change element color
         $(element).css('background-color', '#E7E75C');
+        //Change back to blue after 7 seconds
         setTimeout(function(){
           $(element).css('background-color', '#87CEFA');
         }, 7000);

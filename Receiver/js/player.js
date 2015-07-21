@@ -470,7 +470,7 @@ bcplayer.CastPlayer = function(element) {
 
 };
 
-/*Constructor Ended. The states and related definitions start. */ 
+//Constructor Ended. The states and related definitions start. 
 
 /**
  * The amount of time in a given state before the player goes idle.
@@ -589,13 +589,13 @@ bcplayer.DISABLE_DEBUG_ = false;
 
 /**
  * All functions
- *************************
+ ***************
  */
 
 
 /*
  * First, the Data Track auxiliar functions
- ***************************************************
+ ******************************************
  */
 
 
@@ -749,7 +749,7 @@ bcplayer.CastPlayer.prototype.changeColorPattern = function(rgb){
 }
 
 /**
- * Shows the playlist bar
+ * Shows the playlist bar when called
  *
  * @param none
  * @return void
@@ -757,21 +757,24 @@ bcplayer.CastPlayer.prototype.changeColorPattern = function(rgb){
  */
 
 bcplayer.CastPlayer.prototype.showPlaylist_ = function(item, message){
-
+  
+  //Boolean variables to check if the player is able to show the playlist animation
   var timeLeft = parseInt(this.mediaElement_.duration) - parseInt(this.mediaElement_.currentTime);
   var isPlaying = this.state_ === bcplayer.State.PLAYING;
   var enoughTimeLeft = timeLeft>9;
   var notDisplayingPreview = $('.preview-mode-info').css('display') == 'none';
-
+  
+  //Check boolean variables
   if(isPlaying && enoughTimeLeft && notDisplayingPreview){
     
-
+    //gets metadata
     var media = this.playlist_[item].media;
     var metadata = media.metadata || {};
     var imgUrl = bcplayer.getMediaImageUrl_(media);
     var title = media.metadata.title || '';
     var subtitle = media.metadata.subtitle || '';
-
+    
+    //Start the 'show playlist' process
     if (imgUrl) {
       var artworkElement = this.element_.querySelector('.preview-mode-artwork');
       bcplayer.setBackgroundImage_(artworkElement, imgUrl);
@@ -789,6 +792,7 @@ bcplayer.CastPlayer.prototype.showPlaylist_ = function(item, message){
     $('.preview-mode-info').css('display', 'flex');
     $('.preview-mode-info').fadeTo(2000, 1);
     $('.preview-mode-info').css('visibility', 'visible');
+    //Fade out after some seconds
     setTimeout(function(){
       $('.preview-mode-info').fadeTo(1500, 0);
       $('.player .gradient-to-bottom').fadeTo(1500, 0);
@@ -814,7 +818,7 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
   //Set color pattern
   var color = $('.progressBar').css('background-color');
   this.changeColorPattern(color);
-  //Send constants update
+  //Get data from the player and send update
   var media = this.mediaManager_.getMediaInformation();
   var tempId = media.contentId;
   var tempDuration = media.duration;
@@ -840,6 +844,7 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
     var streamVideoBitrates;
     var videoStreamIndex;
     
+    //parse through all the stream divisions data
     for (var c = 0; c < streamCount; c++) {
       streamInfo = protocol.getStreamInfo(c);
       if (streamInfo.mimeType === 'text') {
@@ -859,13 +864,14 @@ bcplayer.CastPlayer.prototype.onLoadedData_ = function(){
       else {
       }
     }
-
+    
+    //Get and send captions data
     if (Object.keys(captions).length > 0) {
       var caption_message = {};
       caption_message['captions'] = captions;
       constantUpdate("Captions", caption_message);
     }
-
+    //Get and send bitrates division data
     if (streamVideoBitrates && Object.keys(streamVideoBitrates).length > 0) {
       var video_bitrates_message = {};
       video_bitrates_message['video_bitrates'] = streamVideoBitrates;
@@ -1162,6 +1168,7 @@ bcplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
   if (!bcplayer.isCastForAudioDevice_()) {
     var metadata = media.metadata || {};
     var titleElement = this.element_.querySelector('.media-title');
+    //set media title if defined
     if(metadata != undefined){
       this.title_ = metadata.title;
     }else{
@@ -1170,6 +1177,7 @@ bcplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
     bcplayer.setInnerText_(titleElement, this.title_);
 
     var subtitleElement = this.element_.querySelector('.media-subtitle');
+    //If there is a queue, show the item position in the queue as subtitle
     if(this.currentQueue_ && this.currentQueue_.length>1){
       var queueInfo = "Queue item " +(this.currentQueue_.indexOf(this.currentQueueItemId_)+1)+ " of "+this.currentQueue_.length;
       var subtitle = queueInfo;
@@ -1177,7 +1185,7 @@ bcplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
     } else{
       bcplayer.setInnerText_(subtitleElement, metadata.subtitle);
     }
-
+    //show artwork if defined
     var artwork = bcplayer.getMediaImageUrl_(media);
     if (artwork) {
       var artworkElement = this.element_.querySelector('.media-artwork');
@@ -1280,7 +1288,7 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
     var loadErrorCallback = function(errorCode) {
       console.log("DEBUGGER: Fatal Error - " + errorCode);
 
-      //Change the screen message, when there is an invalid URL license
+      //Change the screen to a DRM failed message: 'This streaming is invalid', when there is an invalid URL license
       function setDRMmessage(){
         try {
           $('.background').css('opacity', 0);
@@ -1297,7 +1305,7 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         }
       };
 
-      // unload player and trigger error event on media element
+      //unload player and trigger error event on media element
       if (self.player_) {
         if(parseInt(errorCode) == 2){
           setDRMmessage();
@@ -1318,13 +1326,7 @@ bcplayer.CastPlayer.prototype.loadVideo_ = function(info) {
         'mediaElement': this.mediaElement_
       });
       //run license check
-      checkLicense(this, host, url)
-
-      /*host.updateSegmentRequestInfo = function(requestInfo) {
-          // example of setting headers
-          requestInfo.headers = {};
-          requestInfo.headers['content-type'] = 'text/xml;charset=utf-8';
-      };*/
+      checkLicense(this, host, url);
 
       host.onError = loadErrorCallback;
 
@@ -1874,7 +1876,7 @@ bcplayer.CastPlayer.prototype.onBuffering_ = function() {
  * @private
  */
 bcplayer.CastPlayer.prototype.onPlaying_ = function() {
-  //Data Track
+  //Data Tracker - Start the data dictionary
   /*Check if this video was watched. If not, create an element on the associative
    array that carries its data*/
   try {
@@ -1893,7 +1895,8 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
         this.lastMilestone_[media.contentId] = 0;
         this.listOfVideosWatched_.push(media.contentId);
       }
-
+      
+      //Get and send data
       //Adds a restart event timestamp for the current video
       var restartSecondInt = parseInt(this.mediaElement_.currentTime);
       this.addSecond(this.secondsRestart_[media.contentId], restartSecondInt)
@@ -1925,7 +1928,7 @@ bcplayer.CastPlayer.prototype.onPlaying_ = function() {
  * @private
  */
 bcplayer.CastPlayer.prototype.onPause_ = function() {
-  //Data Track
+  //Start data tracker for pause event
   //Adds a restart event timestamp for the current video
   try {
       var media = this.mediaManager_.getMediaInformation();
@@ -1964,6 +1967,7 @@ bcplayer.CastPlayer.prototype.onPause_ = function() {
  */
 
 bcplayer.CastPlayer.prototype.onSystemVolumeChanged_ = function(event) {
+  //Start data tracker for volume changed event
   //Sending 'volume' event to external server to generate analytics data
   var media = this.mediaManager_.getMediaInformation();
   if(media){
@@ -2095,7 +2099,7 @@ bcplayer.CastPlayer.prototype.updateProgress_ = function() {
       $('.controls-progress-inner').css("width", String(pct) + "%");
       $('.controls-progress-thumb').css("left", String(pct) + "%");
       
-      //Data Track
+      //Keep the data tracker information for time values
       try {
           constantUpdate("Time", [pct]);
           var pctInt = parseInt(pct);

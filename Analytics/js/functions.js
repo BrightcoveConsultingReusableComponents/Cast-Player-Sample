@@ -1,3 +1,4 @@
+//Auxiliar functions to the following plot possibilities
 function normalizeArray(array){
   var normal = [];
   var max = Math.max.apply(null, array);
@@ -33,6 +34,7 @@ function decompressToDecArray(hexString){
    }
 }
 
+//Plot the graph related to the most watched parts
 function partsWatched(database, contentId){
   database.on("value", function(snapshot) {
   // Desired dimensions and margin.
@@ -114,6 +116,7 @@ function partsWatched(database, contentId){
   });
 }
 
+//Plot the graph related to the views of the video
 function viewStatistics(database, contentId, year) {
 
   database.on("value", function(snapshot) {
@@ -211,6 +214,7 @@ function viewStatistics(database, contentId, year) {
   });
 }
 
+//Plot the graph related to the average milestones achieved
 function lastMilestoneAchieved(database, contentId){
 
   database.on("value", function(snapshot) {
@@ -307,6 +311,7 @@ function lastMilestoneAchieved(database, contentId){
   });
 }
 
+//Plot the graph related to play/pause/volume changes on the video
 function otherEvents(database, contentId){
   database.on("value", function(snapshot) {
          //remove previous SVG element
