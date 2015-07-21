@@ -19,6 +19,8 @@ allows the full edition of the code regarding Chromecast API to properly load th
 -streaming
 ------streaming.html
 -server.js
+-README.MD
+-firebase.MD
 ```
 <h5> Documentation files </h5>
 <b>Server</b> <br>
