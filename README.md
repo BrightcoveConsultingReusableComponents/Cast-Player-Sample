@@ -30,10 +30,16 @@ The full structure is explained [here](./Receiver/README.md), but a simple and g
 <b>Streaming</b> <br>
 Contains the JSON-style database with all the information from each video. The full structure is explained [here](./Streaming/README.md).
 <br>
-<b>Analytics: </b> <br>
+<b>Analytics </b> <br>
 Contains a sample web implementation of statistical visualization for each seen video. The full structure is explained [here](./Analytics/README.md).<br>
 <b>Firebase </b> <br>
 The Firebase data storage is explained [here](./firebase.md).
+<br>
+<b>Extra </b><br>
+Simple server version without POST requests for analytics/streaming [here](./extra/simple-server.js) <br>
+Sample Sender for DRM testing. Built upon the Google sample, but the functionalities between sender-receiver were changed to meet some other testing criteria and proof-of-concepts<br>
+Sample sender for normal testing. This is the sample from Google for simple testing without any changes.<br>
+
 
 # Chromecast - Setup
 
@@ -48,8 +54,10 @@ The Firebase data storage is explained [here](./firebase.md).
 
 # Server setup and the Chromecast Debugger
 First of all, it's necessary to set the server to start running the project, based on another googlecast project: custom-receiver. <br>
-It is a simple node.js server. It has implemented a simple CORS application that allows the information to be sent Cross-Domain. <br>
-Extra parts -> Analytics and Steaming: The server also has a POST request definition, used for saving data used by the Analytics/Streaming part. Therefore, it's necessary to also install some modules other than just express. It was constructed to simulate a possible use for the information sent by the Cast Player after a session.<br>
+It is a express-node.js server. It has implemented a CORS application that allows the information to be sent Cross-Domain. <br>
+Extra parts -> Analytics and Streaming: The server also has a POST request definition, used for saving data used by the Analytics/Streaming part. Therefore, it's necessary to also install some modules other than just express. It was constructed to simulate a possible use for the information sent by the Cast Player after a session.<br>
+
+<h5>If there is no interest in the Streaming Analytics Part, there is a simple server version [here](./extra/simple-server.js).</h5><br>
 
 - Install Node.js (https://nodejs.org/)
 - Clone this project with github
@@ -61,7 +69,7 @@ Extra parts -> Analytics and Steaming: The server also has a POST request defini
 - $node server.js
 ```
 
-<h5>About the server</h5> The server uses the express framework to provide a simple node.js server. It implements Cross-origin resource sharing (CORS), which allows truly open access across domain-boundaries. <br>
+<h5>About the server</h5> The server uses the express framework to provide a  node.js server. It implements Cross-origin resource sharing (CORS), which allows truly open access across domain-boundaries. <br>
 <h5>Debugger</h5>After the server is setup and the application is registered, it's possible to use the chromecast debugger. Start a sender device that directs to your new application ID, connect to chromecast. Then, open your browser and try &lt;IP of your Chromecast>:9222 . It will display a web page and if you click in the provided link, you will be redirected to the console page. The console page might be blank, so it's necessary to click in the upper-right shield near the link of the page and select "load unsafe scripts" to see the debug messages. Also, it might be necessary to type the command:
 ```
 cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG).
