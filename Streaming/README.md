@@ -22,12 +22,12 @@ data.set ({
 });
 ```
 
-The chosen variables for these parts are:<br>
+The chosen variables for these parts are:
 
 * Play <br>
 * Pause <br>
-* Volume Change <br> <br>
-* Content ID <br> <br>
+* Volume Change <br> 
+* Content ID <br> 
 * Percentage <br>
 * Title <br>
 * Average Bitrates <br>
