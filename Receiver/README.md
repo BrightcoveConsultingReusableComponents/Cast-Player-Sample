@@ -1,5 +1,5 @@
 # Custom Receiver Application - Player.html and Intro
-As explained in the main folder README, the idea of the custom receiver is to allow easy ways to edit, store information and display other kind of content such as DRM-based ones. The chromecast device loads a simple html file (that must be simple, otherwise it would cause efficiency problems). This html file uses Javascript and CSS to provide the media structure and style, using the cast API.
+As explained in the main folder README, the idea of the custom receiver is to allow easy ways to edit, store information and display other kind of content such as DRM-based ones. The chromecast device loads a simple html file (that must be simple, otherwise it would cause efficiency problems). This html file uses Javascript and CSS to provide the media management and style, using the chromecast API.
 # Structure
 
 <h5>Directory Tree</h5>
@@ -15,19 +15,18 @@ As explained in the main folder README, the idea of the custom receiver is to al
 Player.html is the html loaded. Player.js coordinates the use of the API. Player.css coordinates the styling, and styles.js makes it easy to change the css if necessary without the need to go to the actual player.js code. Assets folder contains the images loaded.
 
 # Player.js
-<h5> WARNING: The parts of the code copied were changed and decreased to fit the spaces properly.</h5>
+
+<h7> WARNING: The parts of the code copied here were changed and decreased to fit the spaces properly.</h7><br>
+<h5> Let's show some interesting examples of how the player.js works and also the messages.js connection. </h5><br>
 <b>First of all, we define the basic properties with Player.js</b>
 ```javascript
 'use strict';
-var sampleplayer = sampleplayer || {};
-var constantUpdateServer = '';
-var finalDataServer = 'http://10.1.48.225:9999/';
-sampleplayer.CastPlayer = function(element) {
+var bcplayer = bcplayer || {};
+bcplayer.CastPlayer = function(element) {
+...
 ```
 
-The sampleplayer is the javascript object that will be used to call all the functions, variables and orient the API process.<br>
-The constantupdateServer is the server that will have all the events information updated at the same time that they occur<br>
-The finalDataServer (could be the same) is the one that will receive the final information from each Cast Session<br><br>
+The bcplayer is the javascript object that will be used to call all the functions, variables and orient the API process.<br>
 
 <b>Then, the basic variables are determined</b>
 ```javascript
@@ -53,7 +52,7 @@ This one represents the division of interval (seconds) for the data track implem
   
   this.licenseUrl_ = '';
 ```
-These are <b> important </b> variables. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server.
+These are <b> important </b> variables for example. They define a licenseUrl, used for streaming services with DRM for example, and the main variable videoStatsData that collects information from each cast session for each contentId and send it to an external server.
 
 <b>Another fundamental step, setting the media listener events</b>
 ```javascript
@@ -102,10 +101,30 @@ These are <b> important </b> variables. They define a licenseUrl, used for strea
       this.mediaManager_.onLoad.bind(this.mediaManager_);
   this.mediaManager_.onLoad = this.onLoad_.bind(this);
 ```
-<b> The functions that make the last step possible are provided right after. Here some examples of the added functions
-to save data properly</b>
+This is the "Playing" event and the function that sends the constant update sending the information that the media started/restarted.
 ```javascript
-sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString) {
+bcplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
+sendAjaxData(this.videoStatsData_, finalDataServer);
+...
+```
+This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
+
+## messages.js
+
+<b> The messages.js files related to all the things that are externally related to the player. For instance, we get the data and adjust the functions/queue/plays with the main Player.js, but the functions that send the data externally, edit the player visualization with sender information or add the license url to the host.</b> <br>
+
+<h5> We can find some examples here </h5>
+<h7> Here are the external server functions</h7>
+
+```javascript
+var constantUpdateServer = '';
+var finalDataServer = 'http://10.1.48.225:9999/';
+```
+The constantupdateServer is the server that will have all the events information updated at the same time that they occur<br>
+The finalDataServer (could be the same) is the one that will receive the final information from each Cast Session<br><br>
+
+```javascript
+function sendAjaxData(dataContent, urlString) {
   var submit = $.ajax({
           url: urlString, 
           type: 'POST', 
@@ -121,38 +140,54 @@ sampleplayer.CastPlayer.prototype.sendAjaxData = function(dataContent, urlString
 }
 ```
 This is the function to make an AJAX call to send data in JSON format.
+
 ```javascript
-sampleplayer.CastPlayer.prototype.onPlaying_ = function() {
-this.constantUpdate_("Start/Restart");
-....
-```
-This is the "Playing" event and the function that sends the constant update sending the information that the media started/restarted.
-```javascript
-sampleplayer.CastPlayer.prototype.onSenderDisconnected_ = function(event) {
-this.sendAjaxData(this.videoStatsData_, finalDataServer);
+else if (type === 'color'){
+       var progressColor = value;
+       changeColor(progressColor);
 ...
 ```
-This is the "Disconnected" event and the function that sends the final data stored to the final server with all the information from the cast session.
+
+Call an auxiliar function (on messages.js) to change the color of the theme
 
 
 # Player.css
 
-The player.css sample was really well designed and thought, but it was important to make some changes to fit the design structure usually used with Brightcove and to fix some bugs and possible problems. Basically, the parts changed were related to the play/pause, progress bar and logo, making a different template for the player itself.
+The player.css is totally defined by state. There is a division between phases. For instance, if a video is loading, there will be a specific styling/design for it. If the video is playing and it's a live video, then the style will change again. All the changes and states provided by the javascript files are translated into visualization changes via the .css states.
 
-An example
+Example:
+
 ```css
-.player .controls-progress {
-  background-color: rgba(255, 255, 255, 0.2);
-  height: 11px;
-  margin-top: 18px;
-  margin-bottom: 9px;
-  width: 80%;
-  margin-left: 10%;
-  overflow: hidden;
-  position: relative;
+.player[type="video"][state="playing"][live="true"] .controls-cur-time,
+.player[type="video"][state="playing"][live="true"] .controls-total-time,
+.player[type="video"][state="playing"][live="true"] .controls-progress {
+  display: none !important;
 }
 ```
 
-The controll progress bar css.
+## easy.css
+
+<h5> The easy.css file is a very simple file to change quick things without the need to edit player.css </h5> <br>
+
+The parts of the project that might be changed by easy.css are:<br>
+
+* Progress bar color
+
+* Background color
+
+* Background image
+
+* Logo image
+
+* Watermark image
+
+* Title text color of the current video on the screen
+
+* Subtitle text color of the current video on the screen
+
+* Filling image if there is no metadata from the sender for the loading/current video
+
+* Filling image if there is no metadata from the sender for the next video in the queue
+
 
 

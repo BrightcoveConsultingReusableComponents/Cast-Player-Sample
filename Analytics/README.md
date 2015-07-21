@@ -36,7 +36,7 @@ Bootstrap was used for the basic styling with css/jquery libraries, so it would 
 -All the bootstrap css files refers to preprocessed bootstrap modules for styling and styles.css is a very simple file that changes some basic elements of that.<br>
 -Fonts refers to some external fonts loaded to make bootstrap possible.<br>
 -The bootstrap.js files refers to the general use of bootstrap as before. <br> 
--<b>Functions.js</b> and <b>Plot.js</b> are the base of all the Analytics parts. There is heavily implemented d3.js and jQuery to make an interactive visualization of the data. The main functions used are d3.json (load json files) and some jQuery tabs logics, along different methods of plotting and organizing information.
+-<b>Functions.js</b> and <b>Plot.js</b> are the base of all the Analytics parts. There is heavily implemented d3.js and jQuery to make an interactive visualization of the data. The main functions used are Firebase data.on functions to get real-time information of the current state of data and some jQuery tabs logics, along different methods of plotting and organizing information.
 
 #Graphs and Analysis
 
@@ -50,9 +50,11 @@ triggerPlot(contentId);
 partsWatched(file, contentId);
 ```
 
-<b>The function starts by setting some size parameters:</b>
+<b>The function loads firebase changes and starts by setting some size parameters:</b>
 ```javascript
 function partsWatched(file, contentId){
+
+  database.on("value", function(snapshot) {
   // Desired dimensions and margin.
   var m = [80, 90, 80, 90]; // margins
   var w = 1000 - m[1] - m[3]; // width
@@ -68,10 +70,9 @@ function partsWatched(file, contentId){
   .append("svg:g")
   .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 ```
-<b>The function loads json files and set x, y values:</b>
+<b>The function sets x, y values:</b>
 ```javascript
-  //gets data from JSON
-  d3.json(file, function(data) {
+    var data = snapshot.val();
     //Change the title string
     var name = data[contentId].title;
     var views = data[contentId].Views;
