@@ -20,7 +20,7 @@ allows the full edition of the code regarding Chromecast API to properly load th
 ------streaming.html
 -server.js
 ```
-<h5> Documentation files </h5><br>
+<h5> Documentation files </h5>
 <b>Server</b> <br>
 NODE.js server to implement the application itself and POST requests. Full explanation is given below in this file.<br>
 <b>Receiver App</b> <br>
