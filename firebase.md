@@ -1,5 +1,5 @@
 # Introduction
-## IMPORTANT: The info from the database was exported to a json file in database.json, so it can be reused on another server.
+## IMPORTANT: The data from the database was exported to a json file in database.json. Now it can be reused from another account.
 ## Reasons to use Firebase
 * JSON storage and real time updates
 * Automatically scales with the app (paid account)
