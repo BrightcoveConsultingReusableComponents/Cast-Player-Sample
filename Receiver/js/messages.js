@@ -14,8 +14,8 @@ ConstantUpdateServer is the server that will constantly get the information prov
 FinalDataServer is the server the will get the final analytics status after the cast session is over 
 */
 
-var constantUpdateServer = "http://10.1.49.29:1337";
-var finalDataServer = "http://10.1.49.29:9999";
+var constantUpdateServer = null;
+var finalDataServer = null;
 
 /**
  * Send data via ajax to a determined server
